@@ -1,6 +1,6 @@
 IP = '127.0.0.1'
-PORT = '8080'
-SERVER_NAME = 'localhost:8080'
+PORT = '8000'
+SERVER_NAME = 'localhost:8000'
 SECRET_KEY = ''
 
 # LDAP config
