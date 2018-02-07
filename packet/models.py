@@ -54,6 +54,7 @@ class UpperSignature(db.Model):
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     member = Column(String(36), nullable=False)
     signed = Column(Boolean, default=False, nullable=False)
+    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
 
 
 class FreshSignature(db.Model):
@@ -61,10 +62,12 @@ class FreshSignature(db.Model):
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     freshman = Column(ForeignKey('freshman.id'), nullable=False)
     signed = Column(Boolean, default=False, nullable=False)
+    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
 
 
 class MiscSignature(db.Model):
     __tablename__ = 'signature_misc'
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     member = Column(String(36), nullable=False)
+    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
 
