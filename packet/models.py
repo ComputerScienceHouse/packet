@@ -27,6 +27,27 @@ class Packet(db.Model):
     info_events = Column(Text, nullable=True)
     info_achieve = Column(Text, nullable=True)
 
+    def signatures_req(self):
+        upper_count = UpperSignature.query.filter(
+                UpperSignature.packet == self.id).count()
+        fresh_count = FreshSignature.query.filter(
+                FreshSignature.packet == self.id).count()
+        all_count = upper_count + fresh_count + 15
+        return all_count
+
+    def signatures_total(self):
+        upper_count = UpperSignature.query.filter(
+                UpperSignature.packet == self.id,
+                UpperSignature.signed == True).count()
+        fresh_count = FreshSignature.query.filter(
+                FreshSignature.packet == self.id,
+                FreshSignature.signed == True).count()
+        misc_count = MiscSignature.query.filter(
+                MiscSignature.packet == self.id).count()
+        sig_count = upper_count + fresh_count + misc_count
+        return sig_count
+
+
 
 class UpperSignature(db.Model):
     __tablename__ = 'signature_upper'

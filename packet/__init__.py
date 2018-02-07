@@ -20,7 +20,9 @@ migrate = Migrate(app, db)
 # Initialize the Restless API manager
 manager = APIManager(app, flask_sqlalchemy_db=db)
 manager.create_api(Freshman, methods=['GET', 'POST', 'DELETE'])
-manager.create_api(Packet, methods=['GET', 'POST', 'PUT', 'DELETE'])
+manager.create_api(Packet,
+        methods=['GET', 'POST', 'PUT', 'DELETE'],
+        include_methods=['signatures_req', 'signatures_total'])
 
 @app.route('/')
 def hello_world():
