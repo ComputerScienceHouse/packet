@@ -44,6 +44,8 @@ class Packet(db.Model):
                 FreshSignature.signed == True).count()
         misc_count = MiscSignature.query.filter(
                 MiscSignature.packet == self.id).count()
+        if misc_count > 15:
+            misc_count = 15
         sig_count = upper_count + fresh_count + misc_count
         return sig_count
 
