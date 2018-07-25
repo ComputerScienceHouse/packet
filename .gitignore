@@ -100,5 +100,8 @@ ENV/
 # mypy
 .mypy_cache/
 
+# JetBrains
+.idea/
+
 # Configurations
 config.py

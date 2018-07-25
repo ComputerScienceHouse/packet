@@ -1,9 +1,11 @@
 import os
+import json
 
-from flask import Flask
+from flask import Flask, session, jsonify
+from flask_pyoidc.flask_pyoidc import OIDCAuthentication
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_restless import APIManager
 
 app = Flask(__name__)
 
@@ -12,18 +14,29 @@ if os.path.exists(os.path.join(os.getcwd(), "config.py")):
 else:
     app.config.from_pyfile(os.path.join(os.getcwd(), "config.env.py"))
 
-# Create the database session and import models.
+auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"],
+                          client_registration_info=app.config["OIDC_CLIENT_CONFIG"])
+
+# Create the database session and import models
 db = SQLAlchemy(app)
 from packet.models import *
+
 migrate = Migrate(app, db)
 
-# Initialize the Restless API manager
-manager = APIManager(app, flask_sqlalchemy_db=db)
-manager.create_api(Freshman, methods=['GET', 'POST', 'DELETE'])
-manager.create_api(Packet,
-        methods=['GET', 'POST', 'PUT', 'DELETE'],
-        include_methods=['signatures_req', 'signatures_total'])
+@app.route("/")
+@auth.oidc_auth
+def index():
+    # This just tests auth for now
+    authInfoJson = json.dumps({"id_token": session["id_token"], "access_token": session["access_token"],
+                               "userinfo": session["userinfo"]}, indent=4)
 
-@app.route('/')
-def hello_world():
-        return 'Hello, World!'
+    return """
+            <h2>CSH auth succeeded. Here's the results:</h2>
+            <pre>{}</pre>
+        """.format(authInfoJson)
+
+@app.route("/api/test")
+@auth.oidc_auth
+def testEndpoint():
+    # This just tests auth and DB access for API calls
+    return jsonify({freshman.id: freshman.name for freshman in Freshman.query.all()})
