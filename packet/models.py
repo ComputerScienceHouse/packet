@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from datetime import datetime, timedelta
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from packet import db
 
 
@@ -38,10 +38,10 @@ class Packet(db.Model):
     def signatures_total(self):
         upper_count = UpperSignature.query.filter(
                 UpperSignature.packet == self.id,
-                UpperSignature.signed == True).count()
+                UpperSignature.signed is True).count()
         fresh_count = FreshSignature.query.filter(
                 FreshSignature.packet == self.id,
-                FreshSignature.signed == True).count()
+                FreshSignature.signed is True).count()
         misc_count = MiscSignature.query.filter(
                 MiscSignature.packet == self.id).count()
         if misc_count > 15:
@@ -72,4 +72,3 @@ class MiscSignature(db.Model):
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     member = Column(String(36), nullable=False)
     updated = Column(DateTime, onupdate=datetime.now, nullable=False)
-
