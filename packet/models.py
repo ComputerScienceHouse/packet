@@ -1,20 +1,22 @@
+"""
+Defines the application's database models.
+"""
+
 from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
-from packet import db
 
+from . import db
 
 def end_date():
     current = datetime.now()
     end = current + timedelta(days=14)
     return end
 
-
 class Freshman(db.Model):
     __tablename__ = 'freshman'
     id = Column(Integer, primary_key=True)
     name = Column(String(64), nullable=False)
     onfloor = Column(Boolean, nullable=False)
-
 
 class Packet(db.Model):
     __tablename__ = 'packet'
@@ -49,8 +51,6 @@ class Packet(db.Model):
         sig_count = upper_count + fresh_count + misc_count
         return sig_count
 
-
-
 class UpperSignature(db.Model):
     __tablename__ = 'signature_upper'
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
@@ -58,14 +58,12 @@ class UpperSignature(db.Model):
     signed = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, onupdate=datetime.now, nullable=False)
 
-
 class FreshSignature(db.Model):
     __tablename__ = 'signature_fresh'
     packet = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     freshman = Column(ForeignKey('freshman.id'), nullable=False)
     signed = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, onupdate=datetime.now, nullable=False)
-
 
 class MiscSignature(db.Model):
     __tablename__ = 'signature_misc'
