@@ -28,4 +28,5 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 
 # pylint: disable=wrong-import-position
 from . import routes
+from . import commands
 from . import models
