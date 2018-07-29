@@ -49,7 +49,7 @@ class Packet(db.Model):
 
     def signatures_received(self):
         """
-        Result capped so it will never be greater than that of signatures_req()
+        Result capped so it will never be greater than that of signatures_required()
         """
         upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True).count()
         fresh_count = FreshSignature.query.with_parent(self).filter_by(signed=True).count()
