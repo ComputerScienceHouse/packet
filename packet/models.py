@@ -4,6 +4,7 @@ Defines the application's database models.
 
 from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy.orm import relationship
 
 from . import db
 
@@ -15,35 +16,45 @@ def end_date():
 
 class Freshman(db.Model):
     __tablename__ = "freshman"
-    id = Column(Integer, primary_key=True)
+    rit_username = Column(String(10), primary_key=True)
     name = Column(String(64), nullable=False)
     onfloor = Column(Boolean, nullable=False)
 
+    # One freshman can have multiple packets if they repeat the intro process
+    packets = relationship("Packet", order_by="desc(Packet.id)")
+
+    def current_packet(self):
+        """
+        :return: The most recent packet for this freshman
+        """
+        return self.packets[0]
+
 class Packet(db.Model):
     __tablename__ = "packet"
-    id = Column(Integer, primary_key=True)
-    freshman = Column(ForeignKey("freshman.id"), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    freshman_username = Column(ForeignKey("freshman.rit_username"))
     start = Column(DateTime, default=datetime.now, nullable=False)
     end = Column(DateTime, default=end_date, nullable=False)
     info_eboard = Column(Text, nullable=True)       # Used to fulfil the eboard description requirement
     info_events = Column(Text, nullable=True)       # Used to fulfil the events list requirement
     info_achieve = Column(Text, nullable=True)      # Used to fulfil the technical achievements list requirement
 
-    def signatures_req(self):
-        upper_count = UpperSignature.query.filter(UpperSignature.packet == self.id).count()
-        fresh_count = FreshSignature.query.filter(FreshSignature.packet == self.id).count()
-        return upper_count + fresh_count + REQUIRED_MISC_SIGNATURES
+    freshman = relationship("Freshman", back_populates="packets")
+    upper_signatures = relationship("UpperSignature")
+    fresh_signatures = relationship("FreshSignature")
+    misc_signatures = relationship("MiscSignature")
+
+    def signatures_required(self):
+        return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
 
     def signatures_received(self):
         """
         Result capped so it will never be greater than that of signatures_req()
         """
-        upper_count = UpperSignature.query.filter(UpperSignature.packet == self.id, UpperSignature.signed is True)\
-            .count()
-        fresh_count = FreshSignature.query.filter(FreshSignature.packet == self.id, FreshSignature.signed is True)\
-            .count()
-        misc_count = MiscSignature.query.filter(MiscSignature.packet == self.id).count()
-        
+        upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True).count()
+        fresh_count = FreshSignature.query.with_parent(self).filter_by(signed=True).count()
+        misc_count = len(self.misc_signatures)
+
         if misc_count > REQUIRED_MISC_SIGNATURES:
             misc_count = REQUIRED_MISC_SIGNATURES
 
@@ -51,20 +62,27 @@ class Packet(db.Model):
 
 class UpperSignature(db.Model):
     __tablename__ = "signature_upper"
-    packet = Column(Integer, ForeignKey("packet.id"), primary_key=True)
+    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
     member = Column(String(36), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
-    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
+    eboard = Column(Boolean, default=False, nullable=False)
+    updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    packet = relationship("Packet", back_populates="upper_signatures")
 
 class FreshSignature(db.Model):
     __tablename__ = "signature_fresh"
-    packet = Column(Integer, ForeignKey("packet.id"), primary_key=True)
-    freshman = Column(ForeignKey("freshman.id"), primary_key=True)
+    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
+    freshman = Column(ForeignKey("freshman.rit_username"), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
-    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
+    updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    packet = relationship("Packet", back_populates="fresh_signatures")
 
 class MiscSignature(db.Model):
     __tablename__ = "signature_misc"
-    packet = Column(Integer, ForeignKey("packet.id"), primary_key=True)
+    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
     member = Column(String(36), primary_key=True)
-    updated = Column(DateTime, onupdate=datetime.now, nullable=False)
+    updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    packet = relationship("Packet", back_populates="misc_signatures")
