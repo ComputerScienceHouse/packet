@@ -9,8 +9,17 @@ from . import auth, app
 from .models import Freshman
 
 @app.route("/")
-@auth.oidc_auth
 def index():
+    return """
+            <center>
+                <h2>CSH web packet mk2</h2>
+                <p>Coming soon to a server near you</p>
+            </center>
+        """
+
+@app.route("/csh-auth/")
+@auth.oidc_auth
+def csh_auth_test():
     # This just tests auth for now
     auth_info_json = json.dumps({"id_token": session["id_token"], "access_token": session["access_token"],
                                "userinfo": session["userinfo"]}, indent=4)
@@ -20,7 +29,7 @@ def index():
             <pre>{}</pre>
         """.format(auth_info_json)
 
-@app.route("/api/test")
+@app.route("/api/test/")
 @auth.oidc_auth
 def test_endpoint():
     # This just tests auth and DB access for API calls
