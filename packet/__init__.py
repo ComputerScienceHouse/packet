@@ -7,6 +7,7 @@ from flask import Flask
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import flask_saml
 
 app = Flask(__name__)
 
@@ -25,6 +26,8 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
     "client_id": app.config["OIDC_CLIENT_ID"],
     "client_secret": app.config["OIDC_CLIENT_SECRET"]
 })
+
+flask_saml.FlaskSAML(app)
 
 # pylint: disable=wrong-import-position
 from . import routes
