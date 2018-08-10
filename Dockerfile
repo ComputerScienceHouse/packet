@@ -14,4 +14,4 @@ RUN apt-get -yq update && \
 
 ADD . /opt/packet
 
-CMD ["gunicorn", "Packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-"]
+CMD ["gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-"]
