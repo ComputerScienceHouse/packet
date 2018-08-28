@@ -1,0 +1,30 @@
+div {
+  .dataTables_wrapper {
+    .dataTable {
+      margin-top: 0 !important;
+    }
+
+    .dataTables_paginate {
+      margin: 0 0 10px !important;
+      text-align: center !important;
+
+      @media(max-width: 768px) {
+        margin-right: 0 !important;
+      }
+    }
+
+    .dataTables_length {
+      margin-top: 5px;
+      margin-left: 15px;
+    }
+
+    .dataTables_filter {
+      margin-top: 5px;
+      margin-right: 15px;
+    }
+
+    .col-sm-7 {
+      width: 100%;
+    }
+  }
+}
