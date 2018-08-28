@@ -30,7 +30,7 @@ def index(info=None):
 @before_request
 def freshman_packet(uid, info=None):
     eboard = ldap_get_eboard()
-    return render_template("packet.html", info=info, eboard=eboard)
+    return render_template("packet.html", info=info, eboard=eboard, uid=uid)
 
 
 @app.route("/csh-auth/")
