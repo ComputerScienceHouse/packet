@@ -17,16 +17,6 @@ def _ldap_is_member_of_group(member, group):
     return False
 
 
-def _ldap_add_member_to_group(account, group):
-    if not _ldap_is_member_of_group(account, group):
-        _ldap.get_group(group).add_member(account, dn=False)
-
-
-def _ldap_remove_member_from_group(account, group):
-    if _ldap_is_member_of_group(account, group):
-        _ldap.get_group(group).del_member(account, dn=False)
-
-
 @lru_cache(maxsize=1024)
 def _ldap_is_member_of_directorship(account, directorship):
     directors = _ldap.get_directorship_heads(directorship)
