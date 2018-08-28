@@ -8,6 +8,7 @@ from flask import session, jsonify, render_template
 from packet.utils import before_request
 from . import auth, app
 from .models import Freshman
+from .ldap import ldap_get_eboard
 
 
 @app.route("/")
@@ -22,6 +23,14 @@ def index(info=None):
         }
     ]
     return render_template("active_packets.html", info=info, freshmen=freshmen)
+
+
+@app.route("/packet/<uid>")
+@auth.oidc_auth
+@before_request
+def freshman_packet(uid, info=None):
+    eboard = ldap_get_eboard()
+    return render_template("packet.html", info=info, eboard=eboard)
 
 
 @app.route("/csh-auth/")
