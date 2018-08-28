@@ -1,15 +1,11 @@
 # Credit to Liam Middlebrook and Ram Zallan
 # https://github.com/liam-middlebrook/gallery
-import subprocess
-import base64
 import datetime
-
+import subprocess
 from functools import wraps
-from flask import session
 
 import requests
-
-import ldap
+from flask import session
 
 from packet import _ldap
 from packet.ldap import (ldap_get_member,
@@ -88,25 +84,3 @@ def parse_account_year(date):
             year = year - 1
         return year
     return None
-
-
-def process_image(photo, uid):
-    if base64.b64decode(photo):
-        key = 'jpegPhoto'
-        account = ldap_get_member(uid)
-        bin_icon = base64.b64decode(photo)
-        con = _ldap.get_con()
-        exists = account.jpegPhoto
-
-        if not exists:
-            ldap_mod = ldap.MOD_ADD
-        else:
-            ldap_mod = ldap.MOD_REPLACE
-
-        mod = (ldap_mod, key, bin_icon)
-        mod_attrs = [mod]
-        con.modify_s(account.get_dn(), mod_attrs)
-
-        return True
-    else:
-        return False
