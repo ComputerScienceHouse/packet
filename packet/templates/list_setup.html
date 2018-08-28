@@ -1,0 +1,32 @@
+{% extends "extend/base.html" %}
+
+{% block body %}
+<div id="member-list" class="container">
+	{% if title %}
+	<h1 class="title card-text" style="padding: 10px 0 20px;">{{ title }}</h1>
+	{% endif %}
+	<div class="row">
+		{% for m in members %}
+			<div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+				<a href="/user/{{ m['uid'] }}" class="profile-link">
+					<div class="card card-custom-wide mb-3">
+						<div class="card-custom-wide-img">
+							<div class="card-custom-avatar">
+								<img class="img-fluid card-profile-pic card-img-top card-img-top-crop" src="/image/{{ m['uid'] }}" alt="Avatar" data-adaptive-background>
+							</div>
+					</div>
+					<div class="card-body">
+							<div style="text-align: center;">
+								<h2 class="card-title">{{ m['cn'] }}</h2>
+								<h6 class="card-subtitle mb-2 text-muted">
+									{{ m['uid'] }}
+								</h6>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

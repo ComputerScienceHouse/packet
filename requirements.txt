@@ -6,3 +6,4 @@ Flask-Migrate==2.2.1
 pylint==2.0.1
 flask_saml==0.4.3
 gunicorn==19.7.1
+csh_ldap
