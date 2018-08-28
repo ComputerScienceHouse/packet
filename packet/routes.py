@@ -20,6 +20,11 @@ def index(info=None):
             "name": "Testiboi",
             "signatures": 12,
             "uid": 111
+        },
+        {
+            "name": "Ram Zallllllan",
+            "signatures": 69,
+            "uid": 420
         }
     ]
     return render_template("active_packets.html", info=info, freshmen=freshmen)
