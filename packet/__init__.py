@@ -3,6 +3,8 @@ The application setup and initialization code lives here.
 """
 
 import os
+
+import csh_ldap
 from flask import Flask
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
@@ -26,6 +28,9 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
     "client_id": app.config["OIDC_CLIENT_ID"],
     "client_secret": app.config["OIDC_CLIENT_SECRET"]
 })
+
+# LDAP
+_ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
 
 flask_saml.FlaskSAML(app)
 
