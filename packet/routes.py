@@ -5,13 +5,23 @@ Routes live here for now. As the application is built out they'll be refactored 
 import json
 from flask import session, jsonify, render_template
 
+from packet.utils import before_request
 from . import auth, app
 from .models import Freshman
 
 
 @app.route("/")
-def index():
-    return render_template("list_setup.html", info=info)
+@auth.oidc_auth
+@before_request
+def index(info=None):
+    freshmen = [
+        {
+            "name": "Testiboi",
+            "signatures": 12,
+            "uid": 111
+        }
+    ]
+    return render_template("active_packets.html", info=info, freshmen=freshmen)
 
 
 @app.route("/csh-auth/")

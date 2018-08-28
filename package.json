@@ -1,0 +1,27 @@
+{
+  "title": "CSH Packet",
+  "name": "csh-packet",
+  "version": "3.0.0",
+  "description": "A webpacket for CSH",
+  "bugs": {
+    "url": "https://github.com/ComputerScienceHouse/packet/issues",
+    "email": "evals@csh.rit.edu"
+  },
+  "license": "MIT",
+  "author": "Devin Matte",
+  "contributors": [
+    "Devin Matte (https://devinmatte.com/)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ComputerScienceHouse/packet.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.9.2",
+    "gulp-real-favicon": "^0.2.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "require-dir": "^1.0.0"
+  }
+}

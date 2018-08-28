@@ -4,7 +4,7 @@ The application setup and initialization code lives here.
 
 import os
 
-import csh_ldap as csh_ldap
+import csh_ldap
 from flask import Flask
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
