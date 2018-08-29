@@ -34,3 +34,7 @@ def get_signatures(freshman_username):
     for signature in MiscSignature.query.filter_by(packet_id=packet.id):
         signatures.append(signature.member)
     return signatures
+
+def get_numbers(freshman_username):
+    packet = Packet.query(freshman_username=freshman_username)
+    return packet.signatures_received(), packet.signatures_required()
