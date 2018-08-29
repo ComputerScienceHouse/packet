@@ -1,7 +1,6 @@
 # Credit to Liam Middlebrook and Ram Zallan
 # https://github.com/liam-middlebrook/gallery
 import datetime
-import subprocess
 from functools import wraps
 
 import requests
@@ -18,12 +17,10 @@ from packet.ldap import (ldap_get_member,
 def before_request(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        git_revision = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').rstrip()
         uuid = str(session["userinfo"].get("sub", ""))
         uid = str(session["userinfo"].get("preferred_username", ""))
         user_obj = _ldap.get_member(uid, uid=True)
         info = {
-            "git_revision": git_revision,
             "uuid": uuid,
             "uid": uid,
             "user_obj": user_obj,

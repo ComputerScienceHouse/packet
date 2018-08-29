@@ -109,3 +109,18 @@ config.py
 # Generated Assets
 packet/static/css/packet.css
 *.min.css
+packet/static/android-chrome-192x192.png
+packet/static/android-chrome-512x512.png
+packet/static/apple-touch-icon.png
+packet/static/browserconfig.xml
+packet/static/favicon-16x16.png
+packet/static/favicon-32x32.png
+packet/static/favicon.ico
+packet/static/mstile-144x144.png
+packet/static/mstile-150x150.png
+packet/static/mstile-310x150.png
+packet/static/mstile-310x310.png
+packet/static/mstile-70x70.png
+packet/static/safari-pinned-tab.svg
+packet/static/site.webmanifest
+faviconData.json

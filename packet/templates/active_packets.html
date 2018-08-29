@@ -28,10 +28,7 @@
                                         {% for m in freshmen %}
                                             <tr>
                                                 <td>
-                                                    <img class="eval-user-img" alt="{{ m['uid'] }}"
-                                                         src="https://profiles.csh.rit.edu/image/{{ m['uid'] }}"
-                                                         width="30"
-                                                         height="30"/> {{ m['name'] }}
+                                                    {{ m['name'] }}
                                                 </td>
                                                 <td>
                                                     <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
@@ -41,8 +38,12 @@
                                                     <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
                                                     {{ m['total_percent'] }}
                                                 </td>
-                                                <td>
-                                                    Sign Packet Button
+                                                <td class="sign-packet" align="right">
+                                                    {# if not signed #}
+                                                    <button class="btn btn-primary">Sign</button>
+                                                    {# else if signed #}
+                                                    <button class="btn btn-primary" disabled="disabled"><i class="fa fa-check"></i>&nbsp;Signed</button>
+                                                    {# endif #}
                                                 </td>
                                             </tr>
                                         {% endfor %}

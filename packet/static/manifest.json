@@ -1,0 +1,24 @@
+{
+  "background_color": "#FFF",
+  "description": "CSH WebPacket",
+  "dir": "auto",
+  "display": "standalone",
+  "lang": "en",
+  "name": "CSH Packet",
+  "orientation": "portrait",
+  "short_name": "Packet",
+  "start_url": "/",
+  "theme_color": "#b0197e",
+  "icons": [
+    {
+      "src": "/static/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
