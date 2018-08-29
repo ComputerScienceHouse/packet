@@ -11,8 +11,10 @@ from . import db
 # The required number of off-floor and alumni signatures
 REQUIRED_MISC_SIGNATURES = 15
 
+
 def end_date():
     return datetime.now() + timedelta(days=14)
+
 
 class Freshman(db.Model):
     __tablename__ = "freshman"
@@ -29,15 +31,16 @@ class Freshman(db.Model):
         """
         return self.packets[0]
 
+
 class Packet(db.Model):
     __tablename__ = "packet"
     id = Column(Integer, primary_key=True, autoincrement=True)
     freshman_username = Column(ForeignKey("freshman.rit_username"))
     start = Column(DateTime, default=datetime.now, nullable=False)
     end = Column(DateTime, default=end_date, nullable=False)
-    info_eboard = Column(Text, nullable=True)       # Used to fulfil the eboard description requirement
-    info_events = Column(Text, nullable=True)       # Used to fulfil the events list requirement
-    info_achieve = Column(Text, nullable=True)      # Used to fulfil the technical achievements list requirement
+    info_eboard = Column(Text, nullable=True)  # Used to fulfil the eboard description requirement
+    info_events = Column(Text, nullable=True)  # Used to fulfil the events list requirement
+    info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
     upper_signatures = relationship("UpperSignature")
@@ -60,6 +63,7 @@ class Packet(db.Model):
 
         return upper_count + fresh_count + misc_count
 
+
 class UpperSignature(db.Model):
     __tablename__ = "signature_upper"
     packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
@@ -70,6 +74,7 @@ class UpperSignature(db.Model):
 
     packet = relationship("Packet", back_populates="upper_signatures")
 
+
 class FreshSignature(db.Model):
     __tablename__ = "signature_fresh"
     packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
@@ -78,6 +83,7 @@ class FreshSignature(db.Model):
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     packet = relationship("Packet", back_populates="fresh_signatures")
+
 
 class MiscSignature(db.Model):
     __tablename__ = "signature_misc"

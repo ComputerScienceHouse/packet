@@ -17,16 +17,6 @@ def _ldap_is_member_of_group(member, group):
     return False
 
 
-def _ldap_add_member_to_group(account, group):
-    if not _ldap_is_member_of_group(account, group):
-        _ldap.get_group(group).add_member(account, dn=False)
-
-
-def _ldap_remove_member_from_group(account, group):
-    if _ldap_is_member_of_group(account, group):
-        _ldap.get_group(group).del_member(account, dn=False)
-
-
 @lru_cache(maxsize=1024)
 def _ldap_is_member_of_directorship(account, directorship):
     directors = _ldap.get_directorship_heads(directorship)
@@ -95,10 +85,18 @@ def ldap_get_eboard():
         ) + _ldap_get_group_members("eboard-financial") + _ldap_get_group_members("eboard-history"
         ) + _ldap_get_group_members("eboard-imps") + _ldap_get_group_members("eboard-opcomm"
         ) + _ldap_get_group_members("eboard-research") + _ldap_get_group_members("eboard-social"
-        ) + _ldap_get_group_members("eboard-secretary")
+        ) + _ldap_get_group_members("eboard-secretary") + _ldap_get_group_members("eboard-pr")
 
     return members
 
+
+def ldap_get_live_onfloor():
+    members = []
+    onfloor = ldap_get_onfloor_members()
+    for member in onfloor:
+        if ldap_get_roomnumber(member) and not ldap_is_eboard(member):
+            members.append(member)
+    return members
 
 # Status checkers
 
@@ -165,4 +163,4 @@ def ldap_get_roomnumber(account):
     try:
         return account.roomNumber
     except AttributeError:
-        return ""
+        return None

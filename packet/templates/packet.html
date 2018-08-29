@@ -9,7 +9,7 @@
         </div>
         <div id="eval-blocks">
             <div id="eval-table">
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body table-fill">
                         <div class="card-body table-fill">
                             <div class="table-responsive">
@@ -24,6 +24,40 @@
                                     </thead>
                                     <tbody>
                                     {% for m in eboard %}
+                                        <tr>
+                                            <td>
+                                                <img class="eval-user-img" alt="{{ m['uid'] }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m['uid'] }}"
+                                                     width="30"
+                                                     height="30"/> {{ m['name'] }}
+                                            </td>
+                                            <td>
+                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
+                                                {{ m['signed'] }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body table-fill">
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin" data-module="table"
+                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                       data-length-changable="true" data-paginated="false">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Signature</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for m in onfloor %}
                                         <tr>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['uid'] }}"
