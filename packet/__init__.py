@@ -35,6 +35,9 @@ _ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'
 flask_saml.FlaskSAML(app)
 
 # pylint: disable=wrong-import-position
-from . import routes
+if app.config["REALM"] == "csh":
+    from .routes import upperclassmen
+else:
+    from .routes import freshmen
 from . import commands
 from . import models
