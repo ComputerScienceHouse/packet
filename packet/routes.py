@@ -56,4 +56,4 @@ def csh_auth_test():
 @auth.oidc_auth
 def test_endpoint():
     # This just tests auth and DB access for API calls
-    return jsonify({freshman.id: freshman.name for freshman in Freshman.query.all()})
+    return jsonify({freshman.rit_username: freshman.name for freshman in Freshman.query.all()})
