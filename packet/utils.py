@@ -13,21 +13,33 @@ from packet.ldap import (ldap_get_member,
                          ldap_get_roomnumber,
                          ldap_get_groups)
 
+INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
+
 
 def before_request(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        uuid = str(session["userinfo"].get("sub", ""))
         uid = str(session["userinfo"].get("preferred_username", ""))
-        user_obj = _ldap.get_member(uid, uid=True)
-        info = {
-            "uuid": uuid,
-            "uid": uid,
-            "user_obj": user_obj,
-            "member_info": get_member_info(uid),
-            "color": requests.get('https://themeswitcher.csh.rit.edu/api/colour').content,
-            "current_year": parse_account_year(str(datetime.datetime.now().strftime("%Y%m")))
-        }
+
+        if session["id_token"]["iss"] == INTRO_REALM:
+            info = {
+                "realm": "intro",
+                "uid": uid,
+                "current_year": parse_account_year(str(datetime.datetime.now().strftime("%Y%m")))
+            }
+        else:
+            uuid = str(session["userinfo"].get("sub", ""))
+            user_obj = _ldap.get_member(uid, uid=True)
+            info = {
+                "realm": "csh",
+                "uuid": uuid,
+                "uid": uid,
+                "user_obj": user_obj,
+                "member_info": get_member_info(uid),
+                "color": requests.get('https://themeswitcher.csh.rit.edu/api/colour').content,
+                "current_year": parse_account_year(str(datetime.datetime.now().strftime("%Y%m")))
+            }
+
         kwargs["info"] = info
         return func(*args, **kwargs)
 

@@ -11,7 +11,7 @@
             <ul class="navbar-nav mr-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Active Packets</a>
+                    <a class="nav-link" href="/packets">Active Packets</a>
                 </li>
 
             </ul>
@@ -25,9 +25,11 @@
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="user01">
-                        <a class="dropdown-item" href="/">Profile</a>
-                        <a class="dropdown-item" href="https://themeswitcher.csh.rit.edu/">Theme</a>
-                        <div class="dropdown-divider"></div>
+                        {% if info.realm == "csh" %}
+                            <a class="dropdown-item" href="/">Profile</a>
+                            <a class="dropdown-item" href="https://themeswitcher.csh.rit.edu/">Theme</a>
+                            <div class="dropdown-divider"></div>
+                        {% endif %}
                         <a class="dropdown-item" href="/logout">Logout</a>
                     </div>
 
