@@ -2,6 +2,7 @@ from .models import *
 from . import ldap
 import datetime
 
+
 def sign(member_username, freshman_username):
     member = ldap.ldap_get_member(member_username)
     if member:
@@ -24,6 +25,7 @@ def sign(member_username, freshman_username):
     else:
         return {'error': "User is not a valid Member"}
 
+
 def get_signatures(freshman_username):
     packet = Packet.query(freshman_username=freshman_username)
     signatures=[]
@@ -34,6 +36,7 @@ def get_signatures(freshman_username):
     for signature in MiscSignature.query.filter_by(packet_id=packet.id):
         signatures.append(signature.member)
     return signatures
+
 
 def get_numbers(freshman_username):
     packet = Packet.query(freshman_username=freshman_username)
