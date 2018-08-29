@@ -6,6 +6,7 @@ from packet.utils import before_request
 
 
 @app.route("/")
+@auth.oidc_auth
 def index():
     return redirect("/packets", 302)
 
