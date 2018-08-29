@@ -18,3 +18,7 @@ SAML_METADATA_URL = environ.get("PACKET_SAML_METADATA_URL", "https://shibboleth.
 # SQLAlchemy config
 SQLALCHEMY_DATABASE_URI = environ.get("PACKET_DATABASE_URI", None)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# LDAP
+LDAP_BIND_DN = environ.get("LDAP_BIND_DN", "PLEASE REPLACE ME")
+LDAP_BIND_PASS = environ.get("LDAP_BIND_PASS", None)
