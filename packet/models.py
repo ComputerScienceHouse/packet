@@ -20,7 +20,7 @@ class Freshman(db.Model):
     __tablename__ = "freshman"
     rit_username = Column(String(10), primary_key=True)
     name = Column(String(64), nullable=False)
-    onfloor = Column(Boolean, nullable=False)
+    onfloor = Column(Boolean, nullable=False)       # TODO: I don't think we need this column but I'm leaving it for now
 
     # One freshman can have multiple packets if they repeat the intro process
     packets = relationship("Packet", order_by="desc(Packet.id)")
@@ -36,8 +36,8 @@ class Packet(db.Model):
     __tablename__ = "packet"
     id = Column(Integer, primary_key=True, autoincrement=True)
     freshman_username = Column(ForeignKey("freshman.rit_username"))
-    start = Column(DateTime, default=datetime.now, nullable=False)
-    end = Column(DateTime, default=end_date, nullable=False)
+    start = Column(DateTime, default=datetime.now, nullable=False)  # TODO: Kill this default
+    end = Column(DateTime, default=end_date, nullable=False)        # TODO: Kill this default
     info_eboard = Column(Text, nullable=True)  # Used to fulfil the eboard description requirement
     info_events = Column(Text, nullable=True)  # Used to fulfil the events list requirement
     info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
@@ -83,6 +83,7 @@ class FreshSignature(db.Model):
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     packet = relationship("Packet", back_populates="fresh_signatures")
+    # TODO: Add another relationship for freshmen and use that for packet creation
 
 
 class MiscSignature(db.Model):
