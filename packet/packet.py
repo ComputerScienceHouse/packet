@@ -1,43 +1,51 @@
 from .models import *
-from . import ldap
-import datetime
 
 
 def sign(member_username, freshman_username):
-    member = ldap.ldap_get_member(member_username)
-    if member:
-        if ldap.ldap_is_onfloor(member):
-            eboard = ldap.ldap_is_eboard(member)
-            packet = Packet.query.filter_by(freshman_username=freshman_username)
-            signature = UpperSignature(packet.id, member_username, True, eboard, datetime.now(), packet)
-            db.session.add(signature)
-            db.session.commit()
-        elif ldap.ldap_is_intromember(member):
-            packet = Packet.query.filter_by(freshman_username=freshman_username)
-            signature = FreshSignature(packet.id, member_username, True, datetime.now(), packet)
-            db.session.add(signature)
-            db.session.commit()
-        else:
-            packet = Packet.query.filter_by(freshman_username=freshman_username)
-            signature = MiscSignature(packet.id, member_username, datetime.now(), packet)
-            db.session.add(signature)
-            db.session.commit()
+    freshman = Freshman.query.filter_by(rit_username=freshman_username)[0]
+    packet = freshman.current_packet()
+    if UpperSignature.query.filter_by(member=member_username, eboard=True)[0]:
+        UpperSignature.query.filter_by(member=member_username, eboard=True)[0].signed = True
+    elif UpperSignature.query.filter_by(member=member_username)[0]:
+        UpperSignature.query.filter_by(member=member_username)[0].signed = True
+    elif FreshSignature.query.filter_by(member=member_username)[0]:
+        FreshSignature.query.filter_by(member=member_username)[0].signed = True
     else:
-        return {'error': "User is not a valid Member"}
+        db.session.add(MiscSignature(packet.id, member_username, datetime.now(), packet))
+    db.session.commit()
+    return True
 
 
 def get_signatures(freshman_username):
+    packet = Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet()
+    eboard = UpperSignature.query.filter_by(packet_id=packet.id, eboard=True)
+    upper_signatures = UpperSignature.query.filter_by(packet_id=packet.id, eboard=False)
+    return eboard, \
+           upper_signatures, \
+           FreshSignature.query.filter_by(packet_id=packet.id), \
+           MiscSignature.query.filter_by(packet_id=packet.id)
+
+
+def get_numbers_eboard(freshman_username):
     packet = Packet.query(freshman_username=freshman_username)
-    signatures=[]
-    for signature in UpperSignature.query.filter_by(packet_id=packet.id, signed=True):
-        signatures.append(signature.member)
-    for signature in FreshSignature.query.filter_by(packet_id=packet.id, signed=True):
-        signatures.append(signature.member)
-    for signature in MiscSignature.query.filter_by(packet_id=packet.id):
-        signatures.append(signature.member)
-    return signatures
+    packet.upper_signatures.filter_by(signed=True, eboard=True)
 
 
-def get_numbers(freshman_username):
+def get_numbers_upperclassmen(freshman_username):
+    packet = Packet.query(freshman_username=freshman_username)
+    packet.upper_signatures.filter_by(signed=True, eboard=False).count()
+
+
+def get_numbers_freshmen(freshman_username):
+    packet = Packet.query(freshman_username=freshman_username)
+    packet.fresh_signatures.filter_by(signed=True).count()
+
+
+def get_numbers_misc(freshman_username):
+    packet = Packet.query(freshman_username=freshman_username)
+    return packet.misc_signatures.count()
+
+
+def get_numbers_total(freshman_username):
     packet = Packet.query(freshman_username=freshman_username)
     return packet.signatures_received(), packet.signatures_required()
