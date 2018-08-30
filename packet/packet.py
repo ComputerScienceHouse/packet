@@ -1,4 +1,4 @@
-from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
+from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db, datetime
 
 
 def sign(member_username, freshman_username):
