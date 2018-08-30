@@ -20,32 +20,15 @@ def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet()
     eboard = UpperSignature.query.filter_by(packet_id=packet.id, eboard=True)
     upper_signatures = UpperSignature.query.filter_by(packet_id=packet.id, eboard=False)
-    return eboard, \
-           upper_signatures, \
-           FreshSignature.query.filter_by(packet_id=packet.id), \
-           MiscSignature.query.filter_by(packet_id=packet.id)
+    return {'eboard': eboard,
+            'upperclassmen': upper_signatures,
+            'freshmen': FreshSignature.query.filter_by(packet_id=packet.id),
+            'misc': MiscSignature.query.filter_by(packet_id=packet.id)}
 
 
-def get_numbers_eboard(freshman_username):
-    packet = Packet.query(freshman_username=freshman_username)
-    packet.upper_signatures.filter_by(signed=True, eboard=True)
+def get_numbers_signed(freshman_username):
+    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_recieved()
 
 
-def get_numbers_upperclassmen(freshman_username):
-    packet = Packet.query(freshman_username=freshman_username)
-    packet.upper_signatures.filter_by(signed=True, eboard=False).count()
-
-
-def get_numbers_freshmen(freshman_username):
-    packet = Packet.query(freshman_username=freshman_username)
-    packet.fresh_signatures.filter_by(signed=True).count()
-
-
-def get_numbers_misc(freshman_username):
-    packet = Packet.query(freshman_username=freshman_username)
-    return packet.misc_signatures.count()
-
-
-def get_numbers_total(freshman_username):
-    packet = Packet.query(freshman_username=freshman_username)
-    return packet.signatures_received(), packet.signatures_required()
+def get_numbers_required(freshman_username):
+    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_required()
