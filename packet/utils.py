@@ -24,8 +24,7 @@ def before_request(func):
         if session["id_token"]["iss"] == INTRO_REALM:
             info = {
                 "realm": "intro",
-                "uid": uid,
-                "current_year": parse_account_year(str(datetime.datetime.now().strftime("%Y%m")))
+                "uid": uid
             }
         else:
             uuid = str(session["userinfo"].get("sub", ""))
@@ -36,8 +35,7 @@ def before_request(func):
                 "uid": uid,
                 "user_obj": user_obj,
                 "member_info": get_member_info(uid),
-                "color": requests.get('https://themeswitcher.csh.rit.edu/api/colour').content,
-                "current_year": parse_account_year(str(datetime.datetime.now().strftime("%Y%m")))
+                "color": requests.get('https://themeswitcher.csh.rit.edu/api/colour').content
             }
 
         kwargs["info"] = info
