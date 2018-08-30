@@ -47,6 +47,9 @@ class Packet(db.Model):
     fresh_signatures = relationship("FreshSignature")
     misc_signatures = relationship("MiscSignature")
 
+    def is_open(self):
+        return self.start < datetime.now() < self.end
+
     def signatures_required(self):
         return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
 
