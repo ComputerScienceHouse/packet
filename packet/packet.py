@@ -30,9 +30,9 @@ def get_signatures(freshman_username):
             'misc': MiscSignature.query.filter_by(packet_id=packet.id)}
 
 
-def get_numbers_signed(freshman_username):
+def get_number_signed(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_received()
 
 
-def get_numbers_required(freshman_username):
+def get_number_required(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_required()
