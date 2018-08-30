@@ -4,6 +4,10 @@ from .models import *
 def sign(member_username, freshman_username):
     freshman = Freshman.query.filter_by(rit_username=freshman_username)[0]
     packet = freshman.current_packet()
+    if packet is None:
+        return False
+    if not packet.is_open():
+        return False
     if UpperSignature.query.filter_by(member=member_username, eboard=True)[0]:
         UpperSignature.query.filter_by(member=member_username, eboard=True)[0].signed = True
     elif UpperSignature.query.filter_by(member=member_username)[0]:
@@ -27,7 +31,7 @@ def get_signatures(freshman_username):
 
 
 def get_numbers_signed(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_recieved()
+    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_received()
 
 
 def get_numbers_required(freshman_username):
