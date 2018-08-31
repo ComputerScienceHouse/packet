@@ -8,12 +8,13 @@ def sign(member_username, freshman_username):
         return False
     if not packet.is_open():
         return False
-    if UpperSignature.query.filter_by(member=member_username, eboard=True)[0]:
-        UpperSignature.query.filter_by(member=member_username, eboard=True)[0].signed = True
-    elif UpperSignature.query.filter_by(member=member_username)[0]:
-        UpperSignature.query.filter_by(member=member_username)[0].signed = True
-    elif FreshSignature.query.filter_by(member=member_username)[0]:
-        FreshSignature.query.filter_by(member=member_username)[0].signed = True
+
+    upper_signature = UpperSignature.query.filter_by(member=member_username)[0]
+    fresh_signature = FreshSignature.query.filter_by(member=member_username)[0]
+    if upper_signature:
+        upper_signature.signed = True
+    elif fresh_signature:
+        fresh_signature.signed = True
     else:
         db.session.add(MiscSignature(packet.id, member_username, datetime.now(), packet))
     db.session.commit()
