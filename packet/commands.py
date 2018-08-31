@@ -21,9 +21,9 @@ def create_secret():
 def get_member_username(member):
     return member.uid
 
-@app.cli.command("create-packet")
+@app.cli.command("create-packets")
 @click.argument("freshmen_csv")
-def create_packet(freshmen_csv):
+def create_packets(freshmen_csv):
     """
     Creates all database entries needed to start a new packet season.
     """
