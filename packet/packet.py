@@ -11,7 +11,7 @@ def sign(member_username, freshman_username):
         return False
 
     upper_signature = UpperSignature.query.filter_by(member=member_username)[0]
-    fresh_signature = FreshSignature.query.filter_by(member=member_username)[0]
+    fresh_signature = FreshSignature.query.filter_by(rit_username=member_username)[0]
     if upper_signature:
         upper_signature.signed = True
     elif fresh_signature:
