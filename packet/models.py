@@ -47,21 +47,32 @@ class Packet(db.Model):
     fresh_signatures = relationship("FreshSignature")
     misc_signatures = relationship("MiscSignature")
 
+    def is_open(self):
+        return self.start < datetime.now() < self.end
+
     def signatures_required(self):
-        return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
+        eboard = UpperSignature.query.filter_by(eboard=True).count()
+        return {'eboard': eboard,
+                'upperclassmen': len(self.upper_signatures) - eboard,
+                'freshmen': len(self.fresh_signatures),
+                'misc': REQUIRED_MISC_SIGNATURES}
 
     def signatures_received(self):
         """
         Result capped so it will never be greater than that of signatures_required()
         """
-        upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True).count()
+        eboard_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=True).count()
+        upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=False).count()
         fresh_count = FreshSignature.query.with_parent(self).filter_by(signed=True).count()
         misc_count = len(self.misc_signatures)
 
         if misc_count > REQUIRED_MISC_SIGNATURES:
             misc_count = REQUIRED_MISC_SIGNATURES
 
-        return upper_count + fresh_count + misc_count
+        return {'eboard': eboard_count,
+                'upperclassmen': upper_count,
+                'freshmen': fresh_count,
+                'miscellaneous': misc_count}
 
 
 class UpperSignature(db.Model):

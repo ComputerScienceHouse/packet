@@ -39,5 +39,7 @@ if app.config["REALM"] == "csh":
     from .routes import upperclassmen
 else:
     from .routes import freshmen
+from .routes import api
+
 from . import commands
 from . import models
