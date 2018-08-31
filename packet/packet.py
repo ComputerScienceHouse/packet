@@ -3,15 +3,15 @@ from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
 def sign(member_username, freshman_username):
-    freshman = Freshman.query.filter_by(rit_username=freshman_username)[0]
+    freshman = Freshman.query.filter_by(rit_username=freshman_username).first()
     packet = freshman.current_packet()
     if packet is None:
         return False
     if not packet.is_open():
         return False
 
-    upper_signature = UpperSignature.query.filter_by(member=member_username)[0]
-    fresh_signature = FreshSignature.query.filter_by(member=member_username)[0]
+    upper_signature = UpperSignature.query.filter_by(member=member_username).first()
+    fresh_signature = FreshSignature.query.filter_by(freshman=member_username).first()
     if upper_signature:
         upper_signature.signed = True
     elif fresh_signature:
