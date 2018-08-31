@@ -9,6 +9,7 @@ def sign(signer_username, freshman_username):
         return False
     if not packet.is_open():
         return False
+
     try:
         upper_signature = UpperSignature.query.filter_by(member=signer_username)[0]
     except IndexError:
@@ -17,6 +18,7 @@ def sign(signer_username, freshman_username):
         fresh_signature = FreshSignature.query.filter_by(freshman=signer_username)[0]
     except IndexError:
         fresh_signature = None
+
     if upper_signature:
         upper_signature.signed = True
     elif fresh_signature:
