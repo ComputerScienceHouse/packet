@@ -2,6 +2,7 @@ from datetime import datetime
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
+# Signing Function
 def sign(signer_username, freshman_username):
     freshman = Freshman.query.filter_by(rit_username=freshman_username)[0]
     packet = freshman.current_packet()
