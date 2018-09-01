@@ -4,8 +4,11 @@
     <div class="container main">
         <div class="row mobile-hide">
             <div class="col-sm-10">
-                <h3 class="page-title">Packet Name</h3>
+                <h3 class="page-title">{{ freshman.name }}</h3>
             </div>
+        </div>
+        <div>
+            Signatures: {{ signed }}/{{ required }}
         </div>
         <div id="eval-blocks">
             <div id="eval-table">
@@ -23,17 +26,20 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for m in eboard %}
+                                    {% for m in signatures.eboard %}
                                         <tr>
                                             <td>
-                                                <img class="eval-user-img" alt="{{ m['uid'] }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m['uid'] }}"
+                                                <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
                                                      width="30"
-                                                     height="30"/> {{ m['name'] }}
+                                                     height="30"/> {{ get_display_name(m.member) }}
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -57,17 +63,96 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for m in onfloor %}
+                                    {% for m in signatures.upperclassmen %}
                                         <tr>
                                             <td>
-                                                <img class="eval-user-img" alt="{{ m['uid'] }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m['uid'] }}"
+                                                <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
                                                      width="30"
-                                                     height="30"/> {{ m['name'] }}
+                                                     height="30"/> {{ get_display_name(m.member) }}
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body table-fill">
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin" data-module="table"
+                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                       data-length-changable="true" data-paginated="false">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Signature</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for m in signatures.freshmen %}
+                                        <tr>
+                                            <td>
+                                                <a href="/packet/{{ m.freshman }}">
+                                                    <img class="eval-user-img" alt="{{ m.freshman }}"
+                                                         src="https://profiles.csh.rit.edu/image/{{ m.freshman }}"
+                                                         width="30"
+                                                         height="30"/> {{ get_freshman_name(m.freshman) }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body table-fill">
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin" data-module="table"
+                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                       data-length-changable="true" data-paginated="false">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Signature</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for m in signatures.misc %}
+                                        <tr>
+                                            <td>
+                                                <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
+                                                     width="30"
+                                                     height="30"/> {{ get_display_name(m.member) }}
+                                            </td>
+                                            <td>
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}

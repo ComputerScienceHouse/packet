@@ -28,7 +28,7 @@ def _ldap_is_member_of_directorship(account, directorship):
 
 # Getters
 
-
+@lru_cache(maxsize=4096)
 def ldap_get_member(username):
     return _ldap.get_member(username, uid=True)
 

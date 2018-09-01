@@ -5,11 +5,11 @@ The application setup and initialization code lives here.
 import os
 
 import csh_ldap
+import flask_saml
 from flask import Flask
+from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-import flask_saml
 
 app = Flask(__name__)
 
@@ -40,6 +40,6 @@ if app.config["REALM"] == "csh":
 else:
     from .routes import freshmen
 
-from .routes import api
+from .routes import api, shared
 from . import commands
 from . import models
