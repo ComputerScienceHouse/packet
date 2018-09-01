@@ -29,7 +29,7 @@ class Freshman(db.Model):
         """
         :return: The most recent packet for this freshman
         """
-        return self.packets[0]
+        return next(iter(self.packets), None)
 
 
 class Packet(db.Model):
