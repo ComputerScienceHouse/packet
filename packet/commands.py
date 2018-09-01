@@ -58,8 +58,20 @@ def sync_freshmen(freshmen_csv):
 
     # Update all freshmen entries that represent people who are no longer freshmen
     for freshman in filter(lambda freshman: freshman.rit_username not in freshmen_in_csv, freshmen_in_db.values()):
-        # TODO: Maybe add a current_freshman field?
         freshman.onfloor = False
+
+    # Update the freshmen signatures of each open or future packet
+    for packet in Packet.query.filter(Packet.end > datetime.now()).all():
+        # Handle the freshmen that are no longer onfloor
+        for fresh_sig in filter(lambda fresh_sig: not fresh_sig.freshman.onfloor, packet.fresh_signatures):
+            FreshSignature.query.filter_by(packet_id=fresh_sig.packet_id,
+                                           freshman_username=fresh_sig.freshman_username).delete()
+
+        # Add any new onfloor freshmen
+        current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
+        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs,
+                                   freshmen_in_csv.values()):
+            db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[csv_freshman.rit_username]))
 
     db.session.commit()
     print("Done!")
