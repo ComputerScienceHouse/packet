@@ -4,6 +4,7 @@ Defines command-line utilities for use with the app
 
 from secrets import token_hex
 from datetime import datetime, time, timedelta
+import csv
 import click
 
 from . import app, db
@@ -18,67 +19,84 @@ def create_secret():
     print("Here's your random secure token:")
     print(token_hex())
 
-def get_member_username(member):
-    return member.uid
+class CSVFreshman:
+    def __init__(self, row):
+        self.name = row[0]
+        self.rit_username = row[3]
+        self.onfloor = row[1] == "TRUE"
+
+def parse_csv(freshmen_csv):
+    print("Parsing file...")
+    try:
+        with open(freshmen_csv, newline='') as freshmen_csv_file:
+            return {freshman.rit_username: freshman for freshman in map(CSVFreshman, csv.reader(freshmen_csv_file))}
+    except Exception as e:
+        print("Failure while parsing CSV")
+        raise e
+
+@app.cli.command("sync-freshmen")
+@click.argument("freshmen_csv")
+def sync_freshmen(freshmen_csv):
+    """
+    Updates the freshmen entries in the DB to match the given CSV.
+    """
+    freshmen_in_csv = parse_csv(freshmen_csv)
+
+    print("Syncing contents with the DB...")
+    freshmen_in_db = {freshman.rit_username: freshman for freshman in Freshman.query.all()}
+
+    for csv_freshman in freshmen_in_csv.values():
+        if csv_freshman.rit_username not in freshmen_in_db:
+            # This is a new freshman so add them to the DB
+            freshmen_in_db[csv_freshman.rit_username] = Freshman(rit_username=csv_freshman.rit_username,
+                                                                 name=csv_freshman.name, onfloor=csv_freshman.onfloor)
+            db.session.add(freshmen_in_db[csv_freshman.rit_username])
+        else:
+            # This freshman is already in the DB so just update them
+            freshmen_in_db[csv_freshman.rit_username].onfloor = csv_freshman.onfloor
+            freshmen_in_db[csv_freshman.rit_username].name = csv_freshman.name
+
+    # Update all freshmen entries that represent people who are no longer freshmen
+    for freshman in filter(lambda freshman: freshman.rit_username not in freshmen_in_csv, freshmen_in_db.values()):
+        # TODO: Maybe add a current_freshman field?
+        freshman.onfloor = False
+
+    db.session.commit()
+    print("Done!")
 
 @app.cli.command("create-packets")
 @click.argument("freshmen_csv")
 def create_packets(freshmen_csv):
     """
-    Creates all database entries needed to start a new packet season.
+    Creates a new packet season for each of the freshmen in the given CSV.
     """
-    print("Welcome to the packet season creation CLI", end="\n\n")
+    print("WARNING: The 'sync-freshmen' command must be run first to ensure that the state of floor is up to date.")
+    if input("Continue? (y/N): ").lower() != "y":
+        return
 
-    rawDate = None
-    while rawDate is None:
+    # Collect the necessary data
+    base_date = None
+    while base_date is None:
         try:
-            dateStr = input("Input the first day of packet season (format: MM/DD/YYYY): ")
-            rawDate = datetime.strptime(dateStr, "%m/%d/%Y").date()
+            date_str = input("Input the first day of packet season (format: MM/DD/YYYY): ")
+            base_date = datetime.strptime(date_str, "%m/%d/%Y").date()
         except ValueError:
             pass
 
-    start = datetime.combine(rawDate, time(hour=19))
-    end = datetime.combine(rawDate, time(hour=23, minute=59)) + timedelta(days=14)
-    print("start = {}; end = {}".format(start, end), end="\n\n")
+    start = datetime.combine(base_date, time(hour=19))
+    end = datetime.combine(base_date, time(hour=23, minute=59)) + timedelta(days=14)
 
-    eboard = list(map(get_member_username, ldap_get_eboard()))
-    onfloor = list(map(get_member_username, ldap_get_live_onfloor()))
-    print("eboard members = {}".format(eboard))
-    print("onfloor members = {}".format(onfloor), end="\n\n")
+    print("Fetching data from LDAP...")
+    eboard = [member.uid for member in ldap_get_eboard()]
+    onfloor = [member.uid for member in ldap_get_live_onfloor()]
 
-    print("Parsing freshmen csv...")
-    allFreshmen = {}
-    onfloorFreshmen = {}
-
-    try:
-        with open(freshmen_csv) as freshmenFile:
-            for row in freshmenFile:
-                row = row.strip().split(",")
-
-                allFreshmen[row[3]] = row[0]
-
-                if row[1] == "TRUE":
-                    onfloorFreshmen[row[3]] = row[0]
-
-    except Exception as e:
-        print("Things broke")
-        raise e
-
-    print("All freshmen = {}".format(allFreshmen))
-    print("On floor freshmen = {}".format(onfloorFreshmen), end="\n\n")
-
-    if input("Data ready; create the season? (Y/n): ").lower() != "y":
-        return
-
-    # Go ahead and create all Freshman entries now so FreshSignatures can be created iteratively
-    freshmen = {}
-    for ritUsername, name in allFreshmen.items():
-        freshmen[ritUsername] = Freshman(rit_username=ritUsername, name=name, onfloor=ritUsername in onfloorFreshmen)
-        db.session.add(freshmen[ritUsername])
+    freshmen_in_csv = parse_csv(freshmen_csv)
 
     # Create the new packets and the signatures
-    for ritUsername, name in allFreshmen.items():
-        packet = Packet(freshman=freshmen[ritUsername], start=start, end=end)
+    print("Creating DB entries...")
+    for freshman in freshmen_in_csv.values():
+        packet = Packet(freshman=Freshman.query.filter_by(rit_username=freshman.rit_username).first(), start=start,
+                        end=end)
         db.session.add(packet)
 
         for username in eboard:
@@ -87,9 +105,9 @@ def create_packets(freshmen_csv):
         for username in onfloor:
             db.session.add(UpperSignature(packet=packet, member=username))
 
-        for otherRitUsername in onfloorFreshmen.keys():
-            if otherRitUsername != ritUsername:
-                db.session.add(FreshSignature(packet=packet, freshman=freshmen[otherRitUsername]))
+        for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
+                                                                              freshman.rit_username).all():
+            db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
 
     db.session.commit()
     print("Done!")
