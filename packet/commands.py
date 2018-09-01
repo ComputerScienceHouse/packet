@@ -89,7 +89,7 @@ def create_packets(freshmen_csv):
 
         for otherRitUsername in onfloorFreshmen.keys():
             if otherRitUsername != ritUsername:
-                db.session.add(FreshSignature(packet=packet, freshman=otherRitUsername))
+                db.session.add(FreshSignature(packet=packet, freshman=freshmen[otherRitUsername]))
 
     db.session.commit()
     print("Done!")
