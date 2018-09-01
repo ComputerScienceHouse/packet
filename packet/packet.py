@@ -2,7 +2,6 @@ from datetime import datetime
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
-# Signing Function
 def sign(signer_username, freshman_username):
     freshman = Freshman.query.filter_by(rit_username=freshman_username).first()
     if freshman is None:
@@ -13,14 +12,8 @@ def sign(signer_username, freshman_username):
     if not packet.is_open():
         return False
 
-    try:
-        upper_signature = UpperSignature.query.filter_by(member=signer_username)[0]
-    except IndexError:
-        upper_signature = None
-    try:
-        fresh_signature = FreshSignature.query.filter_by(freshman=signer_username)[0]
-    except IndexError:
-        fresh_signature = None
+    upper_signature = UpperSignature.query.filter_by(member=signer_username).first()
+    fresh_signature = FreshSignature.query.filter_by(freshman=signer_username).first()
 
     if upper_signature:
         upper_signature.signed = True
