@@ -35,8 +35,11 @@
                                                      height="30"/> {{ get_display_name(m.member) }}
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -69,8 +72,11 @@
                                                      height="30"/> {{ get_display_name(m.member) }}
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -98,15 +104,18 @@
                                         <tr>
                                             <td>
                                                 <a href="/packet/{{ m.freshman }}">
-                                                <img class="eval-user-img" alt="{{ m.freshman }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m.freshman }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_freshman_name(m.freshman) }}
+                                                    <img class="eval-user-img" alt="{{ m.freshman }}"
+                                                         src="https://profiles.csh.rit.edu/image/{{ m.freshman }}"
+                                                         width="30"
+                                                         height="30"/> {{ get_freshman_name(m.freshman) }}
                                                 </a>
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -139,8 +148,11 @@
                                                      height="30"/> {{ get_display_name(m.member) }}
                                             </td>
                                             <td>
-                                                <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                {{ m['signed'] }}
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
