@@ -1,0 +1,53 @@
+{% extends "extend/base.html" %}
+
+{% block body %}
+    <div class="container main">
+        <div class="row mobile-hide">
+            <div class="col-sm-10">
+                <h3 class="page-title">{{ get_display_name(member) }}</h3>
+            </div>
+        </div>
+        <div id="eval-blocks">
+            <div id="eval-table">
+                <div class="card mb-3">
+                    <div class="card-body table-fill">
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin" data-module="table"
+                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                       data-length-changable="true" data-paginated="false">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Signature</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for m in signatures %}
+                                        {# Using inline style because of how themeswitcher loads the css theme :( #}
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                            <td>
+                                                <img class="eval-user-img" alt="{{ m.packet.freshman.rit_username }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m.packet.freshman.rit_username }}"
+                                                     width="30"
+                                                     height="30"/> {{ get_freshman_name(m.packet.freshman.name) }}
+                                            </td>
+                                            <td>
+                                                {% if m.signed %}
+                                                    <i class="fas fa-check"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times"></i>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
