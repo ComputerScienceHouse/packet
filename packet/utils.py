@@ -1,6 +1,5 @@
 # Credit to Liam Middlebrook and Ram Zallan
 # https://github.com/liam-middlebrook/gallery
-import datetime
 from functools import wraps
 
 import requests

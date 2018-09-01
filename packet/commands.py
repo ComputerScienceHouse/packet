@@ -68,6 +68,7 @@ def sync_freshmen(freshmen_csv):
                                            freshman_username=fresh_sig.freshman_username).delete()
 
         # Add any new onfloor freshmen
+        # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
         for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs,
                                    freshmen_in_csv.values()):
