@@ -89,7 +89,7 @@ class UpperSignature(db.Model):
 class FreshSignature(db.Model):
     __tablename__ = "signature_fresh"
     packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
-    freshman = Column(ForeignKey("freshman.rit_username"), primary_key=True)
+    freshman_username = Column(ForeignKey("freshman.rit_username"), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
