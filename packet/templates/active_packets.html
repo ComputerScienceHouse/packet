@@ -8,7 +8,7 @@
             </div>
         </div>
         <div id="eval-blocks">
-            {% if freshmen|length > 0 %}
+            {% if packets|length > 0 %}
                 <div id="eval-table">
                     <div class="card">
                         <div class="card-body table-fill">
@@ -21,31 +21,30 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Signatures</th>
-                                            <th>Percentage</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for m in freshmen %}
-                                            <tr>
-                                                <td>
-                                                    {{ m['name'] }}
-                                                </td>
-                                                <td>
-                                                    <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                    {{ m['signatures'] }}
-                                                </td>
-                                                <td>
-                                                    <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
-                                                    {{ m['total_percent'] }}
-                                                </td>
-                                                <td class="sign-packet" align="right">
-                                                    {# if not signed #}
-                                                    <button class="btn btn-primary">Sign</button>
-                                                    {# else if signed #}
-                                                    <button class="btn btn-primary" disabled="disabled"><i class="fa fa-check"></i>&nbsp;Signed</button>
-                                                    {# endif #}
-                                                </td>
-                                            </tr>
+                                        {% for packet in packets %}
+                                            {% if packet.is_open() %}
+                                                <tr>
+                                                    <td>
+                                                        {{ packet.freshman.name }}
+                                                    </td>
+                                                    <td>
+                                                        <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
+                                                        {{ packet.signatures_received() }}
+                                                    </td>
+                                                    <td class="sign-packet" align="right">
+                                                        {# if not signed #}
+                                                        <button class="btn btn-primary">Sign</button>
+                                                        {# else if signed #}
+                                                        <button class="btn btn-primary" disabled="disabled"><i
+                                                                class="fa fa-check"></i>&nbsp;Signed
+                                                        </button>
+                                                        {# endif #}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
                                         {% endfor %}
                                         </tbody>
                                     </table>

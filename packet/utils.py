@@ -6,12 +6,13 @@ from functools import wraps
 import requests
 from flask import session
 
-from packet import _ldap
+from packet import _ldap, app
 from packet.ldap import (ldap_get_member,
                          ldap_is_active,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
                          ldap_get_groups)
+from packet.models import Freshman
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -93,3 +94,23 @@ def parse_account_year(date):
             year = year - 1
         return year
     return None
+
+
+@app.context_processor
+def utility_processor():
+    # pylint: disable=bare-except
+    def get_display_name(username):
+        try:
+            member = ldap_get_member(username)
+            return member.cn + " (" + member.uid + ")"
+        except:
+            return username
+
+    def get_freshman_name(username):
+        try:
+            freshman = Freshman.query.filter_by(rit_username=username).first()
+            return freshman.name + " (" + freshman.rit_username + ")"
+        except:
+            return username
+
+    return dict(get_display_name=get_display_name, get_freshman_name=get_freshman_name)
