@@ -4,9 +4,6 @@ from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 def sign(member_username, freshman_username):
     freshman = Freshman.query.filter_by(rit_username=freshman_username).first()
-    if freshman is None:
-        return False
-
     packet = freshman.current_packet()
     if packet is None:
         return False
@@ -22,7 +19,6 @@ def sign(member_username, freshman_username):
     else:
         db.session.add(MiscSignature(packet.id, member_username, datetime.now(), packet))
     db.session.commit()
-
     return True
 
 
