@@ -2,8 +2,7 @@ from datetime import datetime
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
-# Signing Function
-def sign(signer_username, freshman_username):
+def sign(member_username, freshman_username):
     freshman = Freshman.query.filter_by(rit_username=freshman_username)[0]
     packet = freshman.current_packet()
     if packet is None:
@@ -11,21 +10,14 @@ def sign(signer_username, freshman_username):
     if not packet.is_open():
         return False
 
-    try:
-        upper_signature = UpperSignature.query.filter_by(member=signer_username)[0]
-    except IndexError:
-        upper_signature = None
-    try:
-        fresh_signature = FreshSignature.query.filter_by(freshman=signer_username)[0]
-    except IndexError:
-        fresh_signature = None
-
+    upper_signature = UpperSignature.query.filter_by(member=member_username)[0]
+    fresh_signature = FreshSignature.query.filter_by(member=member_username)[0]
     if upper_signature:
         upper_signature.signed = True
     elif fresh_signature:
         fresh_signature.signed = True
     else:
-        db.session.add(MiscSignature(packet.id, signer_username, datetime.now(), packet))
+        db.session.add(MiscSignature(packet.id, member_username, datetime.now(), packet))
     db.session.commit()
     return True
 
