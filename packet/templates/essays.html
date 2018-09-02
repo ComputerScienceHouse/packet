@@ -11,9 +11,21 @@
             <div id="eval-table">
                 <div class="card">
                     <div class="card-body table-fill">
-                        <textarea title="EBoard"></textarea>
-                        <textarea title="Events"></textarea>
-                        <textarea title=""></textarea>
+                        <form action="/essay" method="post">
+                            <div class="form-group">
+                                <label for="info_eboard">EBoard Members</label>
+                                <textarea class="form-control" name="info_eboard">{{ packet.info_eboard }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="info_events">CSH Events</label>
+                                <textarea class="form-control" name="info_events">{{ packet.info_events }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="info_achieve">Technical Achievements</label>
+                                <textarea class="form-control" name="info_achieve">{{ packet.info_achieve }}</textarea>
+                            </div>
+                            <input type="submit" value="Submit" class="btn btn-primary">
+                        </form>
                     </div>
                 </div>
             </div>
