@@ -5,11 +5,10 @@ Defines command-line utilities for use with the app
 from secrets import token_hex
 from datetime import datetime, time, timedelta
 import csv
-from itertools import chain
 import click
 
 from . import app, db
-from .models import *
+from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
 from .ldap import ldap_get_eboard, ldap_get_live_onfloor
 
 @app.cli.command("create-secret")
@@ -149,6 +148,7 @@ def ldap_sync():
             db.session.add(UpperSignature(packet=packet, member=sig.member, eboard=sig.member in eboard, signed=True))
 
         # Create UpperSignatures for any new eboard or onfloor members
+        # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
             db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
