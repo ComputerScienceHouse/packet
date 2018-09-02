@@ -51,6 +51,25 @@ def unsign(signer_username, freshman_username):
     return True
 
 
+def set_requirements(freshman_username, eboard=None, events=None, achieve=None):
+    packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
+    if eboard is not None:
+        packet.info_eboard = eboard
+    if events is not None:
+        packet.info_events = events
+    if achieve is not None:
+        packet.info_achieve = achieve
+    db.session.commit()
+    return True
+
+
+def get_requirements(freshman_username):
+    packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
+    return {'eboard': packet.info_eboard,
+            'events': packet.info_events,
+            'achieve': packet.info_achieve}
+
+
 def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet()
     eboard = UpperSignature.query.filter_by(packet_id=packet.id, eboard=True)
@@ -67,4 +86,3 @@ def get_number_signed(freshman_username):
 
 def get_number_required(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required()
-
