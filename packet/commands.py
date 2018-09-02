@@ -100,23 +100,18 @@ def create_packets(freshmen_csv):
     end = datetime.combine(base_date, time(hour=23, minute=59)) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
-    eboard = [member.uid for member in ldap_get_eboard()]
-    onfloor = [member.uid for member in ldap_get_live_onfloor()]
+    eboard = set(member.uid for member in ldap_get_eboard())
+    onfloor = set(member.uid for member in ldap_get_live_onfloor())
+    all_upper = eboard.union(onfloor)
 
-    freshmen_in_csv = parse_csv(freshmen_csv)
-
-    # Create the new packets and the signatures
+    # Create the new packets and the signatures for each freshman in the given CSV
     print("Creating DB entries...")
-    for freshman in freshmen_in_csv.values():
-        packet = Packet(freshman=Freshman.query.filter_by(rit_username=freshman.rit_username).first(), start=start,
-                        end=end)
+    for freshman in Freshman.query.filter(Freshman.rit_username.in_(parse_csv(freshmen_csv))).all():
+        packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
 
-        for username in eboard:
-            db.session.add(UpperSignature(packet=packet, member=username, eboard=True))
-
-        for username in onfloor:
-            db.session.add(UpperSignature(packet=packet, member=username))
+        for member in all_upper:
+            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
                                                                               freshman.rit_username).all():
