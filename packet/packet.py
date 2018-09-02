@@ -26,6 +26,31 @@ def sign(signer_username, freshman_username):
     return True
 
 
+# This is a forbidden function.  Only those with the power of evals may wield it
+def unsign(signer_username, freshman_username):
+    freshman = Freshman.query.filter_by(rit_username=freshman_username).first()
+    if freshman is None:
+        return False
+    packet = freshman.current_packet()
+    if packet is None:
+        return False
+    if not packet.is_open():
+        return False
+
+    upper_signature = UpperSignature.query.filter(UpperSignature.member == signer_username).first()
+    fresh_signature = FreshSignature.query.filter(FreshSignature.freshman_username == signer_username).first()
+
+    if upper_signature:
+        upper_signature.signed = False
+    elif fresh_signature:
+        fresh_signature.signed = False
+    else:
+        db.session.remove(MiscSignature(packet.id, signer_username, datetime.now(), packet))
+    db.session.commit()
+
+    return True
+
+
 def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet()
     eboard = UpperSignature.query.filter_by(packet_id=packet.id, eboard=True)
@@ -42,3 +67,4 @@ def get_number_signed(freshman_username):
 
 def get_number_required(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required()
+
