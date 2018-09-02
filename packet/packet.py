@@ -1,4 +1,3 @@
-from datetime import datetime
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
@@ -20,7 +19,7 @@ def sign(signer_username, freshman_username):
     elif fresh_signature:
         fresh_signature.signed = True
     else:
-        db.session.add(MiscSignature(packet.id, signer_username, datetime.now(), packet))
+        db.session.add(MiscSignature(packet=packet, member=signer_username))
     db.session.commit()
 
     return True
