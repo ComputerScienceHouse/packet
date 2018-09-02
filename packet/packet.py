@@ -35,10 +35,37 @@ def sign(signer_username, freshman_username):
         db.session.add(MiscSignature(packet=packet, member=signer_username))
     db.session.commit()
 
+<<<<<<< HEAD
     # Clear functions that read signatures cache
     get_number_signed.cache_clear()
     get_signatures.cache_clear()
     get_upperclassmen_percent.cache_clear()
+=======
+    return True
+
+
+# This is a forbidden function.  Only those with the power of evals may wield it
+def unsign(signer_username, freshman_username):
+    freshman = Freshman.query.filter_by(rit_username=freshman_username).first()
+    if freshman is None:
+        return False
+    packet = freshman.current_packet()
+    if packet is None:
+        return False
+    if not packet.is_open():
+        return False
+
+    upper_signature = UpperSignature.query.filter(UpperSignature.member == signer_username).first()
+    fresh_signature = FreshSignature.query.filter(FreshSignature.freshman_username == signer_username).first()
+
+    if upper_signature:
+        upper_signature.signed = False
+    elif fresh_signature:
+        fresh_signature.signed = False
+    else:
+        db.session.query(MiscSignature).filter(MiscSignature.member == signer_username).delete()
+    db.session.commit()
+>>>>>>> Fixed whitespace
 
     return True
 
