@@ -70,8 +70,8 @@ def sync_freshmen(freshmen_csv):
         # Add any new onfloor freshmen
         # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
-        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs,
-                                   freshmen_in_csv.values()):
+        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs and
+                                                        csv_freshman.onfloor, freshmen_in_csv.values()):
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[csv_freshman.rit_username]))
 
     db.session.commit()
@@ -105,8 +105,9 @@ def create_packets(freshmen_csv):
     all_upper = eboard.union(onfloor)
 
     # Create the new packets and the signatures for each freshman in the given CSV
+    freshmen_in_csv = parse_csv(freshmen_csv)
     print("Creating DB entries...")
-    for freshman in Freshman.query.filter(Freshman.rit_username.in_(parse_csv(freshmen_csv))).all():
+    for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_in_csv)).all():
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
 
