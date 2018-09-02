@@ -1,4 +1,6 @@
 from flask import render_template
+from datetime import datetime
+from itertools import chain
 
 from packet import auth, app
 from packet.models import Freshman, Packet
@@ -23,5 +25,19 @@ def freshman_packet(uid, info=None):
 @auth.oidc_auth
 @before_request
 def packets(info=None):
-    packets = Packet.query.all()
+    packets = Packet.query.filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
+
+    # Add the did_sign flag
+    if app.config["REALM"] == "csh":
+        # User is an upperclassman
+        for packet in packets:
+            for sig in filter(lambda sig: sig.member == info["uid"], chain(packet.upper_signatures,
+                                                                           packet.misc_signatures)):
+                packet.did_sign = sig.signed
+    else:
+        # User is a freshman
+        for packet in packets:
+            for sig in filter(lambda sig: sig.freshman_username == info["uid"], packet.fresh_signatures):
+                packet.did_sign = sig.signed
+
     return render_template("active_packets.html", info=info, packets=packets)
