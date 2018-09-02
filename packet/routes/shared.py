@@ -31,14 +31,21 @@ def packets(info=None):
     if app.config["REALM"] == "csh":
         # User is an upperclassman
         for packet in packets:
-            for sig in filter(lambda sig: sig.member == info["uid"], chain(packet.upper_signatures,
-                                                                           packet.misc_signatures)):
-                packet.did_sign = sig.signed
+            packet.did_sign = False
+
+            for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
+                if sig.member == info["uid"]:
+                    packet.did_sign = True
+                    break
     else:
         # User is a freshman
         for packet in packets:
-            for sig in filter(lambda sig: sig.freshman_username == info["uid"], packet.fresh_signatures):
-                packet.did_sign = sig.signed
+            packet.did_sign = False
+
+            for sig in filter(lambda sig: sig.signed, packet.fresh_signatures):
+                if sig.member == info["uid"]:
+                    packet.did_sign = True
+                    break
 
     packets.sort(key=lambda x: sum(x.signatures_received().values()), reverse=True)
     packets.sort(key=lambda x: x.did_sign, reverse=True)
