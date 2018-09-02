@@ -37,7 +37,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.eboard %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
@@ -74,7 +74,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.upperclassmen %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
@@ -111,7 +111,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.freshmen %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <a href="/packet/{{ m.freshman.rit_username }}">
                                                     <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
@@ -150,7 +150,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.misc %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"

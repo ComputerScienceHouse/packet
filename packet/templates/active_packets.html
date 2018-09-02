@@ -28,7 +28,13 @@
                                             {% if packet.is_open() %}
                                                 <tr>
                                                     <td>
-                                                        {{ packet.freshman.name }}
+                                                        <a href="/packet/{{ packet.freshman.rit_username }}">
+                                                            <img class="eval-user-img"
+                                                                 alt="{{ packet.freshman.name }}"
+                                                                 src="https://profiles.csh.rit.edu/image/{{ packet.freshman.rit_username }}"
+                                                                 width="30"
+                                                                 height="30"/> {{ get_freshman_name(packet.freshman.rit_username) }}
+                                                        </a>
                                                     </td>
                                                     <td>
                                                         {{ packet.signatures_received() }}

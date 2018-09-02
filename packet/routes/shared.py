@@ -10,7 +10,7 @@ from packet.utils import before_request
 @auth.oidc_auth
 @before_request
 def freshman_packet(uid, info=None):
-    freshman = Freshman.query.filter_by(rit_username=uid)[0]
+    freshman = Freshman.query.filter_by(rit_username=uid).first()
     signatures = get_signatures(uid)
     required = sum(get_number_required(uid).values())
     signed = sum(get_number_signed(uid).values())
