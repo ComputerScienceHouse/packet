@@ -2,171 +2,222 @@
 
 {% block body %}
     <div class="container main">
-        <div class="row mobile-hide">
-            <div class="col-sm-10">
-                <h3 class="page-title">{{ freshman.name }}</h3>
+        <div class="mb-2">
+            <div class="row justify-content-between w-100">
+                <div class="col">
+                    <h3>{{ freshman.name }}</h3>
+                </div>
+                <div class="col">
+                    {% if (info.onfloor and info.uid != freshman.rit_username) or info.realm == "csh" %}
+                        {% if not packet_signed %}
+                            <button class="btn btn-primary sign-button alignright"
+                                    data-freshman_uid="{{ freshman.rit_username }}"
+                                    data-freshman_name="{{ freshman.name }}">Sign
+                            </button>
+                        {% else %}
+                            <button class="btn btn-primary alignright" disabled="disabled"><i
+                                    class="fa fa-check"></i>&nbsp;Signed
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div>
-            Signatures: {{ signed }}/{{ required }}
-            {% if info.onfloor or info.realm == "csh" %}
-                {% if not packet_signed %}
-                    <button class="btn btn-primary sign-button"
-                            data-freshman_uid="{{ freshman.rit_username }}"
-                            data-freshman_name="{{ freshman.name }}">Sign
-                    </button>
-                {% else %}
-                    <button class="btn btn-primary" disabled="disabled"><i
-                            class="fa fa-check"></i>&nbsp;Signed
-                    </button>
-                {% endif %}
-            {% endif %}
+            <div class="row justify-content-between">
+                <div class="col">
+                    <h5>Signatures: {{ signed }}/{{ required }}</h5>
+                </div>
+            </div>
+            <div class="card card-body">
+                <div class="row justify-content-between">
+                    <div class="col">
+                        <h5>Total Score</h5>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                 aria-valuenow="{{ signed/required * 100 }}" aria-valuemin="0" aria-valuemax="100"
+                                 style="width: {{ signed/required * 100 }}%"></div>
+                        </div>
+                        <h5>Upperclassmen Score</h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 aria-valuenow="{{ upperclassmen_percent }}" aria-valuemin="0" aria-valuemax="100"
+                                 style="width: {{ upperclassmen_percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="eval-blocks">
             <div id="eval-table">
                 <div class="card mb-3">
-                    <div class="card-body table-fill">
-                        <div class="card-body table-fill">
-                            <div class="table-responsive">
-                                <table class="table table-striped no-bottom-margin" data-module="table"
-                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                       data-length-changable="true" data-paginated="false">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Signature</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for m in signatures.eboard %}
-                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
-                                            <td>
-                                                <img class="eval-user-img" alt="{{ m['member'] }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_display_name(m.member) }}
-                                            </td>
-                                            <td>
-                                                {% if m.signed %}
-                                                    <i class="fas fa-check"></i>
-                                                {% else %}
-                                                    <i class="fas fa-times"></i>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="card-header">
+                        <b>EBoard Signatures</b>
                     </div>
-                </div>
-                <div class="card mb-3">
                     <div class="card-body table-fill">
-                        <div class="card-body table-fill">
-                            <div class="table-responsive">
-                                <table class="table table-striped no-bottom-margin" data-module="table"
-                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                       data-length-changable="true" data-paginated="false">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Signature</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for m in signatures.upperclassmen %}
-                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
-                                            <td>
-                                                <img class="eval-user-img" alt="{{ m['member'] }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_display_name(m.member) }}
-                                            </td>
-                                            <td>
-                                                {% if m.signed %}
-                                                    <i class="fas fa-check"></i>
-                                                {% else %}
-                                                    <i class="fas fa-times"></i>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-body table-fill">
-                        <div class="card-body table-fill">
-                            <div class="table-responsive">
-                                <table class="table table-striped no-bottom-margin" data-module="table"
-                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                       data-length-changable="true" data-paginated="false">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Signature</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for m in signatures.freshmen %}
-                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
-                                            <td>
-                                                <a href="/packet/{{ m.freshman.rit_username }}">
-                                                    <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
-                                                         src="https://profiles.csh.rit.edu/image/{{ m.freshman.rit_username }}"
-                                                         width="30"
-                                                         height="30"/> {{ get_freshman_name(m.freshman.rit_username) }}
+                        <div class="table-responsive">
+                            <table class="table table-striped no-bottom-margin" data-module="table"
+                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                   data-length-changable="true" data-paginated="false">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Signature</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for m in signatures.eboard %}
+                                    <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <td>
+                                            {% if info.realm == "csh" %}
+                                                <a href="/member/{{ m.member }}">
+                                            {% endif %}
+                                            <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                 src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
+                                                 width="30"
+                                                 height="30"/> {{ get_display_name(m.member) }}
+                                            {% if info.realm == "csh" %}
                                                 </a>
-                                            </td>
-                                            <td>
-                                                {% if m.signed %}
-                                                    <i class="fas fa-check"></i>
-                                                {% else %}
-                                                    <i class="fas fa-times"></i>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if m.signed %}
+                                                <i class="fas fa-check"></i>
+                                            {% else %}
+                                                <i class="fas fa-times"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="card mb-3">
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <b>On-Floor Upperclassmen Signatures</b>
+                    </div>
                     <div class="card-body table-fill">
-                        <div class="card-body table-fill">
-                            <div class="table-responsive">
-                                <table class="table table-striped no-bottom-margin" data-module="table"
-                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                       data-length-changable="true" data-paginated="false">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Signature</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for m in signatures.misc %}
-                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
-                                            <td>
-                                                <img class="eval-user-img" alt="{{ m['member'] }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_display_name(m.member) }}
-                                            </td>
-                                            <td>
+                        <div class="table-responsive">
+                            <table class="table table-striped no-bottom-margin" data-module="table"
+                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                   data-length-changable="true" data-paginated="false">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Signature</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for m in signatures.upperclassmen %}
+                                    <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <td>
+                                            {% if info.realm == "csh" %}
+                                                <a href="/member/{{ m.member }}">
+                                            {% endif %}
+                                            <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                 src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
+                                                 width="30"
+                                                 height="30"/> {{ get_display_name(m.member) }}
+                                            {% if info.realm == "csh" %}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if m.signed %}
                                                 <i class="fas fa-check"></i>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            {% else %}
+                                                <i class="fas fa-times"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <b>On-Floor Freshmen Signatures</b>
+                    </div>
+                    <div class="card-body table-fill">
+                        <div class="table-responsive">
+                            <table class="table table-striped no-bottom-margin" data-module="table"
+                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                   data-length-changable="true" data-paginated="false">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Signature</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for m in signatures.freshmen %}
+                                    <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <td>
+                                            <a href="/packet/{{ m.freshman.rit_username }}">
+                                                <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ m.freshman.rit_username }}"
+                                                     width="30"
+                                                     height="30"/> {{ get_freshman_name(m.freshman.rit_username) }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if m.signed %}
+                                                <i class="fas fa-check"></i>
+                                            {% else %}
+                                                <i class="fas fa-times"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-2">
+                    <div class="card-header">
+                        <b>Off-Floor Upperclassmen/Alumni/Advisor Signatures</b>
+                    </div>
+                    <div class="card-body table-fill">
+                        <div class="table-responsive">
+                            <table class="table table-striped no-bottom-margin" data-module="table"
+                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                   data-length-changable="true" data-paginated="false">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Signature</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for m in signatures.misc %}
+                                    <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <td>
+                                            {% if info.realm == "csh" %}
+                                                <a href="/member/{{ m.member }}">
+                                            {% endif %}
+                                            <img class="eval-user-img" alt="{{ m['member'] }}"
+                                                 src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
+                                                 width="30"
+                                                 height="30"/> {{ get_display_name(m.member) }}
+                                            {% if info.realm == "csh" %}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if loop.index <= 15 %}
+                                                <i class="fas fa-check"></i>
+                                            {% else %}
+                                                <p>Extra!</p>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

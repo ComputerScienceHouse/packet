@@ -16,9 +16,20 @@ def freshman_packet(uid, info=None):
     signatures = get_signatures(uid)
     required = sum(get_number_required(uid).values())
     signed = sum(get_number_signed(uid).values())
+
+    upperclassmen_required = get_number_required(uid)
+    del upperclassmen_required['freshmen']
+    upperclassmen_required = sum(upperclassmen_required.values())
+
+    upperclassmen_signature = get_number_signed(uid)
+    del upperclassmen_signature['freshmen']
+    upperclassmen_signature = sum(upperclassmen_signature.values())
+
+    upperclassmen_percent = upperclassmen_signature / upperclassmen_required * 100
+
     packet_signed = signed_packet(info['uid'], uid)
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
-                           freshman=freshman, packet_signed=packet_signed)
+                           freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent)
 
 
 @app.route("/packets")
@@ -32,6 +43,8 @@ def packets(info=None):
         # User is an upperclassman
         for packet in packets:
             packet.did_sign = False
+            packet.total_signatures = sum(packet.signatures_received().values())
+            packet.required_signatures = sum(packet.signatures_required().values())
 
             for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
                 if sig.member == info["uid"]:
@@ -41,9 +54,11 @@ def packets(info=None):
         # User is a freshman
         for packet in packets:
             packet.did_sign = False
+            packet.total_signatures = sum(packet.signatures_received().values())
+            packet.required_signatures = sum(packet.signatures_required().values())
 
             for sig in filter(lambda sig: sig.signed, packet.fresh_signatures):
-                if sig.member == info["uid"]:
+                if sig.freshman_username == info["uid"]:
                     packet.did_sign = True
                     break
 
