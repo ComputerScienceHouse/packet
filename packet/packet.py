@@ -2,6 +2,9 @@ from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
 def sign(signer_username, freshman_username):
+    if signer_username == freshman_username:
+        return False
+
     freshman_signed = Freshman.query.filter_by(rit_username=freshman_username).first()
     if freshman_signed is None:
         return False
