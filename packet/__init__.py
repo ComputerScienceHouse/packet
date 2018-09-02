@@ -5,7 +5,6 @@ The application setup and initialization code lives here.
 import os
 
 import csh_ldap
-import flask_saml
 from flask import Flask
 from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
@@ -31,8 +30,6 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 
 # LDAP
 _ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
-
-flask_saml.FlaskSAML(app)
 
 # pylint: disable=wrong-import-position
 if app.config["REALM"] == "csh":
