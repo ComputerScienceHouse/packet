@@ -31,12 +31,14 @@
                                                         {{ packet.freshman.name }}
                                                     </td>
                                                     <td>
-                                                        <span class="glyphicon glyphicon-ok-sign green eval-info-status"></span>
                                                         {{ packet.signatures_received() }}
                                                     </td>
                                                     <td class="sign-packet" align="right">
                                                         {# if not signed #}
-                                                        <button class="btn btn-primary">Sign</button>
+                                                        <button class="btn btn-primary sign-button"
+                                                                data-freshman_uid="{{ packet.freshman.rit_username }}"
+                                                                data-freshman_name="{{ packet.freshman.name }}">Sign
+                                                        </button>
                                                         {# else if signed #}
                                                         <button class="btn btn-primary" disabled="disabled"><i
                                                                 class="fa fa-check"></i>&nbsp;Signed
@@ -55,7 +57,6 @@
                 </div>
             {% else %}
                 <div class="alert alert-info" role="alert">
-                    <span class="glyphicon glyphicon-info-sign white" style="padding-right:5px"></span>
                     There are currently no active packets.
                 </div>
             {% endif %}

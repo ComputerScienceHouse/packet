@@ -2,7 +2,7 @@
 Defines the application's database models.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
@@ -12,15 +12,12 @@ from . import db
 REQUIRED_MISC_SIGNATURES = 15
 
 
-def end_date():
-    return datetime.now() + timedelta(days=14)
-
-
 class Freshman(db.Model):
     __tablename__ = "freshman"
     rit_username = Column(String(10), primary_key=True)
     name = Column(String(64), nullable=False)
     onfloor = Column(Boolean, nullable=False)
+    fresh_signatures = relationship("FreshSignature")
 
     # One freshman can have multiple packets if they repeat the intro process
     packets = relationship("Packet", order_by="desc(Packet.id)")
@@ -36,10 +33,10 @@ class Packet(db.Model):
     __tablename__ = "packet"
     id = Column(Integer, primary_key=True, autoincrement=True)
     freshman_username = Column(ForeignKey("freshman.rit_username"))
-    start = Column(DateTime, default=datetime.now, nullable=False)
-    end = Column(DateTime, default=end_date, nullable=False)
-    info_eboard = Column(Text, nullable=True)  # Used to fulfil the eboard description requirement
-    info_events = Column(Text, nullable=True)  # Used to fulfil the events list requirement
+    start = Column(DateTime, nullable=False)
+    end = Column(DateTime, nullable=False)
+    info_eboard = Column(Text, nullable=True)   # Used to fulfil the eboard description requirement
+    info_events = Column(Text, nullable=True)   # Used to fulfil the events list requirement
     info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
@@ -94,6 +91,7 @@ class FreshSignature(db.Model):
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     packet = relationship("Packet", back_populates="fresh_signatures")
+    freshman = relationship("Freshman", back_populates="fresh_signatures")
 
 
 class MiscSignature(db.Model):
