@@ -37,8 +37,8 @@ def get_signatures(freshman_username):
 
 
 def get_number_signed(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_received()
+    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received()
 
 
 def get_number_required(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username)[0].current_packet().signatures_required()
+    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required()

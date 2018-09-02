@@ -12,8 +12,8 @@ from packet.utils import before_request
 def freshman_packet(uid, info=None):
     freshman = Freshman.query.filter_by(rit_username=uid)[0]
     signatures = get_signatures(uid)
-    required = get_number_required(uid)
-    signed = get_number_signed(uid)
+    required = sum(get_number_required(uid).values())
+    signed = sum(get_number_signed(uid).values())
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
                            freshman=freshman)
 
