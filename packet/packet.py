@@ -44,7 +44,7 @@ def unsign(signer_username, freshman_username):
     elif fresh_signature:
         fresh_signature.signed = False
     else:
-        db.session.delete(MiscSignature(packet=packet, member=signer_username))
+        db.session.query(MiscSignature).filter(MiscSignature.member==signer_username).delete()
     db.session.commit()
 
     return True
