@@ -1,6 +1,6 @@
 # Credit to Liam Middlebrook and Ram Zallan
 # https://github.com/liam-middlebrook/gallery
-from functools import wraps
+from functools import wraps, lru_cache
 
 import requests
 from flask import session
@@ -11,7 +11,7 @@ from packet.ldap import (ldap_get_member,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
                          ldap_get_groups)
-from packet.models import Freshman
+from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -24,7 +24,8 @@ def before_request(func):
         if session["id_token"]["iss"] == INTRO_REALM:
             info = {
                 "realm": "intro",
-                "uid": uid
+                "uid": uid,
+                "onfloor": is_on_floor(uid)
             }
         else:
             uuid = str(session["userinfo"].get("sub", ""))
@@ -91,6 +92,27 @@ def parse_account_year(date):
             year = year - 1
         return year
     return None
+
+
+@lru_cache(maxsize=2048)
+def is_on_floor(uid):
+    return (Freshman.query.filter_by(rit_username=uid)).first().onfloor
+
+
+@lru_cache(maxsize=4096)
+def signed_packet(signer, freshman):
+    packet = Packet.query.filter_by(freshman_username=freshman).first()
+    freshman_signature = FreshSignature.query.filter_by(packet=packet, freshman_username=signer, signed=True).first()
+    upper_signature = UpperSignature.query.filter_by(packet=packet, member=signer, signed=True).first()
+    misc_signature = MiscSignature.query.filter_by(packet=packet, member=signer).first()
+
+    if freshman_signature is not None:
+        return freshman_signature.signed
+    if upper_signature is not None:
+        return upper_signature.signed
+    if misc_signature is not None:
+        return misc_signature
+    return False
 
 
 @app.context_processor
