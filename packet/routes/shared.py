@@ -40,4 +40,7 @@ def packets(info=None):
             for sig in filter(lambda sig: sig.freshman_username == info["uid"], packet.fresh_signatures):
                 packet.did_sign = sig.signed
 
+    packets.sort(key=lambda x: sum(x.signatures_received().values()), reverse=True)
+    packets.sort(key=lambda x: x.did_sign, reverse=True)
+
     return render_template("active_packets.html", info=info, packets=packets)
