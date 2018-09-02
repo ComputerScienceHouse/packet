@@ -17,8 +17,10 @@ def sign(signer_username, freshman_username):
         if not freshman_signer.onfloor:
             return False
 
-    upper_signature = UpperSignature.query.filter(UpperSignature.member == signer_username).first()
-    fresh_signature = FreshSignature.query.filter(FreshSignature.freshman_username == signer_username).first()
+    upper_signature = UpperSignature.query.filter(UpperSignature.member == signer_username,
+                                                  UpperSignature.packet == packet).first()
+    fresh_signature = FreshSignature.query.filter(FreshSignature.freshman_username == signer_username,
+                                                  FreshSignature.packet == packet).first()
 
     if upper_signature:
         upper_signature.signed = True
