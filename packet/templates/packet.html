@@ -9,16 +9,18 @@
         </div>
         <div>
             Signatures: {{ signed }}/{{ required }}
-            {# if not signed #}
-            <button class="btn btn-primary sign-button"
-                    data-freshman_uid="{{ freshman.rit_username }}"
-                    data-freshman_name="{{ freshman.name }}">Sign
-            </button>
-            {# else if signed #}
-            <button class="btn btn-primary" disabled="disabled"><i
-                    class="fa fa-check"></i>&nbsp;Signed
-            </button>
-            {# endif #}
+            {% if info.onfloor or info.realm == "csh" %}
+                {% if not packet_signed %}
+                    <button class="btn btn-primary sign-button"
+                            data-freshman_uid="{{ freshman.rit_username }}"
+                            data-freshman_name="{{ freshman.name }}">Sign
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary" disabled="disabled"><i
+                            class="fa fa-check"></i>&nbsp;Signed
+                    </button>
+                {% endif %}
+            {% endif %}
         </div>
         <div id="eval-blocks">
             <div id="eval-table">
@@ -37,7 +39,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.eboard %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
@@ -74,7 +76,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.upperclassmen %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
@@ -111,7 +113,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.freshmen %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <a href="/packet/{{ m.freshman.rit_username }}">
                                                     <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
@@ -150,7 +152,7 @@
                                     </thead>
                                     <tbody>
                                     {% for m in signatures.misc %}
-                                        <tr>
+                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <img class="eval-user-img" alt="{{ m['member'] }}"
                                                      src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
