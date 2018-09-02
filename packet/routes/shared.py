@@ -31,13 +31,12 @@ def packets(info=None):
     if app.config["REALM"] == "csh":
         # User is an upperclassman
         for packet in packets:
-            for sig in filter(lambda sig: sig.member == info["uid"], chain(packet.upper_signatures,
-                                                                           packet.misc_signatures)):
-                packet.did_sign = sig.signed
+            for sig in chain(packet.upper_signatures, packet.misc_signatures):
+                packet.did_sign = sig.signed and sig.member == info["uid"]
     else:
         # User is a freshman
         for packet in packets:
-            for sig in filter(lambda sig: sig.freshman_username == info["uid"], packet.fresh_signatures):
-                packet.did_sign = sig.signed
+            for sig in packet.fresh_signatures:
+                packet.did_sign = sig.signed and sig.freshman_username == info["uid"]
 
     return render_template("active_packets.html", info=info, packets=packets)
