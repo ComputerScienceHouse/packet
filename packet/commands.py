@@ -123,6 +123,9 @@ def create_packets(freshmen_csv):
 
 @app.cli.command("ldap-sync")
 def ldap_sync():
+    """
+    Updates the upper and misc sigs in the DB to match ldap.
+    """
     print("Fetching data from LDAP...")
     eboard = set(member.uid for member in ldap_get_eboard())
     onfloor = set(member.uid for member in ldap_get_live_onfloor())
