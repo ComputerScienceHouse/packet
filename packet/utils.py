@@ -93,12 +93,4 @@ def utility_processor():
         except:
             return username
 
-    @lru_cache(maxsize=4096)
-    def get_freshman_name(username):
-        try:
-            freshman = Freshman.query.filter_by(rit_username=username).first()
-            return freshman.name + " (" + freshman.rit_username + ")"
-        except:
-            return username
-
-    return dict(get_display_name=get_display_name, get_freshman_name=get_freshman_name)
+    return dict(get_display_name=get_display_name)

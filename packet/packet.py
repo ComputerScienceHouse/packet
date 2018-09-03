@@ -34,9 +34,14 @@ def sign(signer_username, freshman_username):
         db.session.add(MiscSignature(packet=packet, member=signer_username))
     db.session.commit()
 
+    # Clear functions that read signatures cache
+    get_number_signed.cache_clear()
+    get_signatures.cache_clear()
+
     return True
 
 
+@lru_cache(maxsize=2048)
 def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
     eboard = UpperSignature.query.filter_by(packet_id=packet.id, eboard=True).order_by(UpperSignature.signed.desc())
@@ -50,7 +55,7 @@ def get_signatures(freshman_username):
             'misc': misc_signatures}
 
 
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=2048)
 def get_number_signed(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received()
 

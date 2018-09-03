@@ -3,12 +3,12 @@ from functools import lru_cache
 from packet import _ldap
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=1024)
 def _ldap_get_group_members(group):
     return _ldap.get_group(group).get_members()
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=2048)
 def _ldap_is_member_of_group(member, group):
     group_list = member.get("memberOf")
     for group_dn in group_list:
@@ -17,7 +17,7 @@ def _ldap_is_member_of_group(member, group):
     return False
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=1024)
 def _ldap_is_member_of_directorship(account, directorship):
     directors = _ldap.get_directorship_heads(directorship)
     for director in directors:
@@ -83,6 +83,11 @@ def ldap_get_live_onfloor():
 
 
 # Status checkers
+
+@lru_cache(maxsize=1024)
+def ldap_is_eval_director(account):
+    return _ldap_is_member_of_directorship(account, 'evaluations')
+
 
 @lru_cache(maxsize=1024)
 def ldap_is_active(account):

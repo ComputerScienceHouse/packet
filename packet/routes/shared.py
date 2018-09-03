@@ -1,6 +1,7 @@
-from flask import render_template
 from datetime import datetime
 from itertools import chain
+
+from flask import render_template
 
 from packet import auth, app
 from packet.models import Freshman, Packet
