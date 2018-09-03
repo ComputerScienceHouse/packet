@@ -1,4 +1,4 @@
-from packet.ldap import _ldap_is_member_of_group, ldap_get_member
+from packet.ldap import ldap_get_member, ldap_is_intromember
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
@@ -19,15 +19,14 @@ def sign(signer_username, freshman_username):
                                                   FreshSignature.packet == packet).first()
 
     if upper_signature:
-        if _ldap_is_member_of_group(ldap_get_member(signer_username), "intromembers"):
+        if ldap_is_intromember(ldap_get_member(signer_username)):
             return False
         upper_signature.signed = True
     elif fresh_signature:
         # Make sure only on floor freshmen can sign packets
         freshman_signer = Freshman.query.filter_by(rit_username=signer_username).first()
-        if freshman_signer:
-            if not freshman_signer.onfloor:
-                return False
+        if freshman_signer and not freshman_signer.onfloor:
+            return False
         fresh_signature.signed = True
     else:
         db.session.add(MiscSignature(packet=packet, member=signer_username))
