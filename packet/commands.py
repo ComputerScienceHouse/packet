@@ -8,7 +8,7 @@ import csv
 import click
 
 from . import app, db
-from .models import Freshman, Packet, UpperSignature, FreshSignature
+from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
 from .ldap import ldap_get_eboard, ldap_get_live_onfloor
 
 @app.cli.command("create-secret")
@@ -70,7 +70,9 @@ def sync_freshmen(freshmen_csv):
         # Add any new onfloor freshmen
         # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
-        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs,
+        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs and
+                                                        csv_freshman.onfloor and
+                                                        csv_freshman.rit_username != packet.freshman_username,
                                    freshmen_in_csv.values()):
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[csv_freshman.rit_username]))
 
@@ -100,27 +102,59 @@ def create_packets(freshmen_csv):
     end = datetime.combine(base_date, time(hour=23, minute=59)) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
-    eboard = [member.uid for member in ldap_get_eboard()]
-    onfloor = [member.uid for member in ldap_get_live_onfloor()]
+    eboard = set(member.uid for member in ldap_get_eboard())
+    onfloor = set(member.uid for member in ldap_get_live_onfloor())
+    all_upper = eboard.union(onfloor)
 
+    # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
-
-    # Create the new packets and the signatures
     print("Creating DB entries...")
-    for freshman in freshmen_in_csv.values():
-        packet = Packet(freshman=Freshman.query.filter_by(rit_username=freshman.rit_username).first(), start=start,
-                        end=end)
+    for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_in_csv)).all():
+        packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
 
-        for username in eboard:
-            db.session.add(UpperSignature(packet=packet, member=username, eboard=True))
-
-        for username in onfloor:
-            db.session.add(UpperSignature(packet=packet, member=username))
+        for member in all_upper:
+            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
                                                                               freshman.rit_username).all():
             db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
+
+    db.session.commit()
+    print("Done!")
+
+@app.cli.command("ldap-sync")
+def ldap_sync():
+    """
+    Updates the upper and misc sigs in the DB to match ldap.
+    """
+    print("Fetching data from LDAP...")
+    eboard = set(member.uid for member in ldap_get_eboard())
+    onfloor = set(member.uid for member in ldap_get_live_onfloor())
+    all_upper = eboard.union(onfloor)
+
+    print("Applying updates to the DB...")
+    for packet in Packet.query.filter(Packet.end > datetime.now()).all():
+        # Update the eboard state of all UpperSignatures
+        for sig in packet.upper_signatures:
+            sig.eboard = sig.member in eboard
+
+        # Migrate UpperSignatures that are from accounts that are not eboard or onfloor anymore
+        for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
+            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
+            if sig.signed:
+                db.session.add(MiscSignature(packet=packet, member=sig.member))
+
+        # Migrate MiscSignatures that are from accounts that are now eboard or onfloor members
+        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
+            MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
+            db.session.add(UpperSignature(packet=packet, member=sig.member, eboard=sig.member in eboard, signed=True))
+
+        # Create UpperSignatures for any new eboard or onfloor members
+        # pylint: disable=cell-var-from-loop
+        upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
+        for member in filter(lambda member: member not in upper_sigs, all_upper):
+            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
 
     db.session.commit()
     print("Done!")

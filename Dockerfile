@@ -26,4 +26,6 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
     apt-get -yq remove nodejs npm yarn && \
     apt-get -yq clean all
 
+RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+
 CMD ["gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-"]
