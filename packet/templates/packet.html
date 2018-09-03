@@ -10,12 +10,12 @@
                 <div class="col">
                     {% if (info.onfloor and info.uid != freshman.rit_username) or info.realm == "csh" %}
                         {% if not packet_signed %}
-                            <button class="btn btn-primary sign-button alignright"
+                            <button class="btn btn-primary sign-button"
                                     data-freshman_uid="{{ freshman.rit_username }}"
                                     data-freshman_name="{{ freshman.name }}">Sign
                             </button>
                         {% else %}
-                            <button class="btn btn-primary alignright" disabled="disabled"><i
+                            <button class="btn btn-primary" disabled="disabled"><i
                                     class="fa fa-check"></i>&nbsp;Signed
                             </button>
                         {% endif %}
@@ -30,12 +30,14 @@
             <div class="card card-body">
                 <div class="row justify-content-between">
                     <div class="col">
+                        <b class="signature-count">{{ '%0.2f' % (signed/required * 100) }}%</b>
                         <h5>Total Score</h5>
                         <div class="progress">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                                  aria-valuenow="{{ signed/required * 100 }}" aria-valuemin="0" aria-valuemax="100"
                                  style="width: {{ signed/required * 100 }}%"></div>
                         </div>
+                        <b class="signature-count">{{ '%0.2f' % upperclassmen_percent }}%</b>
                         <h5>Upperclassmen Score</h5>
                         <div class="progress">
                             <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
@@ -43,6 +45,7 @@
                                  aria-valuenow="{{ upperclassmen_percent }}" aria-valuemin="0" aria-valuemax="100"
                                  style="width: {{ upperclassmen_percent }}%"></div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -52,6 +55,7 @@
                 <div class="card mb-3">
                     <div class="card-header">
                         <b>EBoard Signatures</b>
+                        <b class="signature-count">{{ signed_dict.eboard }}/{{ signatures.eboard.count() }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -73,13 +77,13 @@
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
                                         </td>
-                                        <td>
+                                        <td width="15%">
                                             {% if m.signed %}
                                                 <i class="fas fa-check"></i>
                                             {% else %}
@@ -96,6 +100,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>On-Floor Upperclassmen Signatures</b>
+                        <b class="signature-count">{{ signed_dict.upperclassmen }}/{{ signatures.upperclassmen.count() }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -117,13 +122,13 @@
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
                                         </td>
-                                        <td>
+                                        <td width="15%">
                                             {% if m.signed %}
                                                 <i class="fas fa-check"></i>
                                             {% else %}
@@ -140,6 +145,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>On-Floor Freshmen Signatures</b>
+                        <b class="signature-count">{{ signed_dict.freshmen }}/{{ signatures.freshmen.count() }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -158,12 +164,12 @@
                                         <td>
                                             <a href="/packet/{{ m.freshman.rit_username }}">
                                                 <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m.freshman.rit_username }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_freshman_name(m.freshman.rit_username) }}
+                                                     src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+                                                     width="25"
+                                                     height="25"/> {{ get_freshman_name(m.freshman.rit_username) }}
                                             </a>
                                         </td>
-                                        <td>
+                                        <td width="15%">
                                             {% if m.signed %}
                                                 <i class="fas fa-check"></i>
                                             {% else %}
@@ -180,6 +186,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>Off-Floor Upperclassmen/Alumni/Advisor Signatures</b>
+                        <b class="signature-count">{{ signatures.misc.count() }}/15</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -188,6 +195,7 @@
                                    data-length-changable="true" data-paginated="false">
                                 <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Name</th>
                                     <th>Signature</th>
                                 </tr>
@@ -195,19 +203,22 @@
                                 <tbody>
                                 {% for m in signatures.misc %}
                                     <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <td width="5%">
+                                            {{ loop.index }}.&nbsp;
+                                        </td>
                                         <td>
                                             {% if info.realm == "csh" %}
                                                 <a href="/member/{{ m.member }}">
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
                                         </td>
-                                        <td>
+                                        <td width="15%">
                                             {% if loop.index <= 15 %}
                                                 <i class="fas fa-check"></i>
                                             {% else %}
