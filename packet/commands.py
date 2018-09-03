@@ -71,7 +71,9 @@ def sync_freshmen(freshmen_csv):
         # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
         for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs and
-                                                        csv_freshman.onfloor, freshmen_in_csv.values()):
+                                                        csv_freshman.onfloor and
+                                                        csv_freshman.rit_username != packet.freshman_username,
+                                   freshmen_in_csv.values()):
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[csv_freshman.rit_username]))
 
     db.session.commit()
