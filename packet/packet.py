@@ -1,3 +1,4 @@
+import copy
 from functools import lru_cache
 
 from packet.ldap import ldap_get_member, ldap_is_intromember
@@ -37,6 +38,7 @@ def sign(signer_username, freshman_username):
     # Clear functions that read signatures cache
     get_number_signed.cache_clear()
     get_signatures.cache_clear()
+    get_upperclassmen_percent.cache_clear()
 
     return True
 
@@ -63,3 +65,16 @@ def get_number_signed(freshman_username):
 @lru_cache(maxsize=4096)
 def get_number_required(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required()
+
+
+@lru_cache(maxsize=2048)
+def get_upperclassmen_percent(uid):
+    upperclassmen_required = copy.deepcopy(get_number_required(uid))
+    del upperclassmen_required['freshmen']
+    upperclassmen_required = sum(upperclassmen_required.values())
+
+    upperclassmen_signature = copy.deepcopy(get_number_signed(uid))
+    del upperclassmen_signature['freshmen']
+    upperclassmen_signature = sum(upperclassmen_signature.values())
+
+    return upperclassmen_signature / upperclassmen_required * 100
