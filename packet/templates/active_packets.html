@@ -37,7 +37,11 @@
                                                         </a>
                                                     </td>
                                                     <td>
-                                                        {{ packet.total_signatures }}/{{ packet.required_signatures }}
+                                                        {% if packet.total_signatures == packet.required_signatures %}
+                                                            💯 {# 100% emoji #}
+                                                        {% else %}
+                                                            {{ packet.total_signatures }}/{{ packet.required_signatures }}
+                                                        {% endif %}
                                                     </td>
                                                     {% if (info.onfloor and info.uid != packet.freshman.rit_username) or info.realm == "csh" %}
                                                         <td class="sign-packet" align="right">
