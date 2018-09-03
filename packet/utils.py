@@ -45,6 +45,7 @@ def before_request(func):
     return wrapped_function
 
 
+@lru_cache(maxsize=2048)
 def get_member_info(uid):
     account = ldap_get_member(uid)
 
@@ -52,46 +53,12 @@ def get_member_info(uid):
         "user_obj": account,
         "group_list": ldap_get_groups(account),
         "uid": account.uid,
-        "ritUid": parse_rit_uid(account.ritDn),
         "name": account.cn,
         "active": ldap_is_active(account),
         "onfloor": ldap_is_onfloor(account),
         "room": ldap_get_roomnumber(account),
-        "hp": account.housingPoints,
-        "plex": account.plex,
-        "rn": ldap_get_roomnumber(account),
-        "birthday": parse_date(account.birthday),
-        "memberSince": parse_date(account.memberSince),
-        "lastlogin": parse_date(account.krblastsuccessfulauth),
-        "year": parse_account_year(account.memberSince)
     }
     return member_info
-
-
-def parse_date(date):
-    if date:
-        year = date[0:4]
-        month = date[4:6]
-        day = date[6:8]
-        return month + "-" + day + "-" + year
-    return False
-
-
-def parse_rit_uid(dn):
-    if dn:
-        return dn.split(",")[0][4:]
-
-    return None
-
-
-def parse_account_year(date):
-    if date:
-        year = int(date[0:4])
-        month = int(date[4:6])
-        if month <= 8:
-            year = year - 1
-        return year
-    return None
 
 
 @lru_cache(maxsize=2048)
@@ -118,6 +85,7 @@ def signed_packet(signer, freshman):
 @app.context_processor
 def utility_processor():
     # pylint: disable=bare-except
+    @lru_cache(maxsize=4096)
     def get_display_name(username):
         try:
             member = ldap_get_member(username)
@@ -125,6 +93,7 @@ def utility_processor():
         except:
             return username
 
+    @lru_cache(maxsize=4096)
     def get_freshman_name(username):
         try:
             freshman = Freshman.query.filter_by(rit_username=username).first()
