@@ -14,9 +14,9 @@ from packet.utils import before_request, signed_packet
 def freshman_packet(uid, info=None):
     freshman = Freshman.query.filter_by(rit_username=uid).first()
     signatures = get_signatures(uid)
-    required = sum(get_number_required(uid).values())
-    signed = sum(get_number_signed(uid).values())
     signed_dict = get_number_signed(uid)
+    required = sum(get_number_required(uid).values())
+    signed = sum(signed_dict.values())
 
     upperclassmen_required = get_number_required(uid)
     del upperclassmen_required['freshmen']
