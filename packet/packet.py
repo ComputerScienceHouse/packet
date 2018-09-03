@@ -1,3 +1,4 @@
+from packet.ldap import _ldap_is_member_of_group, ldap_get_member
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
@@ -26,6 +27,8 @@ def sign(signer_username, freshman_username):
                                                   FreshSignature.packet == packet).first()
 
     if upper_signature:
+        if _ldap_is_member_of_group(ldap_get_member(signer_username), "intromembers"):
+            return False
         upper_signature.signed = True
     elif fresh_signature:
         fresh_signature.signed = True
