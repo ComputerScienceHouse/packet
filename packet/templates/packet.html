@@ -10,12 +10,12 @@
                 <div class="col">
                     {% if (info.onfloor and info.uid != freshman.rit_username) or info.realm == "csh" %}
                         {% if not packet_signed %}
-                            <button class="btn btn-primary sign-button alignright"
+                            <button class="btn btn-primary sign-button"
                                     data-freshman_uid="{{ freshman.rit_username }}"
                                     data-freshman_name="{{ freshman.name }}">Sign
                             </button>
                         {% else %}
-                            <button class="btn btn-primary alignright" disabled="disabled"><i
+                            <button class="btn btn-primary" disabled="disabled"><i
                                     class="fa fa-check"></i>&nbsp;Signed
                             </button>
                         {% endif %}
@@ -77,8 +77,8 @@
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
@@ -122,8 +122,8 @@
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
@@ -164,9 +164,9 @@
                                         <td>
                                             <a href="/packet/{{ m.freshman.rit_username }}">
                                                 <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m.freshman.rit_username }}"
-                                                     width="30"
-                                                     height="30"/> {{ get_freshman_name(m.freshman.rit_username) }}
+                                                     src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+                                                     width="25"
+                                                     height="25"/> {{ get_freshman_name(m.freshman.rit_username) }}
                                             </a>
                                         </td>
                                         <td width="15%">
@@ -212,8 +212,8 @@
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ m['member'] }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ m['member'] }}"
-                                                 width="30"
-                                                 height="30"/> {{ get_display_name(m.member) }}
+                                                 width="25"
+                                                 height="25"/> {{ get_display_name(m.member) }}
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
