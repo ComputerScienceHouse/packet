@@ -1,10 +1,6 @@
-from .models import Packet, Freshman, FreshSignature, UpperSignature, MiscSignature, db
 from datetime import datetime
 
-
-import logging
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+from .models import Packet, Freshman, FreshSignature, UpperSignature, MiscSignature, db
 
 
 def signed_packets(member):
