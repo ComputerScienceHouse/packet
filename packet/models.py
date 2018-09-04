@@ -5,7 +5,7 @@ Defines the application's database models.
 from datetime import datetime
 from functools import lru_cache
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean, and_, or_
 from sqlalchemy.orm import relationship
 
 from . import db
@@ -50,24 +50,49 @@ class Packet(db.Model):
         return self.start < datetime.now() < self.end
 
     @lru_cache(maxsize=1024)
-    def signatures_required(self):
-        eboard = UpperSignature.query.with_parent(self).filter_by(eboard=True).count()
+    def signatures_required(self, total=False):
+        if total:
+            return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
+        eboard = UpperSignature.query.filter_by(eboard=True).count()
         return {'eboard': eboard,
                 'upperclassmen': len(self.upper_signatures) - eboard,
                 'freshmen': len(self.fresh_signatures),
                 'misc': REQUIRED_MISC_SIGNATURES}
 
-    def signatures_received(self):
+    def signatures_received(self, total=False):
         """
         Result capped so it will never be greater than that of signatures_required()
         """
-        eboard_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=True).count()
-        upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=False).count()
-        fresh_count = FreshSignature.query.with_parent(self).filter_by(signed=True).count()
         misc_count = len(self.misc_signatures)
 
         if misc_count > REQUIRED_MISC_SIGNATURES:
             misc_count = REQUIRED_MISC_SIGNATURES
+
+        if total:
+            return db.session.query(Packet.freshman_username) \
+                .select_from(Packet).outerjoin(UpperSignature).outerjoin(FreshSignature) \
+                .filter(or_(and_(Packet.freshman_username == self.freshman_username, UpperSignature.signed),
+                        and_(Packet.freshman_username == self.freshman_username, FreshSignature.signed))) \
+                .distinct().count() + misc_count
+
+        eboard_count = db.session.query(UpperSignature.member) \
+            .select_from(Packet).join(UpperSignature) \
+            .filter(Packet.freshman_username == self.freshman_username,
+                    UpperSignature.signed, UpperSignature.eboard) \
+            .distinct().count()
+
+        upper_count = db.session.query(UpperSignature.member) \
+            .select_from(Packet).join(UpperSignature) \
+            .filter(Packet.freshman_username == self.freshman_username,
+                    UpperSignature.signed,
+                    UpperSignature.eboard.isnot(True)) \
+            .distinct().count()
+
+        fresh_count = db.session.query(FreshSignature.freshman_username) \
+            .select_from(Packet).join(FreshSignature) \
+            .filter(Packet.freshman_username == self.freshman_username,
+                    FreshSignature.signed) \
+            .distinct().count()
 
         return {'eboard': eboard_count,
                 'upperclassmen': upper_count,

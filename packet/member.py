@@ -2,6 +2,11 @@ from .models import Packet, Freshman, FreshSignature, UpperSignature, MiscSignat
 from datetime import datetime
 
 
+import logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+
 def signed_packets(member):
     # Checks whether or not member is a freshman
     if db.session.query(FreshSignature.freshman_username) \

@@ -65,28 +65,30 @@ def get_requirements(freshman_username):
 @lru_cache(maxsize=2048)
 def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
-    eboard = db.session.query(UpperSignature.member,
-                              UpperSignature.signed,
-                              Freshman.rit_username)\
-        .select_from(UpperSignature).join(Packet).join(Freshman)\
-        .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(True))\
-        .order_by(UpperSignature.signed.desc()).all()
-    upper_signatures = db.session.query(UpperSignature.member,
-                                        UpperSignature.signed,
-                                        Freshman.rit_username) \
+
+    eboard = db.session.query(UpperSignature.member, UpperSignature.signed, Freshman.rit_username) \
+        .select_from(UpperSignature).join(Packet).join(Freshman) \
+        .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(True)) \
+        .order_by(UpperSignature.signed.desc()) \
+        .distinct().all()
+
+    upper_signatures = db.session.query(UpperSignature.member, UpperSignature.signed, Freshman.rit_username) \
         .select_from(UpperSignature).join(Packet).join(Freshman) \
         .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(False))\
-        .order_by(UpperSignature.signed.desc()).all()
-    fresh_signatures = db.session.query(FreshSignature.freshman_username,
-                                        FreshSignature.signed,
-                                        Freshman.rit_username,
-                                        Freshman.name)\
-        .select_from(FreshSignature).join(Packet).join(Freshman)\
-        .filter(FreshSignature.packet_id == packet.id)\
-        .order_by(FreshSignature.signed.desc()).all()
+        .order_by(UpperSignature.signed.desc())\
+        .distinct().all()
+    fresh_signatures = \
+    db.session.query(FreshSignature.freshman_username, FreshSignature.signed, Freshman.rit_username, Freshman.name) \
+        .select_from(FreshSignature).join(Packet).join(Freshman) \
+        .filter(FreshSignature.packet_id == packet.id) \
+        .order_by(FreshSignature.signed.desc()) \
+        .distinct().all()
+
     misc_signatures = db.session.query(MiscSignature.member, Freshman.rit_username)\
-        .select_from(MiscSignature).join(Packet).join(Freshman)\
-        .filter(MiscSignature.packet_id == packet.id).all()
+        .select_from(MiscSignature).join(Packet).join(Freshman) \
+        .filter(MiscSignature.packet_id == packet.id) \
+        .distinct().all()
+
     return {'eboard': eboard,
             'upperclassmen': upper_signatures,
             'freshmen': fresh_signatures,
@@ -95,12 +97,12 @@ def get_signatures(freshman_username):
 
 @lru_cache(maxsize=2048)
 def get_number_signed(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received()
+    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received(True)
 
 
 @lru_cache(maxsize=4096)
 def get_number_required(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required()
+    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required(True)
 
 
 @lru_cache(maxsize=2048)
