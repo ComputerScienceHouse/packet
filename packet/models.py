@@ -3,6 +3,8 @@ Defines the application's database models.
 """
 
 from datetime import datetime
+from functools import lru_cache
+
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
@@ -47,6 +49,7 @@ class Packet(db.Model):
     def is_open(self):
         return self.start < datetime.now() < self.end
 
+    @lru_cache(maxsize=1024)
     def signatures_required(self):
         eboard = UpperSignature.query.filter_by(eboard=True).count()
         return {'eboard': eboard,
