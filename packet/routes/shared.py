@@ -14,8 +14,9 @@ from packet.utils import before_request, signed_packet
 def freshman_packet(uid, info=None):
     freshman = Freshman.query.filter_by(rit_username=uid).first()
     signatures = get_signatures(uid)
+    signed_dict = get_number_signed(uid)
     required = sum(get_number_required(uid).values())
-    signed = sum(get_number_signed(uid).values())
+    signed = sum(signed_dict.values())
 
     upperclassmen_required = get_number_required(uid)
     del upperclassmen_required['freshmen']
@@ -29,7 +30,8 @@ def freshman_packet(uid, info=None):
 
     packet_signed = signed_packet(info['uid'], uid)
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
-                           freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent)
+                           freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent,
+                           signed_dict=signed_dict)
 
 
 @app.route("/packets")
