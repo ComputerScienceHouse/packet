@@ -1,11 +1,22 @@
-from .models import Freshman, FreshSignature, UpperSignature, MiscSignature
+from .models import Packet, Freshman, FreshSignature, UpperSignature, MiscSignature, db
+from datetime import datetime
 
 
 def signed_packets(member):
     # Checks whether or not member is a freshman
-    if Freshman.query.filter_by(rit_username=member).first() is not None:
-        return FreshSignature.query.filter_by(freshman_username=member, signed=True).all()
+    if db.session.query(FreshSignature.freshman_username) \
+            .filter(FreshSignature.freshman_username == member).count() > 0:
+        return db.session.query(Packet.freshman_username, Freshman.name, FreshSignature.signed) \
+            .select_from(FreshSignature).join(Packet).join(Freshman) \
+            .filter(FreshSignature.freshman_username == member) \
+            .filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
     # Checks whether or not member is an upperclassman
-    if UpperSignature.query.filter_by(member=member).first() is not None:
-        return UpperSignature.query.filter_by(member=member, signed=True).all()
-    return MiscSignature.query.filter_by(member=member).all()
+    if db.session.query(UpperSignature.member).join(Packet).join(Freshman) \
+            .filter(UpperSignature.member == member).count() > 0:
+        return db.session.query(Freshman.rit_username, Freshman.name, UpperSignature.signed) \
+            .select_from(UpperSignature).join(Packet).join(Freshman) \
+            .filter(UpperSignature.member == member) \
+            .filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
+    return db.session.query(Freshman.rit_username, Freshman.name, MiscSignature.member.isnot(None)) \
+        .select_from(Freshman).join(Packet).outerjoin(MiscSignature) \
+        .filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
