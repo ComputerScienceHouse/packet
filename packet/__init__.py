@@ -10,6 +10,8 @@ from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
+from ._version import __version__
+
 app = Flask(__name__)
 
 # Load default configuration and any environment variable overrides
@@ -18,6 +20,8 @@ app.config.from_pyfile(os.path.join(os.getcwd(), "config.env.py"))
 # Load file based configuration overrides if present
 if os.path.exists(os.path.join(os.getcwd(), "config.py")):
     app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
+
+app.config["VERSION"] = __version__
 
 # Initialize the extensions
 db = SQLAlchemy(app)
