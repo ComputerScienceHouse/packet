@@ -2,7 +2,7 @@ import copy
 from functools import lru_cache
 
 from packet.ldap import ldap_get_member, ldap_is_intromember
-from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
+from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db, Packet
 
 
 def sign(signer_username, freshman_username):
@@ -67,22 +67,26 @@ def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
     eboard = db.session.query(UpperSignature.member,
                               UpperSignature.signed,
-                              UpperSignature.packet_id,
-                              UpperSignature.eboard)\
+                              Freshman.rit_username)\
+        .select_from(UpperSignature).join(Packet).join(Freshman)\
         .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(True))\
-        .order_by(UpperSignature.signed.desc())
+        .order_by(UpperSignature.signed.desc()).all()
     upper_signatures = db.session.query(UpperSignature.member,
-                                        UpperSignature.packet_id,
-                                        UpperSignature.eboard)\
+                                        UpperSignature.signed,
+                                        Freshman.rit_username) \
+        .select_from(UpperSignature).join(Packet).join(Freshman) \
         .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(False))\
-        .order_by(UpperSignature.signed.desc())
-    fresh_signatures = db.session.query(FreshSignature.rit_username,
-                                        FreshSignature.packet_id,
-                                        FreshSignature.signed)\
+        .order_by(UpperSignature.signed.desc()).all()
+    fresh_signatures = db.session.query(FreshSignature.freshman_username,
+                                        FreshSignature.signed,
+                                        Freshman.rit_username,
+                                        Freshman.name)\
+        .select_from(FreshSignature).join(Packet).join(Freshman)\
         .filter(FreshSignature.packet_id == packet.id)\
-        .order_by(FreshSignature.signed.desc())
-    misc_signatures = db.session.query(MiscSignature.member, MiscSignature.packet_id)\
-        .filter(MiscSignature.packet_id == packet.id)
+        .order_by(FreshSignature.signed.desc()).all()
+    misc_signatures = db.session.query(MiscSignature.member, Freshman.rit_username)\
+        .select_from(MiscSignature).join(Packet).join(Freshman)\
+        .filter(MiscSignature.packet_id == packet.id).all()
     return {'eboard': eboard,
             'upperclassmen': upper_signatures,
             'freshmen': fresh_signatures,
