@@ -31,11 +31,11 @@
                                                     <img class="eval-user-img"
                                                          alt="{{ m.packet.freshman.name }}"
                                                          src="https://profiles.csh.rit.edu/image/{{ m.packet.freshman.rit_username }}"
-                                                         width="30"
-                                                         height="30"/> {{ get_freshman_name(m.packet.freshman.name) }}
+                                                         width="25"
+                                                         height="25"/> {{ m.packet.freshman.name }} ({{ m.packet.freshman.rit_username }})
                                                 </a>
                                             </td>
-                                            <td>
+                                            <td width="15%">
                                                 {% if m.signed %}
                                                     <i class="fas fa-check"></i>
                                                 {% else %}
