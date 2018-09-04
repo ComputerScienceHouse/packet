@@ -23,20 +23,20 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for m in signatures %}
+                                    {% for packet in open_packets %}
                                         {# Using inline style because of how themeswitcher loads the css theme :( #}
-                                        <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
+                                        <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
-                                                <a href="/packet/{{ m.packet.freshman.rit_username }}">
+                                                <a href="/packet/{{ packet.freshman.rit_username }}">
                                                     <img class="eval-user-img"
-                                                         alt="{{ m.packet.freshman.name }}"
-                                                         src="https://profiles.csh.rit.edu/image/{{ m.packet.freshman.rit_username }}"
+                                                         alt="{{ packet.freshman.name }}"
+                                                         src="https://profiles.csh.rit.edu/image/{{ packet.freshman.rit_username }}"
                                                          width="25"
-                                                         height="25"/> {{ m.packet.freshman.name }} ({{ m.packet.freshman.rit_username }})
+                                                         height="25"/> {{ packet.freshman.name }} ({{ packet.freshman.rit_username }})
                                                 </a>
                                             </td>
                                             <td width="15%">
-                                                {% if m.signed %}
+                                                {% if packet.did_sign %}
                                                     <i class="fas fa-check"></i>
                                                 {% else %}
                                                     <i class="fas fa-times"></i>
