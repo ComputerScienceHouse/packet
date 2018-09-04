@@ -44,8 +44,8 @@ def packets(info=None):
 
     for result in open_packets:
         s_packets.append(SPacket(result[0], result[1], result[2],
-                                 sum(get_number_signed(result[0]).values()),
-                                 sum(get_number_required(result[0]).values())))
+                                 get_number_signed(result[0]),
+                                 get_number_required(result[0])))
 
     s_packets.sort(key=lambda x: x.total_signatures, reverse=True)
     s_packets.sort(key=lambda x: x.did_sign, reverse=True)
