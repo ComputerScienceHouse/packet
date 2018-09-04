@@ -10,43 +10,39 @@
         <div id="eval-blocks">
             <div id="eval-table">
                 <div class="card mb-3">
+                    <div class="card-header">
+                        <b class="signature-count">{{ signatures }}/{{ open_packets|length }}</b>
+                    </div>
                     <div class="card-body table-fill">
-                        <div class="card-body table-fill">
-                            <div class="table-responsive">
-                                <table class="table table-striped no-bottom-margin" data-module="table"
-                                       data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                       data-length-changable="true" data-paginated="false">
-                                    <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Signature</th>
+                        <div class="table-responsive">
+                            <table class="table table-striped no-bottom-margin" data-module="table"
+                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
+                                   data-length-changable="true" data-paginated="false">
+                                <tbody>
+                                {% for packet in open_packets %}
+                                    {# Using inline style because of how themeswitcher loads the css theme :( #}
+                                    <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
+                                        <td>
+                                            <a href="/packet/{{ packet.freshman.rit_username }}">
+                                                <img class="eval-user-img"
+                                                     alt="{{ packet.freshman.name }}"
+                                                     src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+                                                     width="25"
+                                                     height="25"/> {{ packet.freshman.name }}
+                                                ({{ packet.freshman.rit_username }})
+                                            </a>
+                                        </td>
+                                        <td width="15%">
+                                            {% if packet.did_sign %}
+                                                <i class="fas fa-check"></i>
+                                            {% else %}
+                                                <i class="fas fa-times"></i>
+                                            {% endif %}
+                                        </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for packet in open_packets %}
-                                        {# Using inline style because of how themeswitcher loads the css theme :( #}
-                                        <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
-                                            <td>
-                                                <a href="/packet/{{ packet.freshman.rit_username }}">
-                                                    <img class="eval-user-img"
-                                                         alt="{{ packet.freshman.name }}"
-                                                         src="https://profiles.csh.rit.edu/image/{{ packet.freshman.rit_username }}"
-                                                         width="25"
-                                                         height="25"/> {{ packet.freshman.name }} ({{ packet.freshman.rit_username }})
-                                                </a>
-                                            </td>
-                                            <td width="15%">
-                                                {% if packet.did_sign %}
-                                                    <i class="fas fa-check"></i>
-                                                {% else %}
-                                                    <i class="fas fa-times"></i>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
