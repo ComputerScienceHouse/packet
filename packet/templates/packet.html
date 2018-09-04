@@ -15,7 +15,7 @@
                                     data-freshman_name="{{ freshman.name }}">Sign
                             </button>
                         {% else %}
-                            <button class="btn btn-primary" disabled="disabled"><i
+                            <button class="btn btn-primary signed-button" disabled="disabled"><i
                                     class="fa fa-check"></i>&nbsp;Signed
                             </button>
                         {% endif %}
@@ -52,7 +52,7 @@
         </div>
         <div id="eval-blocks">
             <div id="eval-table">
-                <div class="card mb-3">
+                <div class="card mb-2">
                     <div class="card-header">
                         <b>EBoard Signatures</b>
                         <b class="signature-count">{{ signed_dict.eboard }}/{{ signatures.eboard.count() }}</b>
@@ -178,8 +178,8 @@
                                 <tbody>
                                 {% for m in signatures.misc %}
                                     <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
-                                        <td width="5%">
-                                            {{ loop.index }}.&nbsp;
+                                        <td width="3%">
+                                            {{ loop.index }}.
                                         </td>
                                         <td>
                                             {% if info.realm == "csh" %}
