@@ -14,13 +14,12 @@
                         <div class="card-body table-fill">
                             <div class="card-body table-fill">
                                 <div class="table-responsive">
-                                    <table class="table table-striped no-bottom-margin" data-module="table"
-                                           data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                           data-length-changable="true" data-paginated="false">
+                                    <table id="active_packets_table" class="table table-striped no-bottom-margin">
                                         <thead>
                                         <tr>
                                             <th>Name</th>
                                             <th>Signatures</th>
+                                            <th>Sign</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -75,4 +74,9 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/static/js/tables.js"></script>
 {% endblock %}
