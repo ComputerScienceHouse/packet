@@ -1,7 +1,7 @@
 import copy
 from functools import lru_cache
 
-from packet.ldap import ldap_get_member, ldap_is_intromemberi, ldap_is_eval_director
+from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_eval_director
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
