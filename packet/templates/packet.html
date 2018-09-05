@@ -14,10 +14,17 @@
                                     data-freshman_uid="{{ freshman.rit_username }}"
                                     data-freshman_name="{{ freshman.name }}">Sign
                             </button>
-                        {% else %}
-                            <button class="btn btn-primary" disabled="disabled"><i
-                                    class="fa fa-check"></i>&nbsp;Signed
-                            </button>
+                        {% else  %}
+                            {% if is_evals %}
+                                <button class="btn btn-primary unsign-button"
+                                    data-freshman_uid="{{ freshman.rit_username }}"
+                                    data-freshman_name="{{ freshman.name }}">Unsign
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary" disabled="disabled"><i
+                                        class="fa fa-check"></i>&nbsp;Signed
+                                </button>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </div>

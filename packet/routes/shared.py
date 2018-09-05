@@ -7,6 +7,7 @@ from packet import auth, app
 from packet.models import Freshman, Packet
 from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent
 from packet.utils import before_request, signed_packet
+from packet.ldap import ldap_is_eval_director, ldap_get_member
 
 
 @app.route("/packet/<uid>")
@@ -19,11 +20,11 @@ def freshman_packet(uid, info=None):
     signed_dict = get_number_signed(uid)
     required = sum(get_number_required(uid).values())
     signed = sum(signed_dict.values())
-
+    is_evals = ldap_is_eval_director(ldap_get_member(info['uid']))
     packet_signed = signed_packet(info['uid'], uid)
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
                            freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent,
-                           signed_dict=signed_dict)
+                           signed_dict=signed_dict, is_evals=is_evals)
 
 
 @app.route("/packets")

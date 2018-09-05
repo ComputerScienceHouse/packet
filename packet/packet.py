@@ -1,7 +1,7 @@
 import copy
 from functools import lru_cache
 
-from packet.ldap import ldap_get_member, ldap_is_intromember
+from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_eval_director
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
@@ -33,6 +33,34 @@ def sign(signer_username, freshman_username):
         fresh_signature.signed = True
     else:
         db.session.add(MiscSignature(packet=packet, member=signer_username))
+    db.session.commit()
+
+    # Clear functions that read signatures cache
+    get_number_signed.cache_clear()
+    get_signatures.cache_clear()
+    get_upperclassmen_percent.cache_clear()
+
+    return True
+
+
+def unsign(signer_username, freshman_username):
+    if signer_username == freshman_username:
+        return False
+
+    freshman_signed = Freshman.query.filter_by(rit_username=freshman_username).first()
+    if freshman_signed is None:
+        return False
+    packet = freshman_signed.current_packet()
+    if packet is None or not packet.is_open():
+        return False
+
+    upper_signature = UpperSignature.query.filter(UpperSignature.member == signer_username,
+                                                  UpperSignature.packet == packet).first()
+    if upper_signature:
+        if ldap_is_eval_director(ldap_get_member(signer_username)):
+            upper_signature.signed = False
+        else:
+            return False
     db.session.commit()
 
     # Clear functions that read signatures cache
