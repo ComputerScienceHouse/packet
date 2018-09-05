@@ -1,7 +1,7 @@
 import copy
 from functools import lru_cache
 
-from packet.ldap import ldap_get_member, ldap_is_intromember
+from packet.ldap import ldap_get_member, ldap_is_intromemberi, ldap_is_eval_director
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db
 
 
@@ -43,7 +43,7 @@ def sign(signer_username, freshman_username):
     return True
 
 
-def unsign(signer_username, freshmen_username):
+def unsign(signer_username, freshman_username):
     if signer_username == freshman_username:
         return False
 
