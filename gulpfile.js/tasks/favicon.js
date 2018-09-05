@@ -29,7 +29,7 @@ gulp.task('generate-favicon', function(done) {
 			desktopBrowser: {},
 			windows: {
 				pictureAspect: 'whiteSilhouette',
-				backgroundColor: '#9f00a7',
+				backgroundColor: '#b0197e',
 				onConflict: 'override',
 				assets: {
 					windows80Ie10Tile: true,
@@ -43,7 +43,7 @@ gulp.task('generate-favicon', function(done) {
 			},
 			androidChrome: {
 				pictureAspect: 'noChange',
-				themeColor: '#222222',
+				themeColor: '#b0197e',
 				manifest: {
 					display: 'standalone',
 					orientation: 'notSet',
@@ -57,7 +57,7 @@ gulp.task('generate-favicon', function(done) {
 			},
 			safariPinnedTab: {
 				pictureAspect: 'silhouette',
-				themeColor: '#222222'
+				themeColor: '#b0197e'
 			}
 		},
 		settings: {

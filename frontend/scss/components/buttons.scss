@@ -1,8 +1,14 @@
-.sign-packet {
-  float: right;
-  text-align: right;
-}
+button {
+  &.sign-packet {
+    float: right;
+    text-align: right;
+  }
 
-.sign-button {
-  float: right;
+  &.sign-button {
+    float: right;
+  }
+
+  &.signed-button {
+    float: right;
+  }
 }
