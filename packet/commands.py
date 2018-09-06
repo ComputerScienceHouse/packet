@@ -99,7 +99,7 @@ def create_packets(freshmen_csv):
             pass
 
     start = datetime.combine(base_date, time(hour=19))
-    end = datetime.combine(base_date, time(hour=23, minute=59)) + timedelta(days=14)
+    end = datetime.combine(base_date, time(hour=21)) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
     eboard = set(member.uid for member in ldap_get_eboard())
