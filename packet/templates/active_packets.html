@@ -35,7 +35,7 @@
                                                                  height="25"/> {{ packet.freshman.name }} ({{ packet.freshman.rit_username }})
                                                         </a>
                                                     </td>
-                                                    <td>
+                                                    <td data-sort="{{ packet.total_signatures }}">
                                                         {% if packet.total_signatures == packet.required_signatures %}
                                                             💯 {# 100% emoji #}
                                                         {% else %}
