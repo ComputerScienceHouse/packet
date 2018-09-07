@@ -62,7 +62,7 @@ def get_requirements(freshman_username):
             'achieve': packet.info_achieve}
 
 
-<<<<<<< HEAD
+
 def set_requirements(freshman_username, eboard=None, events=None, achieve=None):
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
     if eboard is not None:
@@ -82,8 +82,6 @@ def get_requirements(freshman_username):
             'achieve': packet.info_achieve}
 
 
-=======
->>>>>>> Fixed merge conflicts
 @lru_cache(maxsize=2048)
 def get_signatures(freshman_username):
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
