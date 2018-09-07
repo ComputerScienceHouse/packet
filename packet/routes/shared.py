@@ -37,7 +37,8 @@ def freshman_packet(uid, info=None):
 @auth.oidc_auth
 @before_request
 def packets(info=None):
-    open_packets = signed_packets(info["uid"])
+    if info["REALM"] == "CSH":
+        open_packets = signed_packets(info["uid"])
     s_packets = []
 
     SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
