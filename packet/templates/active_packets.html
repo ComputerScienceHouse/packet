@@ -14,13 +14,12 @@
                         <div class="card-body table-fill">
                             <div class="card-body table-fill">
                                 <div class="table-responsive">
-                                    <table class="table table-striped no-bottom-margin" data-module="table"
-                                           data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                           data-length-changable="true" data-paginated="false">
+                                    <table id="active_packets_table" class="table table-striped no-bottom-margin">
                                         <thead>
                                         <tr>
                                             <th>Name</th>
                                             <th>Signatures</th>
+                                            <th>Sign</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -36,7 +35,7 @@
                                                                  height="25"/> {{ packet.freshman.name }} ({{ packet.freshman.rit_username }})
                                                         </a>
                                                     </td>
-                                                    <td>
+                                                    <td data-sort="{{ packet.total_signatures }}">
                                                         {% if packet.total_signatures == packet.required_signatures %}
                                                             💯 {# 100% emoji #}
                                                         {% else %}
@@ -46,13 +45,13 @@
                                                     {% if (info.onfloor and info.uid != packet.freshman.rit_username) or info.realm == "csh" %}
                                                         <td class="sign-packet" align="right">
                                                             {% if not packet.did_sign %}
-                                                                <button class="btn btn-primary sign-button"
+                                                                <button class="btn btn-sm btn-primary sign-button"
                                                                         data-freshman_uid="{{ packet.freshman.rit_username }}"
                                                                         data-freshman_name="{{ packet.freshman.name }}">
                                                                     Sign
                                                                 </button>
                                                             {% else %}
-                                                                <button class="btn btn-primary" disabled="disabled"><i
+                                                                <button class="btn btn-sm btn-primary signed-button" disabled="disabled"><i
                                                                         class="fa fa-check"></i>&nbsp;Signed
                                                                 </button>
                                                             {% endif %}
@@ -75,4 +74,9 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/static/js/tables.js"></script>
 {% endblock %}

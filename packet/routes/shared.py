@@ -1,12 +1,18 @@
 from datetime import datetime
 from itertools import chain
 
-from flask import render_template
+from flask import render_template, redirect
 
 from packet import auth, app
 from packet.models import Freshman, Packet
 from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent
 from packet.utils import before_request, signed_packet
+
+
+@app.route('/logout')
+@auth.oidc_logout
+def logout():
+    return redirect("/")
 
 
 @app.route("/packet/<uid>")

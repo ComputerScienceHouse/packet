@@ -14,8 +14,12 @@
                     <a class="nav-link" href="/packets">Active Packets</a>
                 </li>
 
-                {% if info.realm != "csh" %}
+                {% if info.realm == "csh" %}
                     <li class="nav-item">
+                        <a class="nav-link" href="/upperclassmen">Signatures</a>
+                    </li>
+                {% else %}
+                     <li class="nav-item">
                         <a class="nav-link" href="/essays">Essays</a>
                     </li>
                 {% endif %}
@@ -33,7 +37,7 @@
                     <div class="dropdown-menu" aria-labelledby="user01">
                         <input id="userInfo" hidden value="{{ info.uid }}">
                         {% if info.realm == "csh" %}
-                            <a class="dropdown-item" href="/">Profile</a>
+                            <a class="dropdown-item" href="https://profiles.csh.rit.edu/">Profile</a>
                             <a class="dropdown-item" href="https://themeswitcher.csh.rit.edu/">Theme</a>
                             <div class="dropdown-divider"></div>
                         {% endif %}

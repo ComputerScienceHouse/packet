@@ -16,7 +16,7 @@ $(document).ready(function () {
                         url: "/api/v1/" + userData + "/sign/" + packetData.freshman_uid,
                         method: "POST",
                         success: function (data) {
-                            swal("Congratulations or I'm Sorry\nYou've signed " + packetData.freshman_name + "'s packet", {
+                            swal("Congratulations or I'm sorry\nYou've signed " + packetData.freshman_name + "'s packet.", {
                                 icon: "success",
                             })
                                 .then(() => {
