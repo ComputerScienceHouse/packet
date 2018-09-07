@@ -11,7 +11,8 @@ from packet.ldap import (ldap_get_member,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
                          ldap_get_groups)
-from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
+from packet.models import FreshSignature, UpperSignature, MiscSignature
+from packet.packet import get_current_packet, get_freshman
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -63,12 +64,12 @@ def get_member_info(uid):
 
 @lru_cache(maxsize=2048)
 def is_on_floor(uid):
-    return (Freshman.query.filter_by(rit_username=uid)).first().onfloor
+    return get_freshman(uid).onfloor
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=2048)
 def signed_packet(signer, freshman):
-    packet = Packet.query.filter_by(freshman_username=freshman).first()
+    packet = get_current_packet(freshman)
     freshman_signature = FreshSignature.query.filter_by(packet=packet, freshman_username=signer, signed=True).first()
     upper_signature = UpperSignature.query.filter_by(packet=packet, member=signer, signed=True).first()
     misc_signature = MiscSignature.query.filter_by(packet=packet, member=signer).first()
