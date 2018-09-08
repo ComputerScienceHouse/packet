@@ -90,7 +90,7 @@ def get_signatures(freshman_username):
         .distinct().all()
     fresh_signatures = \
     db.session.query(FreshSignature.freshman_username, FreshSignature.signed, Freshman.rit_username, Freshman.name) \
-        .select_from(FreshSignature).join(Packet).join(Freshman) \
+        .select_from(Packet).join(FreshSignature).join(Freshman) \
         .filter(FreshSignature.packet_id == packet.id) \
         .order_by(FreshSignature.signed.desc()) \
         .distinct().all()
@@ -121,15 +121,18 @@ def get_misc_signatures():
         return packet_misc_sigs # TODO; more error checking
     return packet_misc_sigs
 
+
 @lru_cache(maxsize=2048)
-def get_number_signed(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received(True)
+def get_number_signed(freshman_username, separated=False):
+    return db.session.query(Packet).filter(Packet.freshman_username == freshman_username,
+                                           Packet.start < datetime.now(), Packet.end > datetime.now())\
+        .first().signatures_received(not separated)
 
 
 @lru_cache(maxsize=4096)
-def get_number_required():
+def get_number_required(separated=False):
     return db.session.query(Packet) \
-        .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(True)
+        .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(not separated)
 
 
 @lru_cache(maxsize=2048)

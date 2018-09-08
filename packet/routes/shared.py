@@ -23,7 +23,7 @@ def freshman_packet(uid, info=None):
     freshman = Freshman.query.filter_by(rit_username=uid).first()
     upperclassmen_percent = get_upperclassmen_percent(uid)
     signatures = get_signatures(uid)
-    signed_dict = get_number_signed(uid)
+    signed_dict = get_number_signed(uid, True)
     required = get_number_required()
     signed = sum(signed_dict.values())
 
