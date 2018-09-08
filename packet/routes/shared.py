@@ -38,7 +38,13 @@ def freshman_packet(uid, info=None):
 @before_request
 def packets(info=None):
     if app.config["REALM"] == "csh":
-        open_packets = current_packets(info["uid"], False, info["member_info"]["onfloor"])
+        if info["member_info"]["onfloor"]:
+            if info["member_info"]["room"] is not None:
+                open_packets = current_packets(info["uid"], False, True)
+            else:
+                open_packets = current_packets(info["uid"], False, False)
+        else:
+            open_packets = current_packets(info["uid"], False, False)
     else:
         open_packets = current_packets(info["uid"], True, info["onfloor"])
 
