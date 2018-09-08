@@ -1,4 +1,4 @@
-from datetime import datetime
+from collections import namedtuple
 from itertools import chain
 
 from flask import render_template, redirect
@@ -7,7 +7,8 @@ from packet import auth, app
 from packet.models import Freshman, Packet
 from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent
 from packet.utils import before_request, signed_packet
-
+from packet.member import current_packets
+from packet.packet import get_number_required, get_number_signed
 
 @app.route('/logout')
 @auth.oidc_logout
@@ -36,33 +37,20 @@ def freshman_packet(uid, info=None):
 @auth.oidc_auth
 @before_request
 def packets(info=None):
-    open_packets = Packet.query.filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
-
-    # Add the did_sign flag
     if app.config["REALM"] == "csh":
-        # User is an upperclassman
-        for packet in open_packets:
-            packet.did_sign = False
-            packet.total_signatures = sum(packet.signatures_received().values())
-            packet.required_signatures = sum(packet.signatures_required().values())
-
-            for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
-                if sig.member == info["uid"]:
-                    packet.did_sign = True
-                    break
+        open_packets = current_packets(info["uid"], False, info["member_info"]["onfloor"])
     else:
-        # User is a freshman
-        for packet in open_packets:
-            packet.did_sign = False
-            packet.total_signatures = sum(packet.signatures_received().values())
-            packet.required_signatures = sum(packet.signatures_required().values())
+        open_packets = current_packets(info["uid"], True)
+    s_packets = []
 
-            for sig in filter(lambda sig: sig.signed, packet.fresh_signatures):
-                if sig.freshman_username == info["uid"]:
-                    packet.did_sign = True
-                    break
+    SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
 
-    open_packets.sort(key=lambda x: sum(x.signatures_received().values()), reverse=True)
-    open_packets.sort(key=lambda x: x.did_sign, reverse=True)
+    for result in open_packets:
+        s_packets.append(SPacket(result[0], result[1], result[2],
+                                 get_number_signed(result[0]),
+                                 get_number_required(result[0])))
 
-    return render_template("active_packets.html", info=info, packets=open_packets)
+    s_packets.sort(key=lambda x: x.total_signatures, reverse=True)
+    s_packets.sort(key=lambda x: x.did_sign, reverse=True)
+
+    return render_template("active_packets.html", info=info, packets=s_packets)
