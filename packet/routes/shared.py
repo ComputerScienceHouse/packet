@@ -40,17 +40,9 @@ def packets(info=None):
     if app.config["REALM"] == "csh":
         open_packets = current_packets(info["uid"], False, info["member_info"]["onfloor"])
     else:
-        open_packets = current_packets(info["uid"], True)
-    s_packets = []
+        open_packets = current_packets(info["uid"], True, info["onfloor"])
 
-    SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
+    open_packets.sort(key=lambda x: x.total_signatures, reverse=True)
+    open_packets.sort(key=lambda x: x.did_sign, reverse=True)
 
-    for result in open_packets:
-        s_packets.append(SPacket(result[0], result[1], result[2],
-                                 get_number_signed(result[0]),
-                                 get_number_required(result[0])))
-
-    s_packets.sort(key=lambda x: x.total_signatures, reverse=True)
-    s_packets.sort(key=lambda x: x.did_sign, reverse=True)
-
-    return render_template("active_packets.html", info=info, packets=s_packets)
+    return render_template("active_packets.html", info=info, packets=open_packets)
