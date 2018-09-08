@@ -28,18 +28,21 @@ def current_packets(member, intro=False, onfloor=False):
     misc_signatures = get_misc_signatures()
 
     try:
-        result = db.engine.execute("SELECT packets.username AS username, packets.name AS name, packets.sigs_recvd "
+        result = db.engine.execute("SELECT packets.username "
+                                   "AS username, packets.name AS name, coalesce(packets.sigs_recvd, 0) "
                                    "AS received FROM "
                                    "((SELECT freshman.rit_username AS username, freshman.name AS name, packet.id "
                                    "AS id FROM freshman "
                                    "INNER JOIN packet ON freshman.rit_username = packet.freshman_username)"
-                                   "AS a INNER JOIN"
-                                   "(SELECT totals.id AS id, sum(totals.signed) AS sigs_recvd FROM "
-                                   "(SELECT packet.id AS id, count(signature_fresh.signed) AS signed FROM packet "
+                                   "AS a LEFT JOIN"
+                                   "(SELECT totals.id AS id, coalesce(sum(totals.signed), 0) AS sigs_recvd FROM "
+                                   "(SELECT packet.id AS id, coalesce(count(signature_fresh.signed), 0) AS signed "
+                                   "FROM packet "
                                    "FULL OUTER JOIN signature_fresh ON signature_fresh.packet_id = packet.id "
                                    "WHERE signature_fresh.signed = TRUE "
                                    "AND packet.start < now() AND now() < packet.end "
-                                   "GROUP BY packet.id UNION SELECT packet.id AS id, count(signature_upper.signed) "
+                                   "GROUP BY packet.id "
+                                   "UNION SELECT packet.id AS id, coalesce(count(signature_upper.signed), 0) "
                                    "AS signed FROM packet "
                                    "FULL OUTER JOIN signature_upper ON signature_upper.packet_id = packet.id "
                                    "WHERE signature_upper.signed = TRUE "
@@ -59,7 +62,7 @@ def current_packets(member, intro=False, onfloor=False):
             packets.append(SPacket(pkt.username, pkt.name, signed, pkt.received + misc, required))
 
     except exc.SQLAlchemyError:
-        return None  # TODO; Handle Errors Properly
+        return packets  # TODO; Handle Errors Properly
 
     return packets
 
