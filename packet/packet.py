@@ -1,7 +1,9 @@
 import copy
+from datetime import datetime
 from functools import lru_cache
 
 from sqlalchemy import exc
+
 from packet.ldap import ldap_get_member, ldap_is_intromember
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db, Packet
 
@@ -110,8 +112,8 @@ def get_number_signed(freshman_username):
 
 
 @lru_cache(maxsize=4096)
-def get_number_required(freshman_username):
-    return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_required(True)
+def get_number_required():
+    return db.session.query(Packet).filter(Packet.start < datetime.now() < Packet.end).first().signatures_required(True)
 
 
 @lru_cache(maxsize=2048)
