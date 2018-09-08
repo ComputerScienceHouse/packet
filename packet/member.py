@@ -80,9 +80,11 @@ def get_signed_packets(member, intro=False, onfloor=False):
 
     try:
         if intro and onfloor:
-            result = db.engine.execute("SELECT DISTINCT packet.freshman_username AS username, signature_fresh.signed AS signed "
-                              "FROM packet INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id "
-                                       "WHERE signature_fresh.freshman_username = " + member + ";")
+            result = db.engine.execute("SELECT DISTINCT "
+                                       "packet.freshman_username AS username, signature_fresh.signed AS signed "
+                                       " FROM packet "
+                                       " INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id "
+                                       " WHERE signature_fresh.freshman_username = " + member + ";")
 
             for signature in result:
                 signed_packets[signature.username] = signature.signed
@@ -104,10 +106,7 @@ def get_signed_packets(member, intro=False, onfloor=False):
                     "WHERE signature_misc.member = '" + member + "' OR signature_misc.member ISNULL;")
 
                 for signature in result:
-                    if signature.signed is not None:
-                        signed_packets[signature.username] = True
-                    else:
-                        signed_packets[signature.username] = False
+                    signed_packets[signature.username] = bool(signature.signed)
 
     except exc.SQLAlchemyError:
         return signed_packets  # TODO; More error handling
