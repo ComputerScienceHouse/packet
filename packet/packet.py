@@ -134,7 +134,7 @@ def get_number_required():
 
 @lru_cache(maxsize=2048)
 def get_upperclassmen_percent(uid):
-    upperclassmen_required = copy.deepcopy(get_number_required(uid))
+    upperclassmen_required = copy.deepcopy(get_number_required())
     del upperclassmen_required['freshmen']
     upperclassmen_required = sum(upperclassmen_required.values())
 
