@@ -106,6 +106,21 @@ def get_signatures(freshman_username):
             'misc': misc_signatures}
 
 
+def get_misc_signatures():
+    packet_misc_sigs = {}
+    try:
+        result = db.engine.execute("SELECT packet.freshman_username "
+                                   "AS username, count(signature_misc.member) "
+                                   "AS signatures FROM packet "
+                                   "RIGHT OUTER JOIN signature_misc "
+                                   "ON packet.id = signature_misc.packet_id "
+                                   "GROUP BY packet.freshman_username;")
+        for packet in result:
+            packet_misc_sigs[packet.username] = packet.signatures
+    except exc.SQLAlchemyError:
+        return packet_misc_sigs # TODO; more error checking
+    return packet_misc_sigs
+
 @lru_cache(maxsize=2048)
 def get_number_signed(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().signatures_received(True)

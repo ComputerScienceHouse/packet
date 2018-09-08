@@ -2,8 +2,8 @@ from collections import namedtuple
 
 from sqlalchemy import exc
 
-from .models import db
-from .packet import get_number_required
+from .models import db, REQUIRED_MISC_SIGNATURES
+from .packet import get_number_required, get_misc_signatures
 
 
 def current_packets(member, intro=False, onfloor=False):
@@ -25,6 +25,7 @@ def current_packets(member, intro=False, onfloor=False):
         required -= 1
 
     signed_packets = get_signed_packets(member, intro, onfloor)
+    misc_signatures = get_misc_signatures()
 
     try:
         result = db.engine.execute("SELECT packets.username AS username, packets.name AS name, packets.sigs_recvd "
@@ -48,9 +49,14 @@ def current_packets(member, intro=False, onfloor=False):
 
         for pkt in result:
             signed = signed_packets.get(pkt.username)
+            misc = misc_signatures.get(pkt.username)
             if signed is None:
                 signed = False
-            packets.append(SPacket(pkt.username, pkt.name, signed, pkt.received, required))
+            if misc is None:
+                misc = 0
+            if misc > REQUIRED_MISC_SIGNATURES:
+                misc = REQUIRED_MISC_SIGNATURES
+            packets.append(SPacket(pkt.username, pkt.name, signed, pkt.received + misc, required))
 
     except exc.SQLAlchemyError:
         return None  # TODO; Handle Errors Properly
