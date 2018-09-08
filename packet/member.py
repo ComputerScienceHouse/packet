@@ -32,7 +32,7 @@ def current_packets(member, intro=False, onfloor=False):
                                    "AS username, packets.name AS name, coalesce(packets.sigs_recvd, 0) "
                                    "AS received FROM "
                                    "((SELECT freshman.rit_username AS username, freshman.name AS name, packet.id "
-                                   "AS id FROM freshman "
+                                   "AS id, packet.start as start, packet.end as end FROM freshman "
                                    "INNER JOIN packet ON freshman.rit_username = packet.freshman_username)"
                                    "AS a LEFT JOIN"
                                    "(SELECT totals.id AS id, coalesce(sum(totals.signed), 0) AS sigs_recvd FROM "
@@ -48,7 +48,8 @@ def current_packets(member, intro=False, onfloor=False):
                                    "WHERE signature_upper.signed = TRUE "
                                    "AND packet.start < now() AND now() < packet.end"
                                    " GROUP BY packet.id) totals GROUP BY totals.id) "
-                                   "AS b ON a.id = b.id ) AS packets;")
+                                   "AS b ON a.id = b.id ) AS packets "
+                                   "WHERE packets.start < now() AND now() < packets.end;")
 
         for pkt in result:
             signed = signed_packets.get(pkt.username)
