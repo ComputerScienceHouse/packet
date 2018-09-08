@@ -133,13 +133,11 @@ def get_number_required():
 
 
 @lru_cache(maxsize=2048)
-def get_upperclassmen_percent(uid):
-    upperclassmen_required = copy.deepcopy(get_number_required())
-    del upperclassmen_required['freshmen']
-    upperclassmen_required = sum(upperclassmen_required.values())
+def get_upperclassmen_percent(username, onfloor=False):
+    upperclassmen_required = get_number_required()
+    if onfloor:
+        upperclassmen_required -= 1
 
-    upperclassmen_signature = copy.deepcopy(get_number_signed(uid))
-    del upperclassmen_signature['freshmen']
-    upperclassmen_signature = sum(upperclassmen_signature.values())
+    upperclassmen_signature = get_number_signed(username)
 
     return upperclassmen_signature / upperclassmen_required * 100

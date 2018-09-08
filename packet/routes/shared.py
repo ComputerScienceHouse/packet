@@ -24,7 +24,7 @@ def freshman_packet(uid, info=None):
     upperclassmen_percent = get_upperclassmen_percent(uid)
     signatures = get_signatures(uid)
     signed_dict = get_number_signed(uid)
-    required = sum(get_number_required(uid).values())
+    required = get_number_required()
     signed = sum(signed_dict.values())
 
     packet_signed = signed_packet(info['uid'], uid)
