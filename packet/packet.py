@@ -113,7 +113,8 @@ def get_number_signed(freshman_username):
 
 @lru_cache(maxsize=4096)
 def get_number_required():
-    return db.session.query(Packet).filter(Packet.start < datetime.now() < Packet.end).first().signatures_required(True)
+    return db.session.query(Packet) \
+        .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(True)
 
 
 @lru_cache(maxsize=2048)

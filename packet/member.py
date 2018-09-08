@@ -47,7 +47,10 @@ def current_packets(member, intro=False, onfloor=False):
                                    "AS b ON a.id = b.id ) AS packets;")
 
         for pkt in result:
-            packets.append(SPacket(pkt.username, pkt.name, signed_packets[pkt.username], pkt.received, required))
+            signed = signed_packets.get(pkt.username)
+            if signed is None:
+                signed = False
+            packets.append(SPacket(pkt.username, pkt.name, signed, pkt.received, required))
 
     except exc.SQLAlchemyError:
         return None  # TODO; Handle Errors Properly
