@@ -3,7 +3,7 @@ from flask import redirect, render_template, request
 from packet import auth, app, db
 from packet.models import Packet
 from packet.utils import before_request
-from packet.packet import set_requirements
+from packet.packet import set_essays
 
 
 @app.route("/")
@@ -26,6 +26,6 @@ def essays(info=None):
 @before_request
 def submit_essay(info=None):
     formdata = request.form
-    if set_requirements(info['uid'], formdata['info_eboard'], formdata['info_events'], formdata['info_achieve']):
+    if set_essays(info['uid'], formdata['info_eboard'], formdata['info_events'], formdata['info_achieve']):
         return redirect("/essays", 302)
     return redirect("/essays", 500)

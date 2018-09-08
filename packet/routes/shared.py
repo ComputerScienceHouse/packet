@@ -7,7 +7,7 @@ from packet import auth, app
 from packet.models import Freshman, Packet
 from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent
 from packet.utils import before_request, signed_packet
-from packet.member import signed_packets
+from packet.member import current_packets
 from packet.packet import get_number_required, get_number_signed
 
 @app.route('/logout')
@@ -37,8 +37,10 @@ def freshman_packet(uid, info=None):
 @auth.oidc_auth
 @before_request
 def packets(info=None):
-    if info["REALM"] == "CSH":
-        open_packets = signed_packets(info["uid"])
+    if app.config["REALM"] == "csh":
+        open_packets = current_packets(info["uid"], False, info["member_info"]["onfloor"])
+    else:
+        open_packets = current_packets(info["uid"], True)
     s_packets = []
 
     SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
