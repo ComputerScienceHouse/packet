@@ -19,6 +19,9 @@ def create_secret():
     print("Here's your random secure token:")
     print(token_hex())
 
+packet_start_time = time(hour=19)
+packet_end_time = time(hour=21)
+
 class CSVFreshman:
     def __init__(self, row):
         self.name = row[0]
@@ -98,8 +101,8 @@ def create_packets(freshmen_csv):
         except ValueError:
             pass
 
-    start = datetime.combine(base_date, time(hour=19))
-    end = datetime.combine(base_date, time(hour=21)) + timedelta(days=14)
+    start = datetime.combine(base_date, packet_start_time)
+    end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
     eboard = set(member.uid for member in ldap_get_eboard())
@@ -158,3 +161,45 @@ def ldap_sync():
 
     db.session.commit()
     print("Done!")
+
+@app.cli.command("fetch-results")
+def fetch_results():
+    """
+    Fetches and prints the results from a given packet season.
+    """
+    end_date = None
+    while end_date is None:
+        try:
+            date_str = input("Enter the last day of the packet season you'd like to retrieve results from " +
+                             "(format: MM/DD/YYYY): ")
+            end_date = datetime.strptime(date_str, "%m/%d/%Y").date()
+        except ValueError:
+            pass
+
+    end_date = datetime.combine(end_date, packet_end_time)
+
+    for packet in Packet.query.filter_by(end=end_date).all():
+        print()
+
+        print("{} ({}):".format(packet.freshman.name, packet.freshman.rit_username))
+
+        received = packet.signatures_received()
+        required = packet.signatures_required()
+
+        upper_ratio = sum((received["eboard"], received["upperclassmen"], received["miscellaneous"])) / \
+                      sum((required["eboard"], required["upperclassmen"], required["misc"]))
+        print("\tUpperclassmen score: {}%".format(round(upper_ratio * 100, 2)))
+
+        total_ratio = sum(received.values()) / sum(required.values())
+        print("\tTotal score: {}%".format(round(total_ratio * 100, 2)))
+
+        print()
+
+        print("\tEboard: {}/{}".format(received["eboard"], required["eboard"]))
+        print("\tUpperclassmen: {}/{}".format(received["upperclassmen"], required["upperclassmen"]))
+        print("\tFreshmen: {}/{}".format(received["freshmen"], required["freshmen"]))
+        print("\tMisc: {}/{}".format(len(packet.misc_signatures), required["misc"]))
+
+        print()
+
+        print("\tTotal missed:", sum(required.values()) - sum(received.values()))
