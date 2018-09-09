@@ -8,7 +8,6 @@ def _ldap_get_group_members(group):
     return _ldap.get_group(group).get_members()
 
 
-@lru_cache(maxsize=2048)
 def _ldap_is_member_of_group(member, group):
     group_list = member.get("memberOf")
     for group_dn in group_list:
