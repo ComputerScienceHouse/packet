@@ -72,7 +72,7 @@ def get_number_upper_signed(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().upperclassmen_recieved()
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=2048)
 def get_number_upper_required(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first().current_packet().upperclassmen_required()
 

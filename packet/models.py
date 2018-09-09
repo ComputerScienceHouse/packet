@@ -67,7 +67,7 @@ class Packet(db.Model):
         upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=False).count()
         eboard_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=True).count()
 
-        return {'eboard': upper_count, 'upper_count': eboard_count}
+        return {'eboard': eboard_count, 'upper_count': upper_count}
 
 
     def signatures_received(self):

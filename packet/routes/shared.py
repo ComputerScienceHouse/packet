@@ -47,7 +47,6 @@ def packets(info=None):
             packet.did_sign = False
             packet.total_signatures = sum(packet.signatures_received().values())
             packet.required_signatures = sum(packet.signatures_required().values())
-            
             for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
                 if sig.member == info["uid"]:
                     packet.did_sign = True

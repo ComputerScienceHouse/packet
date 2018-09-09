@@ -43,7 +43,7 @@
                                                             {{ packet.total_signatures }}/{{ packet.required_signatures }}
                                                         {% endif %}
                                                     </td>
-                                                    <td>
+                                                    <td data-sort="{{ packet.upper_signatures }}">
                                                         {% if packet.upper_signatures == packet.upper_required %}
                                                             💯 {# 100% emoji #}
                                                         {% else %}
