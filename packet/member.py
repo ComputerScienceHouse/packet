@@ -1,9 +1,12 @@
 from collections import namedtuple
+from logging import getLogger
 
 from sqlalchemy import exc
 
 from .models import db, REQUIRED_MISC_SIGNATURES
 from .packet import get_number_required, get_misc_signatures
+
+LOGGER = getLogger(__name__)
 
 
 def current_packets(member, intro=False, onfloor=False):
@@ -28,30 +31,7 @@ def current_packets(member, intro=False, onfloor=False):
     misc_signatures = get_misc_signatures()
 
     try:
-        result = db.engine.execute("SELECT packets.username "
-                                   "AS username, packets.name AS name, coalesce(packets.sigs_recvd, 0) "
-                                   "AS received FROM "
-                                   "((SELECT freshman.rit_username AS username, freshman.name AS name, packet.id "
-                                   "AS id, packet.start as start, packet.end as end FROM freshman "
-                                   "INNER JOIN packet ON freshman.rit_username = packet.freshman_username)"
-                                   "AS a LEFT JOIN"
-                                   "(SELECT totals.id AS id, coalesce(sum(totals.signed), 0) AS sigs_recvd FROM "
-                                   "(SELECT packet.id AS id, coalesce(count(signature_fresh.signed), 0) AS signed "
-                                   "FROM packet "
-                                   "FULL OUTER JOIN signature_fresh ON signature_fresh.packet_id = packet.id "
-                                   "WHERE signature_fresh.signed = TRUE "
-                                   "AND packet.start < now() AND now() < packet.end "
-                                   "GROUP BY packet.id "
-                                   "UNION SELECT packet.id AS id, coalesce(count(signature_upper.signed), 0) "
-                                   "AS signed FROM packet "
-                                   "FULL OUTER JOIN signature_upper ON signature_upper.packet_id = packet.id "
-                                   "WHERE signature_upper.signed = TRUE "
-                                   "AND packet.start < now() AND now() < packet.end"
-                                   " GROUP BY packet.id) totals GROUP BY totals.id) "
-                                   "AS b ON a.id = b.id ) AS packets "
-                                   "WHERE packets.start < now() AND now() < packets.end;")
-
-        for pkt in result:
+        for pkt in query_packets_with_signed():
             signed = signed_packets.get(pkt.username)
             misc = misc_signatures.get(pkt.username)
             if signed is None:
@@ -80,35 +60,129 @@ def get_signed_packets(member, intro=False, onfloor=False):
 
     try:
         if intro and onfloor:
-            result = db.engine.execute("SELECT DISTINCT "
-                                       "packet.freshman_username AS username, signature_fresh.signed AS signed "
-                                       " FROM packet "
-                                       " INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id "
-                                       " WHERE signature_fresh.freshman_username = " + member + ";")
-
-            for signature in result:
+            for signature in query_signed_intromember(member):
                 signed_packets[signature.username] = signature.signed
 
         if not intro:
             if onfloor:
-                result = db.engine.execute(
-                    "SELECT DISTINCT packet.freshman_username AS username, signature_upper.signed AS signed "
-                    "FROM packet INNER JOIN signature_upper ON packet.id = signature_upper.packet_id "
-                    "WHERE signature_upper.member = '" + member + "';")
-
-                for signature in result:
+                for signature in query_signed_upperclassman(member):
                     signed_packets[signature.username] = signature.signed
 
             else:
-                result = db.engine.execute(
-                    "SELECT DISTINCT packet.freshman_username AS username, signature_misc.member AS signed "
-                    "FROM packet LEFT OUTER JOIN signature_misc ON packet.id = signature_misc.packet_id "
-                    "WHERE signature_misc.member = '" + member + "' OR signature_misc.member ISNULL;")
-
-                for signature in result:
+                for signature in query_signed_alumni(member) :
                     signed_packets[signature.username] = bool(signature.signed)
 
-    except exc.SQLAlchemyError:
-        return signed_packets  # TODO; More error handling
+    except exc.SQLAlchemyError as e:
+        LOGGER.error(e)
 
     return signed_packets
+
+
+def query_packets_with_signed():
+    """
+    Query the database and return a list of currently open packets and the number of signatures they currently have
+    :return: a list of results matching the query
+    """
+    try:
+        return db.engine.execute(" SELECT packets.username "
+                                 " AS username, packets.name "
+                                 " AS name, coalesce(packets.sigs_recvd, 0) "
+                                 " AS received "
+                                 " FROM ( ( "
+                                 " SELECT freshman.rit_username "
+                                 " AS username, freshman.name "
+                                 " AS name, packet.id "
+                                 " AS id, packet.start "
+                                 " AS start, packet.end "
+                                 " AS end "
+                                 " FROM freshman "
+                                 " INNER JOIN packet "
+                                 " ON freshman.rit_username = packet.freshman_username)"
+                                 " AS a "
+                                 " LEFT JOIN ( "
+                                 " SELECT totals.id "
+                                 " AS id, coalesce(sum(totals.signed), 0) "
+                                 " AS sigs_recvd FROM ( "
+                                 " SELECT packet.id "
+                                 " AS id, coalesce(count(signature_fresh.signed), 0) "
+                                 " AS signed "
+                                 " FROM packet "
+                                 " FULL OUTER JOIN signature_fresh "
+                                 " ON signature_fresh.packet_id = packet.id "
+                                 " WHERE signature_fresh.signed = TRUE "
+                                 " AND packet.start < now() "
+                                 " AND now() < packet.end "
+                                 " GROUP BY packet.id "
+                                 " UNION SELECT packet.id "
+                                 " AS id, coalesce(count(signature_upper.signed), 0) "
+                                 " AS signed FROM packet "
+                                 " FULL OUTER JOIN signature_upper "
+                                 " ON signature_upper.packet_id = packet.id "
+                                 " WHERE signature_upper.signed = TRUE "
+                                 " AND packet.start < now() "
+                                 " AND now() < packet.end "
+                                 " GROUP BY packet.id ) totals "
+                                 " GROUP BY totals.id) "
+                                 " AS b ON a.id = b.id ) "
+                                 " AS packets "
+                                 " WHERE packets.start < now() "
+                                 " AND now() < packets.end; ")
+    except exc.SQLAlchemyError:
+        raise exc.SQLAlchemyError("Error: Failed to get open packets with signatures received from database")
+
+
+def query_signed_intromember(member):
+    """
+    Query the database and return the list of packets signed by the given intro member
+    :param member: the user making the query
+    :return: list of results matching the query
+    """
+    try:
+        return db.engine.execute(
+            " SELECT DISTINCT packet.freshman_username "
+            " AS username, signature_fresh.signed "
+            " AS signed "
+            " FROM packet "
+            " INNER JOIN signature_fresh "
+            " ON packet.id = signature_fresh.packet_id "
+            " WHERE signature_fresh.freshman_username = " + member + ";")
+    except exc.SQLAlchemyError:
+        raise exc.SQLAlchemyError("Error: Failed to get intromember's signatures from database")
+
+
+def query_signed_upperclassman(member):
+    """
+    Query the database and return the list of packets signed by the given upperclassman
+    :param member: the user making the query
+    :return: list of results matching the query
+    """
+    try:
+        return db.engine.execute(
+            " SELECT DISTINCT packet.freshman_username "
+            " AS username, signature_upper.signed "
+            " AS signed "
+            " FROM packet "
+            " INNER JOIN signature_upper "
+            " ON packet.id = signature_upper.packet_id "
+            " WHERE signature_upper.member = '" + member + "';")
+    except exc.SQLAlchemyError:
+        raise exc.SQLAlchemyError("Error: Failed to get upperclassman's signatures from database")
+
+
+def query_signed_alumni(member):
+    """
+    Query the database and return the list of packets signed by the given alumni/off-floor
+    :param member: the user making the query
+    :return: list of results matching the query
+    """
+    try:
+        return db.engine.execute(
+            " SELECT DISTINCT packet.freshman_username "
+            " AS username, signature_misc.member "
+            " AS signed "
+            " FROM packet "
+            " LEFT OUTER JOIN signature_misc "
+            " ON packet.id = signature_misc.packet_id "
+            " WHERE signature_misc.member = '" + member + "' OR signature_misc.member ISNULL;")
+    except exc.SQLAlchemyError:
+        raise exc.SQLAlchemyError("Error: Failed to get alumni's signatures from database")
