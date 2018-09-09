@@ -53,7 +53,7 @@ class Packet(db.Model):
     def signatures_required(self, total=False):
         if total:
             return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
-        eboard = UpperSignature.query.filter_by(eboard=True).count()
+        eboard = UpperSignature.with_parent(self).query.filter_by(eboard=True).count()
         return {'eboard': eboard,
                 'upperclassmen': len(self.upper_signatures) - eboard,
                 'freshmen': len(self.fresh_signatures),

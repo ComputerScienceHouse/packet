@@ -71,8 +71,8 @@ def set_essays(freshman_username, eboard=None, events=None, achieve=None):
 def get_signatures(freshman_username):
     """
     Gets a list of all signatures for the given member
-    :param freshman_username:
-    :return:
+    :param freshman_username: the freshman to get the signatures in their most recent packet
+    :return: <dict><list> list of signatures for the different categories
     """
     packet = Freshman.query.filter_by(rit_username=freshman_username).first().current_packet()
 
@@ -108,28 +108,39 @@ def get_signatures(freshman_username):
 def get_misc_signatures():
     packet_misc_sigs = {}
     try:
-        result = db.engine.execute("SELECT packet.freshman_username "
-                                   "AS username, count(signature_misc.member) "
-                                   "AS signatures FROM packet "
-                                   "RIGHT OUTER JOIN signature_misc "
-                                   "ON packet.id = signature_misc.packet_id "
-                                   "GROUP BY packet.freshman_username;")
+        result = db.engine.execute("""
+            SELECT packet.freshman_username AS username, count(signature_misc.member) AS signatures FROM packet 
+            RIGHT OUTER JOIN signature_misc ON packet.id = signature_misc.packet_id 
+            GROUP BY packet.freshman_username;
+            """)
         for packet in result:
             packet_misc_sigs[packet.username] = packet.signatures
     except exc.SQLAlchemyError:
-        return packet_misc_sigs # TODO; more error checking
+        raise exc.SQLAlchemyError("Error: Unable to query miscellaneous signatures from database")
     return packet_misc_sigs
 
 
 @lru_cache(maxsize=2048)
 def get_number_signed(freshman_username, separated=False):
-    return db.session.query(Packet).filter(Packet.freshman_username == freshman_username,
-                                           Packet.start < datetime.now(), Packet.end > datetime.now())\
+    """
+    Gets the raw number of signatures for the user
+    :param freshman_username: The user to get signature numbers for
+    :param separated: A boolean indicating whether to return the results as separated
+    :return: <Packet> list of results that are in the form of Packet database objects
+    """
+    return db.session.query(Packet) \
+        .filter(Packet.freshman_username == freshman_username,
+                Packet.start < datetime.now(), Packet.end > datetime.now()) \
         .first().signatures_received(not separated)
 
 
 @lru_cache(maxsize=4096)
 def get_number_required(separated=False):
+    """
+    Get the number of required signatures for Packet (not counting on/off-floor status)
+    :param separated: whether or not to separate those by category
+    :return: a map or an integer of total signatures required
+    """
     return db.session.query(Packet) \
         .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(not separated)
 
