@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     $('#active_packets_table').DataTable({
         "searching": true,
-        "order": [[2, 'desc']],
+        "order": [],
         "paging": false,
         "info": false,
         "columnDefs": [
