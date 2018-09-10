@@ -117,7 +117,7 @@ def query_signed_intromember(member):
         return db.engine.execute("""
             SELECT DISTINCT packet.freshman_username AS username, signature_fresh.signed AS signed FROM packet 
             INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id 
-            WHERE signature_fresh.freshman_username = """ + member + ";")
+            WHERE signature_fresh.freshman_username = '""" + member + "';")
 
     except exc.SQLAlchemyError:
         raise exc.SQLAlchemyError("Error: Failed to get intromember's signatures from database")
