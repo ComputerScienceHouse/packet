@@ -1,7 +1,7 @@
 from flask import redirect, render_template, request
 
 from packet import auth, app, db
-from packet.models import Packet
+from packet.packet import get_current_packet
 from packet.utils import before_request
 
 
@@ -16,7 +16,7 @@ def index(info=None):
 @auth.oidc_auth
 @before_request
 def essays(info=None):
-    packet = Packet.query.filter_by(freshman_username=info['uid']).first()
+    packet = get_current_packet(info['uid'])
     return render_template("essays.html", info=info, packet=packet)
 
 
@@ -25,7 +25,7 @@ def essays(info=None):
 @before_request
 def submit_essay(info=None):
     formdata = request.form
-    packet = Packet.query.filter_by(freshman_username=info['uid']).first()
+    packet = get_current_packet(info['uid'])
 
     packet.info_eboard = formdata['info_eboard']
     packet.info_events = formdata['info_events']
