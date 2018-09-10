@@ -9,6 +9,7 @@
         </div>
         <div id="eval-blocks">
             {% if packets|length > 0 %}
+                {% set can_sign = info.onfloor or info.realm == "csh" %}
                 <div id="eval-table">
                     <div class="card">
                         <div class="card-body table-fill">
@@ -18,14 +19,13 @@
                                     <tr>
                                         <th>Name</th>
                                         <th>Signatures</th>
-                                        {% if info.onfloor or info.realm == "csh" %}
+                                        {% if can_sign %}
                                             <th>Sign</th>
                                         {% endif %}
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for packet in packets %}
-                                        {% set can_sign = info.onfloor or info.realm == "csh" %}
                                         <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <a href="/packet/{{ packet.rit_username }}">
