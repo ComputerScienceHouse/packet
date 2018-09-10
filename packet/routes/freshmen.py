@@ -1,9 +1,9 @@
 from flask import redirect, render_template, request
 
-from packet import auth, app
+from packet import auth, app, db
 from packet.models import Packet
 from packet.utils import before_request
-from packet.packet import set_essays
+from packet.packet import set_essays, get_current_packet
 
 
 @app.route("/")
@@ -17,7 +17,7 @@ def index(info=None):
 @auth.oidc_auth
 @before_request
 def essays(info=None):
-    packet = Packet.query.filter_by(freshman_username=info['uid']).first()
+    packet = get_current_packet(info['uid'])
     return render_template("essays.html", info=info, packet=packet)
 
 
