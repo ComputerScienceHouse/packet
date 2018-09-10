@@ -1,7 +1,5 @@
 {% extends "extend/base.html" %}
 
-{% set can_sign = (info.onfloor and info.uid != packet.rit_username) or info.realm == "csh" %}
-
 {% block body %}
     <div class="container main">
         <div class="row mobile-hide">
@@ -27,6 +25,7 @@
                                     </thead>
                                     <tbody>
                                     {% for packet in packets %}
+                                        {% set can_sign = (info.onfloor and info.uid != packet.rit_username) or info.realm == "csh" %}
                                         <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
                                                 <a href="/packet/{{ packet.rit_username }}">
