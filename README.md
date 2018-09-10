@@ -36,6 +36,7 @@ The flask CLI provides all the methods needed to setup a packet and a packet sea
   db              Perform database migrations.
   ldap-sync       Updates the upper and misc sigs in the DB to match ldap.
   sync-freshmen   Updates the freshmen entries in the DB to match the given CSV.
+  fetch-results   Fetches and prints the results from a given packet season.
 ```
 
 Code Standards
