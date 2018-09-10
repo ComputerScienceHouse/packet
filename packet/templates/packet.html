@@ -57,7 +57,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>EBoard Signatures</b>
-                        <b class="signature-count">{{ signed_dict.eboard }}/{{ signatures.eboard.count() }}</b>
+                        <b class="signature-count">{{ signed_dict.eboard }}/{{ signatures.eboard | count }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -96,7 +96,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>On-Floor Upperclassmen Signatures</b>
-                        <b class="signature-count">{{ signed_dict.upperclassmen }}/{{ signatures.upperclassmen.count() }}</b>
+                        <b class="signature-count">{{ signed_dict.upperclassmen }}/{{ signatures.upperclassmen | count }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -135,7 +135,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>On-Floor Freshmen Signatures</b>
-                        <b class="signature-count">{{ signed_dict.freshmen }}/{{ signatures.freshmen.count() }}</b>
+                        <b class="signature-count">{{ signed_dict.freshmen }}/{{ signatures.freshmen | count }}</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -146,11 +146,11 @@
                                 {% for m in signatures.freshmen %}
                                     <tr {% if m.signed %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
-                                            <a href="/packet/{{ m.freshman.rit_username }}">
-                                                <img class="eval-user-img" alt="{{ m.freshman.rit_username }}"
+                                            <a href="/packet/{{ m.freshman_username }}">
+                                                <img class="eval-user-img" alt="{{ m.freshman_username }}"
                                                      src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
                                                      width="25"
-                                                     height="25"/> {{ m.freshman.name }} ({{ m.freshman.rit_username }})
+                                                     height="25"/> {{ m.name }} ({{ m.freshman_username }})
                                             </a>
                                         </td>
                                         <td width="15%">
@@ -170,7 +170,7 @@
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>Off-Floor Upperclassmen/Alumni/Advisor Signatures</b>
-                        <b class="signature-count">{{ signatures.misc.count() }}/15</b>
+                        <b class="signature-count">{{ signatures.misc | count }}/15</b>
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
