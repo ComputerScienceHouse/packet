@@ -1,9 +1,8 @@
 from flask import redirect, render_template, request
 
-from packet import auth, app, db
-from packet.models import Packet
-from packet.utils import before_request
+from packet import auth, app
 from packet.packet import set_essays, get_current_packet
+from packet.utils import before_request
 
 
 @app.route("/")
