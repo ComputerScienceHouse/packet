@@ -58,7 +58,6 @@ def set_essays(freshman_username, eboard=None, events=None, achieve=None):
     return True
 
 
-@lru_cache(maxsize=2048)
 def get_signatures(freshman_username):
     """
     Gets a list of all signatures for the given member
@@ -75,17 +74,17 @@ def get_signatures(freshman_username):
 
     upper_signatures = db.session.query(UpperSignature.member, UpperSignature.signed, Freshman.rit_username) \
         .select_from(UpperSignature).join(Packet).join(Freshman) \
-        .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(False))\
-        .order_by(UpperSignature.signed.desc())\
+        .filter(UpperSignature.packet_id == packet.id, UpperSignature.eboard.is_(False)) \
+        .order_by(UpperSignature.signed.desc()) \
         .distinct().all()
-    fresh_signatures = \
-    db.session.query(FreshSignature.freshman_username, FreshSignature.signed, Freshman.rit_username, Freshman.name) \
+    fresh_signatures = db.session.query(
+        FreshSignature.freshman_username, FreshSignature.signed, Freshman.rit_username, Freshman.name) \
         .select_from(Packet).join(FreshSignature).join(Freshman) \
         .filter(FreshSignature.packet_id == packet.id) \
         .order_by(FreshSignature.signed.desc()) \
         .distinct().all()
 
-    misc_signatures = db.session.query(MiscSignature.member, Freshman.rit_username)\
+    misc_signatures = db.session.query(MiscSignature.member, Freshman.rit_username) \
         .select_from(MiscSignature).join(Packet).join(Freshman) \
         .filter(MiscSignature.packet_id == packet.id) \
         .distinct().all()
@@ -111,7 +110,7 @@ def get_misc_signatures():
     return packet_misc_sigs
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=512)
 def valid_signature(signer_username, freshman_username):
     if signer_username == freshman_username:
         return False
@@ -127,17 +126,15 @@ def valid_signature(signer_username, freshman_username):
     return True
 
 
-@lru_cache(maxsize=512)
 def get_freshman(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first()
 
 
-@lru_cache(maxsize=512)
 def get_current_packet(freshman_username):
     return get_freshman(freshman_username).current_packet()
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=512)
 def get_number_signed(freshman_username, separated=False):
     """
     Gets the raw number of signatures for the user
@@ -151,7 +148,7 @@ def get_number_signed(freshman_username, separated=False):
         .first().signatures_received(not separated)
 
 
-@lru_cache(maxsize=2048)
+@lru_cache(maxsize=512)
 def get_number_required(separated=False):
     """
     Get the number of required signatures for Packet (not counting on/off-floor status)
@@ -162,7 +159,6 @@ def get_number_required(separated=False):
         .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(not separated)
 
 
-@lru_cache(maxsize=2048)
 def get_upperclassmen_percent(username, onfloor=False):
     required = get_number_required(True)
     upperclassmen_required = required['upperclassmen'] + required['eboard'] + required['miscellaneous']
@@ -186,14 +182,26 @@ def signed_packets(member):
     return MiscSignature.query.filter_by(member=member).all()
 
 
+@lru_cache(maxsize=512)
+def signed_packet(signer, freshman):
+    packet = get_current_packet(freshman)
+    freshman_signature = FreshSignature.query.filter_by(packet=packet, freshman_username=signer, signed=True).first()
+    upper_signature = UpperSignature.query.filter_by(packet=packet, member=signer, signed=True).first()
+    misc_signature = MiscSignature.query.filter_by(packet=packet, member=signer).first()
+
+    if freshman_signature is not None:
+        return freshman_signature.signed
+    if upper_signature is not None:
+        return upper_signature.signed
+    if misc_signature is not None:
+        return misc_signature
+    return False
+
+
 def clear_cache():
     """
     Clear cache of all frequently changing data
     """
     get_number_signed.cache_clear()
-    get_signatures.cache_clear()
     get_number_required.cache_clear()
-    get_upperclassmen_percent.cache_clear()
-    get_freshman.cache_clear()
-    get_current_packet.cache_clear()
     signed_packets.cache_clear()

@@ -3,9 +3,9 @@ from flask import render_template, redirect
 from packet import auth, app
 from packet.member import current_packets
 from packet.models import Freshman
-from packet.packet import get_number_required, get_number_signed
+from packet.packet import get_number_required, get_number_signed, signed_packet
 from packet.packet import get_signatures, get_upperclassmen_percent
-from packet.utils import before_request, signed_packet
+from packet.utils import before_request
 
 
 @app.route('/logout')
@@ -23,7 +23,7 @@ def freshman_packet(uid, info=None):
     signatures = get_signatures(uid)
     signed_dict = get_number_signed(uid, True)
     required = get_number_required()
-    signed = sum(signed_dict.values())
+    signed = get_number_signed(uid)
 
     packet_signed = signed_packet(info['uid'], uid)
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
