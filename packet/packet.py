@@ -58,6 +58,7 @@ def set_essays(freshman_username, eboard=None, events=None, achieve=None):
     return True
 
 
+@lru_cache(maxsize=512)
 def get_signatures(freshman_username):
     """
     Gets a list of all signatures for the given member
@@ -95,6 +96,7 @@ def get_signatures(freshman_username):
             'misc': misc_signatures}
 
 
+@lru_cache(maxsize=512)
 def get_misc_signatures():
     packet_misc_sigs = {}
     try:
@@ -159,6 +161,7 @@ def get_number_required(separated=False):
         .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(not separated)
 
 
+@lru_cache(maxsize=512)
 def get_upperclassmen_percent(username, onfloor=False):
     required = get_number_required(True)
     upperclassmen_required = required['upperclassmen'] + required['eboard'] + required['miscellaneous']
@@ -202,6 +205,9 @@ def clear_cache():
     """
     Clear cache of all frequently changing data
     """
+    get_upperclassmen_percent.cache_clear()
     get_number_signed.cache_clear()
     get_number_required.cache_clear()
     signed_packets.cache_clear()
+    get_signatures.cache_clear()
+    get_misc_signatures.cache_clear()
