@@ -5,7 +5,7 @@ from flask import render_template, redirect
 
 from packet import auth, app
 from packet.models import Freshman, Packet
-from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent
+from packet.packet import get_signatures, get_number_required, get_number_signed, get_upperclassmen_percent, get_number_upper_required, get_number_upper_signed
 from packet.utils import before_request, signed_packet
 
 
@@ -25,11 +25,13 @@ def freshman_packet(uid, info=None):
     signed_dict = get_number_signed(uid)
     required = sum(get_number_required(uid).values())
     signed = sum(signed_dict.values())
-
+    
+    upper_required = sum(get_number_upper_required)
+    upper_signed = sum(get_number_upper_signed)
     packet_signed = signed_packet(info['uid'], uid)
     return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
                            freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent,
-                           signed_dict=signed_dict)
+                           signed_dict=signed_dict, upper_signed=upper_signed, upper_required=upper_required)
 
 
 @app.route("/packets")
@@ -45,7 +47,6 @@ def packets(info=None):
             packet.did_sign = False
             packet.total_signatures = sum(packet.signatures_received().values())
             packet.required_signatures = sum(packet.signatures_required().values())
-
             for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
                 if sig.member == info["uid"]:
                     packet.did_sign = True
@@ -56,6 +57,8 @@ def packets(info=None):
             packet.did_sign = False
             packet.total_signatures = sum(packet.signatures_received().values())
             packet.required_signatures = sum(packet.signatures_required().values())
+            packet.upper_signatures = sum(packet.upperclassmen_recieved().values())
+            packet.upper_required = sum(packet.upperclassmen_required().values())
 
             for sig in filter(lambda sig: sig.signed, packet.fresh_signatures):
                 if sig.freshman_username == info["uid"]:

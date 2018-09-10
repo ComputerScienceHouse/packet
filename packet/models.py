@@ -57,6 +57,19 @@ class Packet(db.Model):
                 'freshmen': len(self.fresh_signatures),
                 'misc': REQUIRED_MISC_SIGNATURES}
 
+    def upperclassmen_required(self):
+        eboard = UpperSignature.query.filter_by(eboard=True).count()
+
+        return {'eboard': eboard, 'upperclassmen': len(self.upper_signatures) - eboard}
+
+
+    def upperclassmen_recieved(self):
+        upper_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=False).count()
+        eboard_count = UpperSignature.query.with_parent(self).filter_by(signed=True, eboard=True).count()
+
+        return {'eboard': eboard_count, 'upper_count': upper_count}
+
+
     def signatures_received(self):
         """
         Result capped so it will never be greater than that of signatures_required()

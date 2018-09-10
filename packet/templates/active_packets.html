@@ -19,6 +19,7 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Signatures</th>
+                                            <th>Upperclassmen</th>
                                             <th>Sign</th>
                                         </tr>
                                         </thead>
@@ -40,6 +41,13 @@
                                                             💯 {# 100% emoji #}
                                                         {% else %}
                                                             {{ packet.total_signatures }}/{{ packet.required_signatures }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td data-sort="{{ packet.upper_signatures }}">
+                                                        {% if packet.upper_signatures == packet.upper_required %}
+                                                            💯 {# 100% emoji #}
+                                                        {% else %}
+                                                            {{ packet.upper_signatures }} / {{ packet.upper_required }}
                                                         {% endif %}
                                                     </td>
                                                     {% if (info.onfloor and info.uid != packet.freshman.rit_username) or info.realm == "csh" %}
