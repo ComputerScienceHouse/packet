@@ -2,8 +2,7 @@ from flask import render_template, redirect
 
 from packet import auth, app
 from packet.member import current_packets
-from packet.models import Freshman
-from packet.packet import get_number_required, get_number_signed, signed_packet
+from packet.packet import get_number_required, get_number_signed, signed_packet, get_freshman
 from packet.packet import get_signatures, get_upperclassmen_percent
 from packet.utils import before_request
 
@@ -18,7 +17,7 @@ def logout():
 @auth.oidc_auth
 @before_request
 def freshman_packet(uid, info=None):
-    freshman = Freshman.query.filter_by(rit_username=uid).first()
+    freshman = get_freshman(uid)
     upperclassmen_percent = get_upperclassmen_percent(uid)
     signatures = get_signatures(uid)
     signed_dict = get_number_signed(uid, True)
