@@ -137,8 +137,6 @@ def get_current_packet(freshman_username):
     return get_freshman(freshman_username).current_packet()
 
 
-
-
 @lru_cache(maxsize=2048)
 def get_number_signed(freshman_username, separated=False):
     """
@@ -153,7 +151,7 @@ def get_number_signed(freshman_username, separated=False):
         .first().signatures_received(not separated)
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=2048)
 def get_number_required(separated=False):
     """
     Get the number of required signatures for Packet (not counting on/off-floor status)
@@ -166,11 +164,13 @@ def get_number_required(separated=False):
 
 @lru_cache(maxsize=2048)
 def get_upperclassmen_percent(username, onfloor=False):
-    upperclassmen_required = get_number_required()
+    required = get_number_required(True)
+    upperclassmen_required = required['upperclassmen'] + required['eboard'] + required['miscellaneous']
     if onfloor:
         upperclassmen_required -= 1
 
-    upperclassmen_signature = get_number_signed(username)
+    signatures = get_number_signed(username, True)
+    upperclassmen_signature = signatures['upperclassmen'] + signatures['eboard'] + signatures['miscellaneous']
 
     return upperclassmen_signature / upperclassmen_required * 100
 
