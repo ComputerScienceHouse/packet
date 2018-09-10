@@ -64,12 +64,10 @@ def valid_signature(signer_username, freshman_username):
     return True
 
 
-@lru_cache(maxsize=512)
 def get_freshman(freshman_username):
     return Freshman.query.filter_by(rit_username=freshman_username).first()
 
 
-@lru_cache(maxsize=512)
 def get_current_packet(freshman_username):
     return get_freshman(freshman_username).current_packet()
 
