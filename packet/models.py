@@ -51,7 +51,7 @@ class Packet(db.Model):
 
     @lru_cache(maxsize=1024)
     def signatures_required(self):
-        eboard = UpperSignature.query.filter_by(eboard=True).count()
+        eboard = UpperSignature.query.with_parent(self).filter_by(eboard=True).count()
         return {'eboard': eboard,
                 'upperclassmen': len(self.upper_signatures) - eboard,
                 'freshmen': len(self.fresh_signatures),
