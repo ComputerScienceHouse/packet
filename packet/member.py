@@ -113,11 +113,13 @@ def query_signed_intromember(member):
     :param member: the user making the query
     :return: list of results matching the query
     """
-    try:
-        return db.engine.execute("""
+
+    s = """
             SELECT DISTINCT packet.freshman_username AS username, signature_fresh.signed AS signed FROM packet 
             INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id 
-            WHERE signature_fresh.freshman_username = """ + member + ";")
+            WHERE signature_fresh.freshman_username = ':member';"""
+    try:
+        return db.engine.execute(s, member=member)
 
     except exc.SQLAlchemyError:
         raise exc.SQLAlchemyError("Error: Failed to get intromember's signatures from database")
@@ -129,11 +131,14 @@ def query_signed_upperclassman(member):
     :param member: the user making the query
     :return: list of results matching the query
     """
-    try:
-        return db.engine.execute("""
+
+    s = """
             SELECT DISTINCT packet.freshman_username AS username, signature_upper.signed AS signed FROM packet 
             INNER JOIN signature_upper ON packet.id = signature_upper.packet_id 
-            WHERE signature_upper.member = '""" + member + "';")
+            WHERE signature_upper.member = ':member';"""
+
+    try:
+        return db.engine.execute(s, member=member)
 
     except exc.SQLAlchemyError:
         raise exc.SQLAlchemyError("Error: Failed to get upperclassman's signatures from database")
@@ -145,11 +150,14 @@ def query_signed_alumni(member):
     :param member: the user making the query
     :return: list of results matching the query
     """
-    try:
-        return db.engine.execute("""
+
+    s = """
             SELECT DISTINCT packet.freshman_username AS username, signature_misc.member AS signed 
             FROM packet LEFT OUTER JOIN signature_misc ON packet.id = signature_misc.packet_id 
-            WHERE signature_misc.member = '""" + member + "' OR signature_misc.member ISNULL;")
+            WHERE signature_misc.member = ':member' OR signature_misc.member ISNULL;"""
+
+    try:
+        return db.engine.execute(s, member=member)
 
     except exc.SQLAlchemyError:
         raise exc.SQLAlchemyError("Error: Failed to get alumni's signatures from database")

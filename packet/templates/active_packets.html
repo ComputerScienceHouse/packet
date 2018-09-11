@@ -1,7 +1,5 @@
 {% extends "extend/base.html" %}
 
-{% set can_sign = (info.onfloor and info.uid != packet.rit_username) or info.realm == "csh" %}
-
 {% block body %}
     <div class="container main">
         <div class="row mobile-hide">
@@ -11,6 +9,7 @@
         </div>
         <div id="eval-blocks">
             {% if packets|length > 0 %}
+                {% set can_sign = info.onfloor or info.realm == "csh" %}
                 <div id="eval-table">
                     <div class="card">
                         <div class="card-body table-fill">
@@ -48,13 +47,13 @@
                                             </td>
                                             {% if can_sign %}
                                                 <td class="sign-packet" align="right">
-                                                    {% if not packet.did_sign %}
+                                                    {% if not packet.did_sign and info.uid != packet.rit_username %}
                                                         <button class="btn btn-sm btn-primary sign-button"
                                                                 data-freshman_uid="{{ packet.rit_username }}"
                                                                 data-freshman_name="{{ packet.name }}">
                                                             Sign
                                                         </button>
-                                                    {% else %}
+                                                    {% elif info.uid != packet.rit_username %}
                                                         <button class="btn btn-sm btn-primary signed-button"
                                                                 disabled="disabled"><i
                                                                 class="fa fa-check"></i>&nbsp;Signed
