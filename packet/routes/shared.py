@@ -37,7 +37,7 @@ def freshman_packet(uid, info=None):
 def packets(info=None):
     if app.config["REALM"] == "csh":
         if info["member_info"]["onfloor"]:
-            if info["member_info"]["room"] is not None or ldap_is_eboard(info['uid']):
+            if info["member_info"]["room"] is not None or ldap_is_eboard(info['user_obj']):
                 open_packets = current_packets(info["uid"], False, True)
             else:
                 open_packets = current_packets(info["uid"], False, False)
