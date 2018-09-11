@@ -1,7 +1,7 @@
 from collections import namedtuple
 from logging import getLogger
 
-from sqlalchemy import exc
+from sqlalchemy import exc, text
 
 from .models import db, REQUIRED_MISC_SIGNATURES
 from .packet import get_number_required, get_misc_signatures
@@ -114,10 +114,10 @@ def query_signed_intromember(member):
     :return: list of results matching the query
     """
 
-    s = """
-            SELECT DISTINCT packet.freshman_username AS username, signature_fresh.signed AS signed FROM packet 
-            INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id 
-            WHERE signature_fresh.freshman_username = ':member';"""
+    s = text(
+        "SELECT DISTINCT packet.freshman_username AS username, signature_fresh.signed AS signed FROM packet "
+        "INNER JOIN signature_fresh ON packet.id = signature_fresh.packet_id "
+        "WHERE signature_fresh.freshman_username = :member;")
     try:
         return db.engine.execute(s, member=member)
 
@@ -132,10 +132,9 @@ def query_signed_upperclassman(member):
     :return: list of results matching the query
     """
 
-    s = """
-            SELECT DISTINCT packet.freshman_username AS username, signature_upper.signed AS signed FROM packet 
-            INNER JOIN signature_upper ON packet.id = signature_upper.packet_id 
-            WHERE signature_upper.member = ':member';"""
+    s = text("SELECT DISTINCT packet.freshman_username AS username, signature_upper.signed AS signed FROM packet "
+             "INNER JOIN signature_upper ON packet.id = signature_upper.packet_id "
+             "WHERE signature_upper.member = :member;")
 
     try:
         return db.engine.execute(s, member=member)
@@ -151,10 +150,9 @@ def query_signed_alumni(member):
     :return: list of results matching the query
     """
 
-    s = """
-            SELECT DISTINCT packet.freshman_username AS username, signature_misc.member AS signed 
-            FROM packet LEFT OUTER JOIN signature_misc ON packet.id = signature_misc.packet_id 
-            WHERE signature_misc.member = ':member' OR signature_misc.member ISNULL;"""
+    s = text("SELECT DISTINCT packet.freshman_username AS username, signature_misc.member AS signed FROM packet "
+             "LEFT OUTER JOIN signature_misc ON packet.id = signature_misc.packet_id "
+             "WHERE signature_misc.member = :member OR signature_misc.member ISNULL;")
 
     try:
         return db.engine.execute(s, member=member)
