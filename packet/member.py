@@ -4,7 +4,7 @@ from logging import getLogger
 from sqlalchemy import exc, text
 
 from .models import db, REQUIRED_MISC_SIGNATURES
-from .packet import get_number_required, get_misc_signatures
+from .packet import get_misc_signatures, get_number_required_off_floor
 
 LOGGER = getLogger(__name__)
 
@@ -22,7 +22,7 @@ def current_packets(member, intro=False, onfloor=False):
     SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
 
     packets = []
-    base_required = get_number_required()
+    base_required = get_number_required_off_floor()
 
     signed_packets = get_signed_packets(member, intro, onfloor)
     misc_signatures = get_misc_signatures()
