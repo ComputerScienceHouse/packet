@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import lru_cache
 
-from sqlalchemy import exc
+from sqlalchemy import exc, false, true
 
 from packet.ldap import ldap_get_member, ldap_is_intromember
 from .models import Freshman, UpperSignature, FreshSignature, MiscSignature, db, Packet
@@ -151,23 +151,41 @@ def get_number_signed(freshman_username, separated=False):
         .first().signatures_received(not separated)
 
 
-@lru_cache(maxsize=512)
-def get_number_required(separated=False):
+@lru_cache(maxsize=256)
+def get_number_required_on_floor(separated=False):
     """
     Get the number of required signatures for Packet (not counting on/off-floor status)
     :param separated: whether or not to separate those by category
     :return: a map or an integer of total signatures required
     """
-    return db.session.query(Packet) \
-        .filter(Packet.start < datetime.now(), Packet.end > datetime.now()).first().signatures_required(not separated)
+    return db.session.query(Packet).join(Freshman).filter(
+        Packet.start < datetime.now(),
+        Packet.end > datetime.now(),
+        Freshman.onfloor == true()
+    ).first().signatures_required(not separated)
+
+
+@lru_cache(maxsize=256)
+def get_number_required_off_floor(separated=False):
+    """
+    Get the number of required signatures for Packet (not counting on/off-floor status)
+    :param separated: whether or not to separate those by category
+    :return: a map or an integer of total signatures required
+    """
+    return db.session.query(Packet).join(Freshman).filter(
+        Packet.start < datetime.now(),
+        Packet.end > datetime.now(),
+        Freshman.onfloor == false()
+    ).first().signatures_required(not separated)
 
 
 @lru_cache(maxsize=512)
 def get_upperclassmen_percent(username, onfloor=False):
-    required = get_number_required(True)
-    upperclassmen_required = required['upperclassmen'] + required['eboard'] + required['miscellaneous']
     if onfloor:
-        upperclassmen_required -= 1
+        required = get_number_required_on_floor(True)
+    else:
+        required = get_number_required_off_floor(True)
+    upperclassmen_required = required['upperclassmen'] + required['eboard'] + required['miscellaneous']
 
     signatures = get_number_signed(username, True)
     upperclassmen_signature = signatures['upperclassmen'] + signatures['eboard'] + signatures['miscellaneous']
@@ -208,7 +226,8 @@ def clear_cache():
     """
     get_upperclassmen_percent.cache_clear()
     get_number_signed.cache_clear()
-    get_number_required.cache_clear()
+    get_number_required_on_floor.cache_clear()
+    get_number_required_off_floor.cache_clear()
     signed_packets.cache_clear()
     get_signatures.cache_clear()
     get_misc_signatures.cache_clear()
