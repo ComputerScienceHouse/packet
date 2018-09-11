@@ -22,24 +22,22 @@ def current_packets(member, intro=False, onfloor=False):
     SPacket = namedtuple('spacket', ['rit_username', 'name', 'did_sign', 'total_signatures', 'required_signatures'])
 
     packets = []
-    required = get_number_required()
-
-    if intro and onfloor:
-        required -= 1
+    base_required = get_number_required()
 
     signed_packets = get_signed_packets(member, intro, onfloor)
     misc_signatures = get_misc_signatures()
 
     try:
         for pkt in query_packets_with_signed():
-            signed = signed_packets.get(pkt.username)
-            misc = misc_signatures.get(pkt.username)
-            if signed is None:
-                signed = False
-            if misc is None:
-                misc = 0
+            signed = signed_packets.get(pkt.username) or False
+            misc = misc_signatures.get(pkt.username) or 0
             if misc > REQUIRED_MISC_SIGNATURES:
                 misc = REQUIRED_MISC_SIGNATURES
+
+            required = base_required
+            if pkt.onfloor:
+                required -= 1
+
             packets.append(SPacket(pkt.username, pkt.name, signed, pkt.received + misc, required))
 
     except exc.SQLAlchemyError as e:
@@ -87,20 +85,22 @@ def query_packets_with_signed():
     """
     try:
         return db.engine.execute("""
-        SELECT packets.username AS username, packets.name AS name, coalesce(packets.sigs_recvd, 0) AS received 
-         FROM ( ( SELECT freshman.rit_username 
-         AS username, freshman.name AS name, packet.id AS id, packet.start AS start, packet.end AS end 
-         FROM freshman INNER JOIN packet ON freshman.rit_username = packet.freshman_username) AS a 
-                       LEFT JOIN (  SELECT totals.id  AS id, coalesce(sum(totals.signed), 0)  AS sigs_recvd 
-                       FROM ( SELECT packet.id AS id, coalesce(count(signature_fresh.signed), 0) AS signed 
-                       FROM packet FULL OUTER JOIN signature_fresh ON signature_fresh.packet_id = packet.id 
-                       WHERE signature_fresh.signed = TRUE  AND packet.start < now() AND now() < packet.end 
-                       GROUP BY packet.id 
-                       UNION SELECT packet.id AS id, coalesce(count(signature_upper.signed), 0) AS signed FROM packet 
-                       FULL OUTER JOIN signature_upper ON signature_upper.packet_id = packet.id 
-                       WHERE signature_upper.signed = TRUE AND packet.start < now() AND now() < packet.end 
-                       GROUP BY packet.id ) totals GROUP BY totals.id ) AS b ON a.id = b.id ) AS packets 
-                       WHERE packets.start < now() AND now() < packets.end; 
+        SELECT packets.username AS username, packets.name AS name, packets.onfloor AS onfloor,
+        coalesce(packets.sigs_recvd, 0) AS received 
+        FROM ( ( SELECT freshman.rit_username 
+        AS username, freshman.name AS name, freshman.onfloor 
+        AS onfloor, packet.id AS id, packet.start AS start, packet.end AS end 
+        FROM freshman INNER JOIN packet ON freshman.rit_username = packet.freshman_username) AS a 
+                      LEFT JOIN (  SELECT totals.id  AS id, coalesce(sum(totals.signed), 0)  AS sigs_recvd 
+                      FROM ( SELECT packet.id AS id, coalesce(count(signature_fresh.signed), 0) AS signed 
+                      FROM packet FULL OUTER JOIN signature_fresh ON signature_fresh.packet_id = packet.id 
+                      WHERE signature_fresh.signed = TRUE  AND packet.start < now() AND now() < packet.end 
+                      GROUP BY packet.id 
+                      UNION SELECT packet.id AS id, coalesce(count(signature_upper.signed), 0) AS signed FROM packet 
+                      FULL OUTER JOIN signature_upper ON signature_upper.packet_id = packet.id 
+                      WHERE signature_upper.signed = TRUE AND packet.start < now() AND now() < packet.end 
+                      GROUP BY packet.id ) totals GROUP BY totals.id ) AS b ON a.id = b.id ) AS packets 
+                      WHERE packets.start < now() AND now() < packets.end; 
                                 """)
 
     except exc.SQLAlchemyError:
