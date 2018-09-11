@@ -1,6 +1,7 @@
 from flask import render_template, redirect
 
-from packet import auth, app
+from packet import auth, app, ldap
+from packet.ldap import ldap_is_eboard
 from packet.member import current_packets
 from packet.packet import get_number_required, get_number_signed, signed_packet, get_freshman
 from packet.packet import get_signatures, get_upperclassmen_percent
@@ -36,7 +37,7 @@ def freshman_packet(uid, info=None):
 def packets(info=None):
     if app.config["REALM"] == "csh":
         if info["member_info"]["onfloor"]:
-            if info["member_info"]["room"] is not None:
+            if info["member_info"]["room"] is not None or ldap_is_eboard(info['uid']):
                 open_packets = current_packets(info["uid"], False, True)
             else:
                 open_packets = current_packets(info["uid"], False, False)
