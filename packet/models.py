@@ -3,7 +3,6 @@ Defines the application's database models.
 """
 
 from datetime import datetime
-from functools import lru_cache
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
@@ -12,6 +11,19 @@ from . import db
 
 # The required number of off-floor and alumni signatures
 REQUIRED_MISC_SIGNATURES = 15
+
+
+class SigCounts:
+    """
+    Utility class for returning counts of signatures broken out by type
+    """
+    def __init__(self, eboard, upper, fresh, misc):
+        self.eboard = eboard
+        self.upper = upper      # Upperclassmen excluding eboard
+        self.fresh = fresh
+        self.misc = misc
+        self.member_total = eboard + upper + misc
+        self.total = eboard + upper + fresh + misc
 
 
 class Freshman(db.Model):
@@ -49,51 +61,26 @@ class Packet(db.Model):
     def is_open(self):
         return self.start < datetime.now() < self.end
 
-    @lru_cache(maxsize=1024)
-    def signatures_required(self, total=False):
-        if total:
-            return len(self.upper_signatures) + len(self.fresh_signatures) + REQUIRED_MISC_SIGNATURES
-        eboard = UpperSignature.query.with_parent(self).filter_by(eboard=True).count()
-        return {'eboard': eboard,
-                'upperclassmen': len(self.upper_signatures) - eboard,
-                'freshmen': len(self.fresh_signatures),
-                'miscellaneous': REQUIRED_MISC_SIGNATURES}
+    def signatures_required(self):
+        eboard = sum(map(lambda sig: 1 if sig.eboard else 0, self.upper_signatures))
+        upper = len(self.upper_signatures) - eboard
+        fresh = len(self.fresh_signatures)
 
-    def signatures_received(self, total=False):
+        return SigCounts(eboard, upper, fresh, REQUIRED_MISC_SIGNATURES)
+
+    def signatures_received(self):
         """
         Result capped so it will never be greater than that of signatures_required()
         """
-        misc_count = len(self.misc_signatures)
+        eboard = sum(map(lambda sig: 1 if sig.eboard and sig.signed else 0, self.upper_signatures))
+        upper = sum(map(lambda sig: 1 if not sig.eboard and sig.signed else 0, self.upper_signatures))
+        fresh = sum(map(lambda sig: 1 if sig.signed else 0, self.fresh_signatures))
 
-        if misc_count > REQUIRED_MISC_SIGNATURES:
-            misc_count = REQUIRED_MISC_SIGNATURES
+        misc = len(self.misc_signatures)
+        if misc > REQUIRED_MISC_SIGNATURES:
+            misc = REQUIRED_MISC_SIGNATURES
 
-        eboard_count = db.session.query(UpperSignature.member) \
-            .select_from(Packet).join(UpperSignature) \
-            .filter(Packet.freshman_username == self.freshman_username,
-                    UpperSignature.signed, UpperSignature.eboard) \
-            .distinct().count()
-
-        upper_count = db.session.query(UpperSignature.member) \
-            .select_from(Packet).join(UpperSignature) \
-            .filter(Packet.freshman_username == self.freshman_username,
-                    UpperSignature.signed,
-                    UpperSignature.eboard.isnot(True)) \
-            .distinct().count()
-
-        fresh_count = db.session.query(FreshSignature.freshman_username) \
-            .select_from(Packet).join(FreshSignature) \
-            .filter(Packet.freshman_username == self.freshman_username,
-                    FreshSignature.signed) \
-            .distinct().count()
-
-        if total:
-            return eboard_count + upper_count + fresh_count + misc_count
-
-        return {'eboard': eboard_count,
-                'upperclassmen': upper_count,
-                'freshmen': fresh_count,
-                'miscellaneous': misc_count}
+        return SigCounts(eboard, upper, fresh, misc)
 
 
 class UpperSignature(db.Model):
