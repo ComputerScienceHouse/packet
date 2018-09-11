@@ -5,7 +5,7 @@ Defines the application's database models.
 from datetime import datetime
 from functools import lru_cache
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean, and_, or_
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
 from . import db
