@@ -187,7 +187,7 @@ def fetch_results():
         required = packet.signatures_required()
 
         upper_ratio = sum((received["eboard"], received["upperclassmen"], received["miscellaneous"])) / \
-                      sum((required["eboard"], required["upperclassmen"], required["misc"]))
+                      sum((required["eboard"], required["upperclassmen"], required["miscellaneous"]))
         print("\tUpperclassmen score: {}%".format(round(upper_ratio * 100, 2)))
 
         total_ratio = sum(received.values()) / sum(required.values())
@@ -198,7 +198,7 @@ def fetch_results():
         print("\tEboard: {}/{}".format(received["eboard"], required["eboard"]))
         print("\tUpperclassmen: {}/{}".format(received["upperclassmen"], required["upperclassmen"]))
         print("\tFreshmen: {}/{}".format(received["freshmen"], required["freshmen"]))
-        print("\tMisc: {}/{}".format(len(packet.misc_signatures), required["misc"]))
+        print("\tMiscellaneous: {}/{}".format(len(packet.misc_signatures), required["miscellaneous"]))
 
         print()
 
