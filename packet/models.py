@@ -5,7 +5,7 @@ Defines the application's database models.
 from datetime import datetime
 from functools import lru_cache
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean, and_, or_
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
 from . import db
@@ -68,13 +68,6 @@ class Packet(db.Model):
         if misc_count > REQUIRED_MISC_SIGNATURES:
             misc_count = REQUIRED_MISC_SIGNATURES
 
-        if total:
-            return db.session.query(Packet.freshman_username) \
-                .select_from(Packet).outerjoin(UpperSignature).outerjoin(FreshSignature) \
-                .filter(or_(and_(Packet.freshman_username == self.freshman_username, UpperSignature.signed),
-                        and_(Packet.freshman_username == self.freshman_username, FreshSignature.signed))) \
-                .distinct().count() + misc_count
-
         eboard_count = db.session.query(UpperSignature.member) \
             .select_from(Packet).join(UpperSignature) \
             .filter(Packet.freshman_username == self.freshman_username,
@@ -93,6 +86,9 @@ class Packet(db.Model):
             .filter(Packet.freshman_username == self.freshman_username,
                     FreshSignature.signed) \
             .distinct().count()
+
+        if total:
+            return eboard_count + upper_count + fresh_count + misc_count
 
         return {'eboard': eboard_count,
                 'upperclassmen': upper_count,
