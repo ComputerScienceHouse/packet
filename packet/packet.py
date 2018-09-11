@@ -88,6 +88,7 @@ def get_signatures(freshman_username):
     misc_signatures = db.session.query(MiscSignature.member, Freshman.rit_username) \
         .select_from(MiscSignature).join(Packet).join(Freshman) \
         .filter(MiscSignature.packet_id == packet.id) \
+        .order_by(MiscSignature.updated.asc()) \
         .distinct().all()
 
     return {'eboard': eboard,
