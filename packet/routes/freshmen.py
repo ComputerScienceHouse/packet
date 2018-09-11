@@ -1,7 +1,7 @@
 from flask import redirect, render_template, request
 
-from packet import auth, app, db
-from packet.packet import get_current_packet
+from packet import auth, app
+from packet.packet import set_essays, get_current_packet
 from packet.utils import before_request
 
 
@@ -25,11 +25,6 @@ def essays(info=None):
 @before_request
 def submit_essay(info=None):
     formdata = request.form
-    packet = get_current_packet(info['uid'])
-
-    packet.info_eboard = formdata['info_eboard']
-    packet.info_events = formdata['info_events']
-    packet.info_achieve = formdata['info_achieve']
-    db.session.commit()
-
-    return redirect("/essays", 302)
+    if set_essays(info['uid'], formdata['info_eboard'], formdata['info_events'], formdata['info_achieve']):
+        return redirect("/essays", 302)
+    return redirect("/essays", 500)
