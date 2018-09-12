@@ -36,6 +36,8 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 _ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
 
 # pylint: disable=wrong-import-position
+from . import context_processors
+
 if app.config["REALM"] == "csh":
     from .routes import upperclassmen
 else:

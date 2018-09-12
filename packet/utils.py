@@ -5,7 +5,7 @@ from functools import wraps, lru_cache
 import requests
 from flask import session
 
-from packet import _ldap, app
+from packet import _ldap
 from packet.ldap import (ldap_get_member,
                          ldap_is_active,
                          ldap_is_onfloor,
@@ -64,18 +64,3 @@ def get_member_info(uid):
 @lru_cache(maxsize=2048)
 def is_on_floor(uid):
     return get_freshman(uid).onfloor
-
-
-
-@app.context_processor
-def utility_processor():
-    # pylint: disable=bare-except
-    @lru_cache(maxsize=4096)
-    def get_display_name(username):
-        try:
-            member = ldap_get_member(username)
-            return member.cn + " (" + member.uid + ")"
-        except:
-            return username
-
-    return dict(get_display_name=get_display_name)
