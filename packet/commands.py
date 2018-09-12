@@ -186,19 +186,14 @@ def fetch_results():
         received = packet.signatures_received()
         required = packet.signatures_required()
 
-        upper_ratio = received.member_total / required.member_total
-        print("\tUpperclassmen score: {}%".format(round(upper_ratio * 100, 2)))
-
-        total_ratio = received.total / required.total
-        print("\tTotal score: {}%".format(round(total_ratio * 100, 2)))
-
+        print("\tUpperclassmen score: {:0.2f}%".format(received.member_total / required.member_total * 100))
+        print("\tTotal score: {:0.2f}%".format(received.total / required.total * 100))
         print()
 
         print("\tEboard: {}/{}".format(received.eboard, required.eboard))
         print("\tUpperclassmen: {}/{}".format(received.upper, required.upper))
         print("\tFreshmen: {}/{}".format(received.fresh, required.fresh))
         print("\tMiscellaneous: {}/{}".format(received.misc, required.misc))
-
         print()
 
         print("\tTotal missed:", required.total - received.total)

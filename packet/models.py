@@ -18,12 +18,18 @@ class SigCounts:
     Utility class for returning counts of signatures broken out by type
     """
     def __init__(self, eboard, upper, fresh, misc):
+        # Base fields
         self.eboard = eboard
         self.upper = upper      # Upperclassmen excluding eboard
         self.fresh = fresh
         self.misc = misc
-        self.member_total = eboard + upper + misc
-        self.total = eboard + upper + fresh + misc
+
+        # Capped version of misc so it will never be greater than REQUIRED_MISC_SIGNATURES
+        self.misc_capped = misc if misc <= REQUIRED_MISC_SIGNATURES else REQUIRED_MISC_SIGNATURES
+
+        # Totals (calculated using misc_capped)
+        self.member_total = eboard + upper + self.misc_capped
+        self.total = eboard + upper + fresh + self.misc_capped
 
 
 class Freshman(db.Model):
@@ -69,18 +75,11 @@ class Packet(db.Model):
         return SigCounts(eboard, upper, fresh, REQUIRED_MISC_SIGNATURES)
 
     def signatures_received(self):
-        """
-        Result capped so it will never be greater than that of signatures_required()
-        """
         eboard = sum(map(lambda sig: 1 if sig.eboard and sig.signed else 0, self.upper_signatures))
         upper = sum(map(lambda sig: 1 if not sig.eboard and sig.signed else 0, self.upper_signatures))
         fresh = sum(map(lambda sig: 1 if sig.signed else 0, self.fresh_signatures))
 
-        misc = len(self.misc_signatures)
-        if misc > REQUIRED_MISC_SIGNATURES:
-            misc = REQUIRED_MISC_SIGNATURES
-
-        return SigCounts(eboard, upper, fresh, misc)
+        return SigCounts(eboard, upper, fresh, len(self.misc_signatures))
 
 
 class UpperSignature(db.Model):
