@@ -7,13 +7,13 @@
         <div class="mb-2">
             <div class="row justify-content-between w-100">
                 <div class="col">
-                    <h3>{{ packet.freshman.name }}</h3>
+                    <h3>{{ get_rit_name(packet.freshman_username) }}</h3>
                 </div>
                 <div class="col">
                     {% if can_sign and not did_sign %}
                         <button class="btn btn-primary sign-button"
-                                data-freshman_uid="{{ freshman.rit_username }}"
-                                data-freshman_name="{{ freshman.name }}">Sign
+                                data-freshman_uid="{{ packet.freshman_username }}"
+                                data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">Sign
                         </button>
                     {% elif did_sign %}
                         <button class="btn btn-primary signed-button" disabled="disabled"><i
