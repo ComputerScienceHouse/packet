@@ -33,16 +33,15 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 })
 
 # LDAP
-_ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
+_ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
 # pylint: disable=wrong-import-position
+from . import models
 from . import context_processors
+from . import commands
+from .routes import api, shared
 
 if app.config["REALM"] == "csh":
     from .routes import upperclassmen
 else:
     from .routes import freshmen
-
-from .routes import api, shared
-from . import commands
-from . import models

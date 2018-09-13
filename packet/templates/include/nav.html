@@ -1,6 +1,6 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="/">Packet</a>
+        <a class="navbar-brand" href="{{ url_for("index") }}">Packet</a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,16 +11,16 @@
             <ul class="navbar-nav mr-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/packets">Active Packets</a>
+                    <a class="nav-link" href="{{ url_for("packets") }}">Active Packets</a>
                 </li>
 
                 {% if info.realm == "csh" %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/upperclassmen">Signatures</a>
+                        <a class="nav-link" href="{{ url_for("upperclassmen_total") }}">Signatures</a>
                     </li>
                 {% else %}
                      <li class="nav-item">
-                        <a class="nav-link" href="/essays">Essays</a>
+                        <a class="nav-link" href="{{ url_for("essays") }}">Essays</a>
                     </li>
                 {% endif %}
 
@@ -41,7 +41,7 @@
                             <a class="dropdown-item" href="https://themeswitcher.csh.rit.edu/">Theme</a>
                             <div class="dropdown-divider"></div>
                         {% endif %}
-                        <a class="dropdown-item" href="/logout">Logout</a>
+                        <a class="dropdown-item" href="{{ url_for("logout") }}">Logout</a>
                     </div>
 
                 </li>

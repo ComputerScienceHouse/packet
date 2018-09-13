@@ -103,6 +103,10 @@ class Packet(db.Model):
         # The user must be a misc CSHer that hasn't signed this packet or an off-floor freshmen
         return False
 
+    @classmethod
+    def open_packets(cls):
+        return cls.query.filter(cls.start < datetime.now(), cls.end > datetime.now()).all()
+
 class UpperSignature(db.Model):
     __tablename__ = "signature_upper"
     packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)

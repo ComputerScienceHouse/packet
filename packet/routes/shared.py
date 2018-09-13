@@ -2,7 +2,6 @@
 Routes available to both freshmen and CSH users
 """
 
-from datetime import datetime
 from flask import render_template, redirect
 
 from packet import auth, app
@@ -10,10 +9,10 @@ from packet.utils import before_request
 from packet.models import Packet
 
 
-@app.route('/logout')
+@app.route("/logout/")
 @auth.oidc_logout
 def logout():
-    return redirect("/")
+    return redirect("http://csh.rit.edu")
 
 
 @app.route("/packet/<freshman_username>/<packet_id>/")
@@ -47,7 +46,7 @@ def freshman_packet(freshman_username, packet_id, info=None):
 @auth.oidc_auth
 @before_request
 def packets(info=None):
-    open_packets = Packet.query.filter(Packet.start < datetime.now(), Packet.end > datetime.now()).all()
+    open_packets = Packet.open_packets()
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
     for packet in open_packets:
