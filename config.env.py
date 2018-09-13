@@ -8,7 +8,7 @@ SERVER_NAME = environ.get("PACKET_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("PACKET_SECRET_KEY", "PLEASE_REPLACE_ME")
 
 # OpenID Connect SSO config
-REALM = environ.get("PACKET_REALM", "intro")
+REALM = environ.get("PACKET_REALM", "csh")
 
 OIDC_ISSUER = environ.get("PACKET_OIDC_ISSUER", "https://sso.csh.rit.edu/auth/realms/csh")
 OIDC_CLIENT_ID = environ.get("PACKET_OIDC_CLIENT_ID", "packet")
