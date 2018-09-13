@@ -4,7 +4,7 @@
     <div class="container main">
         <div class="row mobile-hide">
             <div class="col-sm-10">
-                <h3 class="page-title">{{ get_display_name(member) }}</h3>
+                <h3 class="page-title">{{ get_csh_name(member) }}</h3>
             </div>
         </div>
         <div id="eval-blocks">
@@ -21,19 +21,19 @@
                                 <tbody>
                                 {% for packet in open_packets %}
                                     {# Using inline style because of how themeswitcher loads the css theme :( #}
-                                    <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
+                                    <tr {% if packet.did_sign_result %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
-                                            <a href="/packet/{{ packet.freshman.rit_username }}">
+                                            <a href="{{ url_for('freshman_packet', freshman_username=packet.freshman_username, packet_id=packet.id) }}">
                                                 <img class="eval-user-img"
-                                                     alt="{{ packet.freshman.name }}"
+                                                     alt="{{ get_rit_name(packet.freshman_username) }}"
                                                      src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
                                                      width="25"
-                                                     height="25"/> {{ packet.freshman.name }}
-                                                ({{ packet.freshman.rit_username }})
+                                                     height="25"/>
+                                                {{ get_rit_name(packet.freshman_username) }}
                                             </a>
                                         </td>
                                         <td width="15%">
-                                            {% if packet.did_sign %}
+                                            {% if packet.did_sign_result %}
                                                 <i class="fas fa-check"></i>
                                             {% else %}
                                                 <i class="fas fa-times"></i>

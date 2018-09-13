@@ -1,55 +1,58 @@
-from datetime import datetime
+"""
+Routes available to CSH users only
+"""
+
+from flask import redirect, render_template, url_for
 from itertools import chain
+from operator import itemgetter
 
-from flask import redirect, render_template
-from sqlalchemy import func, case
-
-from packet import auth, app, db
-from packet.models import Packet, UpperSignature, MiscSignature
+from packet import auth, app
+from packet.models import Packet, MiscSignature
 from packet.utils import before_request
 
 
 @app.route("/")
 @auth.oidc_auth
 def index():
-    return redirect("/packets", 302)
+    return redirect(url_for("packets"), 302)
 
 
-@app.route("/member/<uid>")
+@app.route("/member/<uid>/")
 @auth.oidc_auth
 @before_request
 def upperclassman(uid, info=None):
-    open_packets = Packet.query.filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).all()
-    signatures = 0
+    open_packets = Packet.open_packets()
 
+    # Pre-calculate and store the return value of did_sign()
     for packet in open_packets:
-        packet.did_sign = False
+        packet.did_sign_result = packet.did_sign(uid, True)
 
-        for sig in chain(filter(lambda sig: sig.signed, packet.upper_signatures), packet.misc_signatures):
-            if sig.member == uid:
-                packet.did_sign = True
-                signatures += 1
-                break
+    signatures = sum(map(lambda packet: 1 if packet.did_sign_result else 0, open_packets))
 
-    open_packets.sort(key=lambda x: x.did_sign, reverse=True)
+    open_packets.sort(key=lambda packet: packet.freshman_username)
+    open_packets.sort(key=lambda packet: packet.did_sign_result, reverse=True)
 
     return render_template("upperclassman.html", info=info, open_packets=open_packets, member=uid,
                            signatures=signatures)
 
 
-@app.route("/upperclassmen")
+@app.route("/upperclassmen/")
 @auth.oidc_auth
 @before_request
 def upperclassmen_total(info=None):
-    open_packets = Packet.query.filter(Packet.end > datetime.now()).filter(Packet.start < datetime.now()).count()
+    open_packets = Packet.open_packets()
 
-    # TODO: Only count open Packets
-    upperclassmen = (db.session.query(func.count(case([(UpperSignature.signed == True, 1)])).label("signatures"),
-                                      UpperSignature.member)).group_by(UpperSignature.member).all()
-    upperclassmen += (db.session.query(func.count().label("signatures"),
-                                       MiscSignature.member)).group_by(MiscSignature.member).all()
+    # Sum up the signed packets per upperclassman
+    upperclassmen = dict()
+    for packet in open_packets:
+        for sig in chain(packet.upper_signatures, packet.misc_signatures):
+            if sig.member not in upperclassmen:
+                upperclassmen[sig.member] = 0
 
-    upperclassmen.sort(reverse=True)
+            if isinstance(sig, MiscSignature):
+                upperclassmen[sig.member] += 1
+            elif sig.signed:
+                upperclassmen[sig.member] += 1
 
-    return render_template("upperclassmen_totals.html", info=info, upperclassmen=upperclassmen,
-                           open_packets=open_packets)
+    return render_template("upperclassmen_totals.html", info=info, num_open_packets=len(open_packets),
+                           upperclassmen=sorted(upperclassmen.items(), key=itemgetter(1), reverse=True))

@@ -23,19 +23,19 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for m in upperclassmen %}
+                                {% for member, signed_count in upperclassmen %}
                                     <tr>
                                         <td>
-                                            <a href="/member/{{ m.member }}">
+                                            <a href="{{ url_for("upperclassman", uid=member) }}">
                                                 <img class="eval-user-img"
-                                                     alt="{{ m.member }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ m.member }}"
+                                                     alt="{{ member }}"
+                                                     src="https://profiles.csh.rit.edu/image/{{ member }}"
                                                      width="25"
-                                                     height="25"/> {{ get_display_name(m.member) }}
+                                                     height="25"/> {{ get_csh_name(member) }}
                                             </a>
                                         </td>
                                         <td>
-                                            {{ m.signatures }}/{{ open_packets }}
+                                            {{ signed_count }}/{{ num_open_packets }}
                                         </td>
                                     </tr>
                                 {% endfor %}
