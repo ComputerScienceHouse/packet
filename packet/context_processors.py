@@ -1,13 +1,13 @@
 """
-The context processors used by the jinja templates
+Context processors used by the jinja templates
 """
+
 from functools import lru_cache
 from datetime import datetime
 
 from packet.ldap import ldap_get_member
 from packet.models import Freshman
 from packet import app
-
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=128)
@@ -17,7 +17,6 @@ def get_csh_name(username):
         return member.cn + " (" + member.uid + ")"
     except:
         return username
-
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=128)

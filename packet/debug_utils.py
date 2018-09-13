@@ -1,5 +1,5 @@
 """
-Functions for use when debugging
+General utilities for use when debugging
 """
 
 from functools import wraps
