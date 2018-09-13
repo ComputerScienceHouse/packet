@@ -3,6 +3,7 @@ Defines the application's database models.
 """
 
 from datetime import datetime
+from itertools import chain
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
@@ -81,6 +82,22 @@ class Packet(db.Model):
 
         return SigCounts(eboard, upper, fresh, len(self.misc_signatures))
 
+    def did_sign(self, username, is_csh):
+        """
+        :param is_csh: Set to True for CSH accounts and False for freshmen
+        """
+        if is_csh:
+            for sig in filter(lambda sig: sig.member == username, chain(self.upper_signatures, self.misc_signatures)):
+                if isinstance(sig, MiscSignature):
+                    return True
+                else:
+                    return sig.signed
+        else:
+            for sig in filter(lambda sig: sig.freshman_username == username, self.fresh_signatures):
+                return sig.signed
+
+        # The user must be a misc CSHer that hasn't signed this packet or an off-floor freshmen
+        return False
 
 class UpperSignature(db.Model):
     __tablename__ = "signature_upper"
