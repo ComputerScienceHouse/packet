@@ -1,9 +1,10 @@
 from flask import render_template, redirect
 
-from packet import auth, app, ldap
+from packet import auth, app
 from packet.ldap import ldap_is_eboard
 from packet.member import current_packets
-from packet.packet import get_number_required, get_number_signed, signed_packet, get_freshman
+from packet.packet import get_number_signed, signed_packet, get_freshman, \
+    get_number_required_off_floor, get_number_required_on_floor
 from packet.packet import get_signatures, get_upperclassmen_percent
 from packet.utils import before_request
 
@@ -22,7 +23,10 @@ def freshman_packet(uid, info=None):
     upperclassmen_percent = get_upperclassmen_percent(uid)
     signatures = get_signatures(uid)
     signed_dict = get_number_signed(uid, True)
-    required = get_number_required()
+    if freshman.onfloor:
+        required = get_number_required_on_floor()
+    else:
+        required = get_number_required_off_floor()
     signed = get_number_signed(uid)
 
     packet_signed = signed_packet(info['uid'], uid)
