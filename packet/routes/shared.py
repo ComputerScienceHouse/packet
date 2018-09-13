@@ -1,10 +1,9 @@
-from itertools import chain
 from datetime import datetime
 from flask import render_template, redirect
 
 from packet import auth, app
 from packet.utils import before_request
-from packet.models import MiscSignature, Packet
+from packet.models import Packet
 
 
 @app.route('/logout')
@@ -22,28 +21,20 @@ def freshman_packet(freshman_username, packet_id, info=None):
     if packet is None:
         return "Invalid packet or freshman", 404
     else:
-        can_sign = False
-        did_sign = False
+        can_sign = packet.is_open()
 
-        if app.config["REALM"] == "csh":
-            can_sign = packet.is_open()
+        # If the packet is open and the user is an off-floor freshman set can_sign to False
+        if packet.is_open() and app.config["REALM"] != "csh":
+            if info["uid"] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
+                can_sign = False
 
-            for sig in filter(lambda sig: sig.member == info["uid"], chain(packet.upper_signatures,
-                                                                           packet.misc_signatures)):
-                if isinstance(sig, MiscSignature):
-                    did_sign = True
-                else:
-                    did_sign = sig.signed
-
-                break
-        else:
-            for sig in filter(lambda sig: sig.freshman_username == info["uid"], packet.fresh_signatures):
-                can_sign = packet.is_open()
-                did_sign = sig.signed
-                break
-
-        return render_template("packet.html", info=info, packet=packet, can_sign=can_sign, did_sign=did_sign,
-                               required=packet.signatures_required(), received=packet.signatures_received(),
+        return render_template("packet.html",
+                               info=info,
+                               packet=packet,
+                               can_sign=can_sign,
+                               did_sign=packet.did_sign(info["uid"], app.config["REALM"] == "csh"),
+                               required=packet.signatures_required(),
+                               received=packet.signatures_received(),
                                eboard=filter(lambda sig: sig.eboard, packet.upper_signatures),
                                upper=filter(lambda sig: not sig.eboard, packet.upper_signatures))
 
