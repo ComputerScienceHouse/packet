@@ -61,9 +61,11 @@ class Packet(db.Model):
     info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
-    upper_signatures = relationship("UpperSignature", order_by="UpperSignature.signed.desc(), UpperSignature.updated")
-    fresh_signatures = relationship("FreshSignature", order_by="FreshSignature.signed.desc(), FreshSignature.updated")
-    misc_signatures = relationship("MiscSignature", order_by="MiscSignature.updated")
+    upper_signatures = relationship("UpperSignature", order_by="UpperSignature.signed.desc(), UpperSignature.updated",
+                                    lazy="subquery")
+    fresh_signatures = relationship("FreshSignature", order_by="FreshSignature.signed.desc(), FreshSignature.updated",
+                                    lazy="subquery")
+    misc_signatures = relationship("MiscSignature", order_by="MiscSignature.updated", lazy="subquery")
 
     def is_open(self):
         return self.start < datetime.now() < self.end
