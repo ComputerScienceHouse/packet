@@ -43,12 +43,6 @@ class Freshman(db.Model):
     # One freshman can have multiple packets if they repeat the intro process
     packets = relationship("Packet", order_by="desc(Packet.id)")
 
-    def current_packet(self):
-        """
-        :return: The most recent packet for this freshman
-        """
-        return next(iter(self.packets), None)
-
 
 class Packet(db.Model):
     __tablename__ = "packet"
@@ -61,16 +55,19 @@ class Packet(db.Model):
     info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
-    upper_signatures = relationship("UpperSignature", order_by="UpperSignature.signed.desc(), UpperSignature.updated",
-                                    lazy="subquery")
-    fresh_signatures = relationship("FreshSignature", order_by="FreshSignature.signed.desc(), FreshSignature.updated",
-                                    lazy="subquery")
-    misc_signatures = relationship("MiscSignature", order_by="MiscSignature.updated", lazy="subquery")
+    upper_signatures = relationship("UpperSignature", lazy="subquery",
+                                    order_by="UpperSignature.signed.desc(), UpperSignature.updated")
+    fresh_signatures = relationship("FreshSignature", lazy="subquery",
+                                    order_by="FreshSignature.signed.desc(), FreshSignature.updated")
+    misc_signatures = relationship("MiscSignature", lazy="subquery", order_by="MiscSignature.updated")
 
     def is_open(self):
         return self.start < datetime.now() < self.end
 
     def signatures_required(self):
+        """
+        :return: A SigCounts instance with the fields set to the number of signatures received by this packet
+        """
         eboard = sum(map(lambda sig: 1 if sig.eboard else 0, self.upper_signatures))
         upper = len(self.upper_signatures) - eboard
         fresh = len(self.fresh_signatures)
@@ -78,6 +75,9 @@ class Packet(db.Model):
         return SigCounts(eboard, upper, fresh, REQUIRED_MISC_SIGNATURES)
 
     def signatures_received(self):
+        """
+        :return: A SigCounts instance with the fields set to the number of required signatures for this packet
+        """
         eboard = sum(map(lambda sig: 1 if sig.eboard and sig.signed else 0, self.upper_signatures))
         upper = sum(map(lambda sig: 1 if not sig.eboard and sig.signed else 0, self.upper_signatures))
         fresh = sum(map(lambda sig: 1 if sig.signed else 0, self.fresh_signatures))
@@ -86,7 +86,9 @@ class Packet(db.Model):
 
     def did_sign(self, username, is_csh):
         """
+        :param username: The CSH or RIT username to check for
         :param is_csh: Set to True for CSH accounts and False for freshmen
+        :return: Boolean value for if the given account signed this packet
         """
         if is_csh:
             for sig in filter(lambda sig: sig.member == username, chain(self.upper_signatures, self.misc_signatures)):

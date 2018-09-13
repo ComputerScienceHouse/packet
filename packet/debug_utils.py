@@ -7,6 +7,7 @@ from datetime import datetime
 
 from packet import context_processors
 
+
 def log_time(func):
     """
     Decorator for logging the execution time of a function
@@ -23,6 +24,7 @@ def log_time(func):
         return result
 
     return wrapped_function
+
 
 def log_cache():
     """

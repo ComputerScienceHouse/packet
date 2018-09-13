@@ -1,3 +1,7 @@
+"""
+Routes available to both freshmen and CSH users
+"""
+
 from datetime import datetime
 from flask import render_template, redirect
 

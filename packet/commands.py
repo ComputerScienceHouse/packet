@@ -11,6 +11,7 @@ from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
 from .ldap import ldap_get_eboard, ldap_get_live_onfloor
 
+
 @app.cli.command("create-secret")
 def create_secret():
     """
@@ -19,14 +20,17 @@ def create_secret():
     print("Here's your random secure token:")
     print(token_hex())
 
+
 packet_start_time = time(hour=19)
 packet_end_time = time(hour=21)
+
 
 class CSVFreshman:
     def __init__(self, row):
         self.name = row[0]
         self.rit_username = row[3]
         self.onfloor = row[1] == "TRUE"
+
 
 def parse_csv(freshmen_csv):
     print("Parsing file...")
@@ -36,6 +40,7 @@ def parse_csv(freshmen_csv):
     except Exception as e:
         print("Failure while parsing CSV")
         raise e
+
 
 @app.cli.command("sync-freshmen")
 @click.argument("freshmen_csv")
@@ -82,6 +87,7 @@ def sync_freshmen(freshmen_csv):
     db.session.commit()
     print("Done!")
 
+
 @app.cli.command("create-packets")
 @click.argument("freshmen_csv")
 def create_packets(freshmen_csv):
@@ -126,6 +132,7 @@ def create_packets(freshmen_csv):
     db.session.commit()
     print("Done!")
 
+
 @app.cli.command("ldap-sync")
 def ldap_sync():
     """
@@ -161,6 +168,7 @@ def ldap_sync():
 
     db.session.commit()
     print("Done!")
+
 
 @app.cli.command("fetch-results")
 def fetch_results():
