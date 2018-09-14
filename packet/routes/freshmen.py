@@ -1,7 +1,11 @@
-from flask import redirect, render_template, request
+"""
+Routes available to freshmen only
+"""
 
-from packet import auth, app
-from packet.packet import set_essays, get_current_packet
+from flask import redirect, render_template, request, url_for
+
+from packet import auth, app, db
+from packet.models import Packet
 from packet.utils import before_request
 
 
@@ -9,22 +13,39 @@ from packet.utils import before_request
 @auth.oidc_auth
 @before_request
 def index(info=None):
-    return redirect("/packet/" + info['uid'], 302)
+    most_recent_packet = Packet.query.filter_by(freshman_username=info['uid']).order_by(Packet.id.desc()).first()
+
+    if most_recent_packet is not None:
+        return redirect(url_for("freshman_packet", freshman_username=most_recent_packet.freshman_username,
+                                packet_id=most_recent_packet.id), 302)
+    else:
+        return redirect(url_for("packets"), 302)
 
 
-@app.route("/essays")
+@app.route("/essays/<packet_id>/")
 @auth.oidc_auth
 @before_request
-def essays(info=None):
-    packet = get_current_packet(info['uid'])
-    return render_template("essays.html", info=info, packet=packet)
+def essays(packet_id, info=None):
+    packet = Packet.query.filter_by(freshman_username=info['uid'], id=packet_id).first()
+
+    if packet is not None:
+        return render_template("essays.html", info=info, packet=packet)
+    else:
+        return redirect(url_for("index"), 302)
 
 
-@app.route("/essay", methods=["POST"])
+@app.route("/essays/<packet_id>/", methods=["POST"])
 @auth.oidc_auth
 @before_request
-def submit_essay(info=None):
-    formdata = request.form
-    if set_essays(info['uid'], formdata['info_eboard'], formdata['info_events'], formdata['info_achieve']):
-        return redirect("/essays", 302)
-    return redirect("/essays", 500)
+def submit_essays(packet_id, info=None):
+    packet = Packet.query.filter_by(freshman_username=info['uid'], id=packet_id).first()
+
+    if packet is not None:
+        packet.info_eboard = request.form.get("info_eboard", None)
+        packet.info_events = request.form.get("info_events", None)
+        packet.info_achieve = request.form.get("info_achieve", None)
+
+        db.session.commit()
+        return redirect(url_for("essays", packet_id=packet_id), 302)
+    else:
+        return redirect(url_for("index"), 302)
