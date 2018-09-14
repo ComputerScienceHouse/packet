@@ -29,7 +29,8 @@ migrate = Migrate(app, db)
 
 auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registration_info={
     "client_id": app.config["OIDC_CLIENT_ID"],
-    "client_secret": app.config["OIDC_CLIENT_SECRET"]
+    "client_secret": app.config["OIDC_CLIENT_SECRET"],
+    "post_logout_redirect_uris": "/logout/"
 })
 
 # LDAP
