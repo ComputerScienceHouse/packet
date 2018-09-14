@@ -4,13 +4,13 @@ Routes available to freshmen only
 
 from flask import redirect, render_template, request, url_for
 
-from packet import auth, app, db
+from packet import app, db
 from packet.models import Packet
-from packet.utils import before_request
+from packet.utils import before_request, packet_auth
 
 
 @app.route("/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def index(info=None):
     most_recent_packet = Packet.query.filter_by(freshman_username=info['uid']).order_by(Packet.id.desc()).first()
@@ -22,7 +22,7 @@ def index(info=None):
 
 
 @app.route("/essays/<packet_id>/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def essays(packet_id, info=None):
     packet = Packet.by_id(packet_id)
@@ -34,7 +34,7 @@ def essays(packet_id, info=None):
 
 
 @app.route("/essays/<packet_id>/", methods=["POST"])
-@auth.oidc_auth
+@packet_auth
 @before_request
 def submit_essays(packet_id, info=None):
     packet = Packet.by_id(packet_id)

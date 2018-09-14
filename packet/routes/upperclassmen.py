@@ -6,19 +6,19 @@ from flask import redirect, render_template, url_for
 from itertools import chain
 from operator import itemgetter
 
-from packet import auth, app
+from packet import app
 from packet.models import Packet, MiscSignature
-from packet.utils import before_request
+from packet.utils import before_request, packet_auth
 
 
 @app.route("/")
-@auth.oidc_auth
+@packet_auth
 def index():
     return redirect(url_for("packets"), 302)
 
 
 @app.route("/member/<uid>/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def upperclassman(uid, info=None):
     open_packets = Packet.open_packets()
@@ -37,7 +37,7 @@ def upperclassman(uid, info=None):
 
 
 @app.route("/upperclassmen/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def upperclassmen_total(info=None):
     open_packets = Packet.open_packets()

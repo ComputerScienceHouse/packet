@@ -5,7 +5,7 @@ Routes available to both freshmen and CSH users
 from flask import render_template, redirect
 
 from packet import auth, app
-from packet.utils import before_request
+from packet.utils import before_request, packet_auth
 from packet.models import Packet
 
 
@@ -16,7 +16,7 @@ def logout():
 
 
 @app.route("/packet/<packet_id>/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def freshman_packet(packet_id, info=None):
     packet = Packet.by_id(packet_id)
@@ -43,7 +43,7 @@ def freshman_packet(packet_id, info=None):
 
 
 @app.route("/packets/")
-@auth.oidc_auth
+@packet_auth
 @before_request
 def packets(info=None):
     open_packets = Packet.open_packets()

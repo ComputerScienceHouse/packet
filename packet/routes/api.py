@@ -1,10 +1,10 @@
-from packet import auth, app, db
-from packet.utils import before_request
+from packet import app, db
+from packet.utils import before_request, packet_auth
 from packet.models import Packet, MiscSignature
 
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
-@auth.oidc_auth
+@packet_auth
 @before_request
 def sign(packet_id, info):
     packet = Packet.by_id(packet_id)

@@ -5,13 +5,14 @@ from functools import wraps, lru_cache
 import requests
 from flask import session
 
-from packet import _ldap
+from packet import _ldap, auth, app
 from packet.models import Freshman
 from packet.ldap import (ldap_get_member,
                          ldap_is_active,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
-                         ldap_get_groups)
+                         ldap_get_groups,
+                         ldap_is_intromember)
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -68,3 +69,19 @@ def is_on_floor(uid):
         return freshman.onfloor
     else:
         return False
+
+
+def packet_auth(func):
+    """
+    Decorator for easily configuring oidc
+    """
+    @auth.oidc_auth
+    @wraps(func)
+    def wrapped_function(*args, **kwargs):
+        if app.config["REALM"] == "csh":
+            if ldap_is_intromember(ldap_get_member(str(session["userinfo"].get("preferred_username", "")))):
+                return "Sorry, upperclassmen packet is not available to intro members.", 401
+
+        return func(*args, **kwargs)
+
+    return wrapped_function
