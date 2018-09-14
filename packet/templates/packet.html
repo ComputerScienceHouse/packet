@@ -12,7 +12,6 @@
                 <div class="col">
                     {% if can_sign and not did_sign %}
                         <button class="btn btn-primary sign-button"
-                                data-freshman_uid="{{ packet.freshman_username }}"
                                 data-packet_id="{{ packet.id }}"
                                 data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">Sign
                         </button>

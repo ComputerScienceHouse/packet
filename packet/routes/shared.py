@@ -15,11 +15,11 @@ def logout():
     return redirect("http://csh.rit.edu")
 
 
-@app.route("/packet/<freshman_username>/<packet_id>/")
+@app.route("/packet/<packet_id>/")
 @auth.oidc_auth
 @before_request
-def freshman_packet(freshman_username, packet_id, info=None):
-    packet = Packet.query.filter_by(freshman_username=freshman_username, id=packet_id).first()
+def freshman_packet(packet_id, info=None):
+    packet = Packet.by_id(packet_id)
 
     if packet is None:
         return "Invalid packet or freshman", 404

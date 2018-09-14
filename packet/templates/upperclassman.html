@@ -23,7 +23,7 @@
                                     {# Using inline style because of how themeswitcher loads the css theme :( #}
                                     <tr {% if packet.did_sign_result %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
-                                            <a href="{{ url_for('freshman_packet', freshman_username=packet.freshman_username, packet_id=packet.id) }}">
+                                            <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
                                                 <img class="eval-user-img"
                                                      alt="{{ get_rit_name(packet.freshman_username) }}"
                                                      src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"

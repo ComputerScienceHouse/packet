@@ -105,7 +105,17 @@ class Packet(db.Model):
 
     @classmethod
     def open_packets(cls):
+        """
+        Helper method for fetching all currently open packets
+        """
         return cls.query.filter(cls.start < datetime.now(), cls.end > datetime.now()).all()
+
+    @classmethod
+    def by_id(cls, packet_id):
+        """
+        Helper method for fetching 1 packet by its id
+        """
+        return cls.query.filter_by(id=packet_id).first()
 
 class UpperSignature(db.Model):
     __tablename__ = "signature_upper"
