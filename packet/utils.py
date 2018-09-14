@@ -6,12 +6,12 @@ import requests
 from flask import session
 
 from packet import _ldap
+from packet.models import Freshman
 from packet.ldap import (ldap_get_member,
                          ldap_is_active,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
                          ldap_get_groups)
-from packet.packet import get_freshman
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -63,4 +63,8 @@ def get_member_info(uid):
 
 @lru_cache(maxsize=2048)
 def is_on_floor(uid):
-    return get_freshman(uid).onfloor
+    freshman = Freshman.query.filter_by(rit_username=uid).first()
+    if freshman is not None:
+        return freshman.onfloor
+    else:
+        return False
