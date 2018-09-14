@@ -14,7 +14,8 @@ disable =
 	global-statement,
 	cyclic-import,
 	locally-disabled,
-	file-ignored
+	file-ignored,
+	no-else-return
 
 [REPORTS]
 output-format = text
