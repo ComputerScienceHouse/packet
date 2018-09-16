@@ -5,13 +5,14 @@ from functools import wraps, lru_cache
 import requests
 from flask import session
 
-from packet import _ldap, app
+from packet import _ldap, auth, app
+from packet.models import Freshman
 from packet.ldap import (ldap_get_member,
                          ldap_is_active,
                          ldap_is_onfloor,
                          ldap_get_roomnumber,
-                         ldap_get_groups)
-from packet.packet import get_freshman
+                         ldap_get_groups,
+                         ldap_is_intromember)
 
 INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
 
@@ -63,19 +64,24 @@ def get_member_info(uid):
 
 @lru_cache(maxsize=2048)
 def is_on_floor(uid):
-    return get_freshman(uid).onfloor
+    freshman = Freshman.query.filter_by(rit_username=uid).first()
+    if freshman is not None:
+        return freshman.onfloor
+    else:
+        return False
 
 
+def packet_auth(func):
+    """
+    Decorator for easily configuring oidc
+    """
+    @auth.oidc_auth
+    @wraps(func)
+    def wrapped_function(*args, **kwargs):
+        if app.config["REALM"] == "csh":
+            if ldap_is_intromember(ldap_get_member(str(session["userinfo"].get("preferred_username", "")))):
+                return "Sorry, upperclassmen packet is not available to intro members.", 401
 
-@app.context_processor
-def utility_processor():
-    # pylint: disable=bare-except
-    @lru_cache(maxsize=4096)
-    def get_display_name(username):
-        try:
-            member = ldap_get_member(username)
-            return member.cn + " (" + member.uid + ")"
-        except:
-            return username
+        return func(*args, **kwargs)
 
-    return dict(get_display_name=get_display_name)
+    return wrapped_function

@@ -13,7 +13,7 @@ $(document).ready(function () {
             .then((willSign) => {
                 if (willSign) {
                     $.ajax({
-                        url: "/api/v1/" + userData + "/sign/" + packetData.freshman_uid,
+                        url: "/api/v1/sign/" + packetData.packet_id + "/",
                         method: "POST",
                         success: function (data) {
                             swal("Congratulations or I'm sorry\nYou've signed " + packetData.freshman_name + "'s packet.", {
