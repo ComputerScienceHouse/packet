@@ -46,13 +46,13 @@
                                             </td>
                                             {% if can_sign %}
                                                 <td class="sign-packet" align="right">
-                                                    {% if not packet.did_sign_result and info.uid != packet.rit_username %}
+                                                    {% if not packet.did_sign_result and info.uid != packet.freshman_username %}
                                                         <button class="btn btn-sm btn-primary sign-button"
                                                                 data-packet_id="{{ packet.id }}"
                                                                 data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">
                                                             Sign
                                                         </button>
-                                                    {% elif info.uid != packet.rit_username %}
+                                                    {% elif info.uid != packet.freshman_username %}
                                                         <button class="btn btn-sm btn-primary signed-button"
                                                                 disabled="disabled"><i
                                                                 class="fa fa-check"></i>&nbsp;Signed
