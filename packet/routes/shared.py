@@ -1,56 +1,60 @@
+"""
+Routes available to both freshmen and CSH users
+"""
+
 from flask import render_template, redirect
 
 from packet import auth, app
-from packet.ldap import ldap_is_eboard
-from packet.member import current_packets
-from packet.packet import get_number_signed, signed_packet, get_freshman, \
-    get_number_required_off_floor, get_number_required_on_floor
-from packet.packet import get_signatures, get_upperclassmen_percent
-from packet.utils import before_request
+from packet.utils import before_request, packet_auth
+from packet.models import Packet
 
 
-@app.route('/logout')
+@app.route("/logout/")
 @auth.oidc_logout
 def logout():
-    return redirect("/")
+    return redirect("http://csh.rit.edu")
 
 
-@app.route("/packet/<uid>")
-@auth.oidc_auth
+@app.route("/packet/<packet_id>/")
+@packet_auth
 @before_request
-def freshman_packet(uid, info=None):
-    freshman = get_freshman(uid)
-    upperclassmen_percent = get_upperclassmen_percent(uid)
-    signatures = get_signatures(uid)
-    signed_dict = get_number_signed(uid, True)
-    if freshman.onfloor:
-        required = get_number_required_on_floor()
+def freshman_packet(packet_id, info=None):
+    packet = Packet.by_id(packet_id)
+
+    if packet is None:
+        return "Invalid packet or freshman", 404
     else:
-        required = get_number_required_off_floor()
-    signed = get_number_signed(uid)
+        can_sign = packet.is_open()
 
-    packet_signed = signed_packet(info['uid'], uid)
-    return render_template("packet.html", info=info, signatures=signatures, uid=uid, required=required, signed=signed,
-                           freshman=freshman, packet_signed=packet_signed, upperclassmen_percent=upperclassmen_percent,
-                           signed_dict=signed_dict)
+        # If the packet is open and the user is an off-floor freshman set can_sign to False
+        if packet.is_open() and app.config["REALM"] != "csh":
+            if info["uid"] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
+                can_sign = False
+
+        return render_template("packet.html",
+                               info=info,
+                               packet=packet,
+                               can_sign=can_sign,
+                               did_sign=packet.did_sign(info["uid"], app.config["REALM"] == "csh"),
+                               required=packet.signatures_required(),
+                               received=packet.signatures_received(),
+                               eboard=filter(lambda sig: sig.eboard, packet.upper_signatures),
+                               upper=filter(lambda sig: not sig.eboard, packet.upper_signatures))
 
 
-@app.route("/packets")
-@auth.oidc_auth
+@app.route("/packets/")
+@packet_auth
 @before_request
 def packets(info=None):
-    if app.config["REALM"] == "csh":
-        if info["member_info"]["onfloor"]:
-            if info["member_info"]["room"] is not None or ldap_is_eboard(info['user_obj']):
-                open_packets = current_packets(info["uid"], False, True)
-            else:
-                open_packets = current_packets(info["uid"], False, False)
-        else:
-            open_packets = current_packets(info["uid"], False, False)
-    else:
-        open_packets = current_packets(info["uid"], True, info["onfloor"])
+    open_packets = Packet.open_packets()
 
-    open_packets.sort(key=lambda x: x.total_signatures, reverse=True)
-    open_packets.sort(key=lambda x: x.did_sign, reverse=True)
+    # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
+    for packet in open_packets:
+        packet.did_sign_result = packet.did_sign(info["uid"], app.config["REALM"] == "csh")
+        packet.signatures_received_result = packet.signatures_received()
+        packet.signatures_required_result = packet.signatures_required()
+
+    open_packets.sort(key=lambda packet: packet.signatures_received_result.total, reverse=True)
+    open_packets.sort(key=lambda packet: packet.did_sign_result, reverse=True)
 
     return render_template("active_packets.html", info=info, packets=open_packets)

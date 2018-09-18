@@ -26,34 +26,33 @@
                                     </thead>
                                     <tbody>
                                     {% for packet in packets %}
-                                        <tr {% if packet.did_sign %}style="background-color: #4caf505e" {% endif %}>
+                                        <tr {% if packet.did_sign_result %}style="background-color: #4caf505e" {% endif %}>
                                             <td>
-                                                <a href="/packet/{{ packet.rit_username }}">
+                                                <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
                                                     <img class="eval-user-img"
-                                                         alt="{{ packet.name }}"
+                                                         alt="{{ get_rit_name(packet.freshman_username) }}"
                                                          src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
                                                          width="25"
-                                                         height="25"/> {{ packet.name }}
-                                                    ({{ packet.rit_username }})
+                                                         height="25"/> {{ get_rit_name(packet.freshman_username) }}
                                                 </a>
                                             </td>
-                                            <td data-sort="{{ packet.total_signatures }}">
-                                                {% if packet.total_signatures == packet.required_signatures %}
+                                            <td data-sort="{{ packet.signatures_received_result.total }}">
+                                                {% if packet.signatures_received_result.total == packet.signatures_required_result.total %}
                                                     💯 {# 100% emoji #}
                                                 {% else %}
-                                                    {{ packet.total_signatures }}/
-                                                    {{ packet.required_signatures }}
+                                                    {{ packet.signatures_received_result.total }} /
+                                                    {{ packet.signatures_required_result.total }}
                                                 {% endif %}
                                             </td>
                                             {% if can_sign %}
                                                 <td class="sign-packet" align="right">
-                                                    {% if not packet.did_sign and info.uid != packet.rit_username %}
+                                                    {% if not packet.did_sign_result and info.uid != packet.freshman_username %}
                                                         <button class="btn btn-sm btn-primary sign-button"
-                                                                data-freshman_uid="{{ packet.rit_username }}"
-                                                                data-freshman_name="{{ packet.name }}">
+                                                                data-packet_id="{{ packet.id }}"
+                                                                data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">
                                                             Sign
                                                         </button>
-                                                    {% elif info.uid != packet.rit_username %}
+                                                    {% elif info.uid != packet.freshman_username %}
                                                         <button class="btn btn-sm btn-primary signed-button"
                                                                 disabled="disabled"><i
                                                                 class="fa fa-check"></i>&nbsp;Signed
