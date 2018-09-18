@@ -75,7 +75,7 @@ def packet_auth(func):
     """
     Decorator for easily configuring oidc
     """
-    @auth.oidc_auth
+    @auth.oidc_auth('app')
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         if app.config["REALM"] == "csh":
