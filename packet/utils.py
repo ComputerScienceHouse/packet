@@ -90,5 +90,5 @@ def notify_slack(name: str):
     """
     Sends a congratulate on sight decree to Slack.
     """
-    msg = f'{name} got :100: on packet. Congratulate on sight.'
+    msg = f'{name} got :100: on packet. Shower on sight.'
     requests.put(app.config["SLACK_WEBHOOK_URL"], json={'text':msg})

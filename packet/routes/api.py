@@ -1,5 +1,5 @@
 from packet import app, db
-from packet.utils import before_request, packet_auth, shower
+from packet.utils import before_request, packet_auth, notify_slack
 from packet.models import Packet, MiscSignature
 
 
