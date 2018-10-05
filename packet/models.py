@@ -103,6 +103,14 @@ class Packet(db.Model):
         # The user must be a misc CSHer that hasn't signed this packet or an off-floor freshmen
         return False
 
+
+    def is_100(self):
+        """
+        Checks if this packet has reached 100%
+        """
+        return self.signatures_required().total == self.signatures_recieved().total
+
+
     @classmethod
     def open_packets(cls):
         """

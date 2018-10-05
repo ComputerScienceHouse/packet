@@ -85,3 +85,13 @@ def packet_auth(func):
         return func(*args, **kwargs)
 
     return wrapped_function
+
+def notify_slack(name: str):
+    """
+    Sends a congratulate on sight decree to Slack.
+    """
+    if app.config["SLACK_WEBHOOK_URL"] is None:
+        print("SLACK_WEBHOOK_URL not configured, not sending message to slack.")
+        return
+    msg = f'{name} got :100: on packet. Shower on sight.'
+    requests.put(app.config["SLACK_WEBHOOK_URL"], json={'text':msg})
