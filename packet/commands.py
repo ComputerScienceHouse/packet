@@ -42,6 +42,15 @@ def parse_csv(freshmen_csv):
         raise e
 
 
+def input_date(prompt):
+    while True:
+        try:
+            date_str = input(prompt + " (format: MM/DD/YYYY): ")
+            return datetime.strptime(date_str, "%m/%d/%Y").date()
+        except ValueError:
+            pass
+
+
 @app.cli.command("sync-freshmen")
 @click.argument("freshmen_csv")
 def sync_freshmen(freshmen_csv):
@@ -99,14 +108,7 @@ def create_packets(freshmen_csv):
         return
 
     # Collect the necessary data
-    base_date = None
-    while base_date is None:
-        try:
-            date_str = input("Input the first day of packet season (format: MM/DD/YYYY): ")
-            base_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
+    base_date = input_date("Input the first day of packet season")
     start = datetime.combine(base_date, packet_start_time)
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
@@ -175,16 +177,8 @@ def fetch_results():
     """
     Fetches and prints the results from a given packet season.
     """
-    end_date = None
-    while end_date is None:
-        try:
-            date_str = input("Enter the last day of the packet season you'd like to retrieve results from " +
-                             "(format: MM/DD/YYYY): ")
-            end_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
-    end_date = datetime.combine(end_date, packet_end_time)
+    end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
+                                           "from"), packet_end_time)
 
     for packet in Packet.query.filter_by(end=end_date).all():
         print()
