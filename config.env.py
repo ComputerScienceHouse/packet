@@ -23,3 +23,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # LDAP config
 LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
+
+# Slack URL for pushing to #general
+SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)
