@@ -7,6 +7,7 @@ from flask import render_template, redirect
 from packet import auth, app
 from packet.utils import before_request, packet_auth
 from packet.models import Packet
+from packet.log_utils import log_cache, log_time
 
 
 @app.route("/logout/")
@@ -16,8 +17,10 @@ def logout():
 
 
 @app.route("/packet/<packet_id>/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def freshman_packet(packet_id, info=None):
     packet = Packet.by_id(packet_id)
 
@@ -43,8 +46,10 @@ def freshman_packet(packet_id, info=None):
 
 
 @app.route("/packets/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def packets(info=None):
     open_packets = Packet.open_packets()
 
