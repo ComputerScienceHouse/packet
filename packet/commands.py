@@ -204,7 +204,21 @@ def fetch_results():
 @app.cli.command("extend-packet")
 @click.argument("packet_id")
 def extend_packet(packet_id):
-    pass
+    """
+    Extends the given packet by setting a new end date.
+    """
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so it cannot be extended")
+        return
+    else:
+        print("Ready to extend packet #{} for {}".format(packet_id, packet.freshman_username))
+
+    packet.end = input_date("Enter the new end date for this packet")
+    db.session.commit()
+
+    print("Packet successfully extended")
 
 
 def remove_sig(packet_id, username, is_member):
