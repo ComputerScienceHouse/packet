@@ -255,7 +255,7 @@ def remove_sig(packet_id, username, is_member):
 @click.argument("member")
 def remove_member_sig(packet_id, member):
     """
-    Removes the given member's signature from the given packet
+    Removes the given member's signature from the given packet.
     :param member: The member's CSH username
     """
     remove_sig(packet_id, member, True)
@@ -266,7 +266,7 @@ def remove_member_sig(packet_id, member):
 @click.argument("freshman")
 def remove_freshman_sig(packet_id, freshman):
     """
-    Removes the given freshman's signature from the given packet
+    Removes the given freshman's signature from the given packet.
     :param freshman: The freshman's RIT username
     """
     remove_sig(packet_id, freshman, False)
