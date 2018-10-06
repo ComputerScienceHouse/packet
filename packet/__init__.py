@@ -4,6 +4,7 @@ The application setup and initialization code lives here.
 
 import os
 from logging.config import dictConfig
+import logging
 
 import csh_ldap
 from flask import Flask
@@ -12,6 +13,24 @@ from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
 from ._version import __version__
+
+# Logger configuration
+dictConfig({
+    "version": 1,
+    "formatters": {"default": {
+        "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+    }},
+    "handlers": {"packet": {
+        "class": "logging.StreamHandler",
+        "stream": "ext://sys.stdout",
+        "level": "DEBUG",
+        "formatter": "default"
+    }},
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["packet"]
+    }
+})
 
 app = Flask(__name__)
 
@@ -23,23 +42,7 @@ if os.path.exists(os.path.join(os.getcwd(), "config.py")):
     app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
 
 app.config["VERSION"] = __version__
-
-# Logger configuration
-dictConfig({
-    "version": 1,
-    "formatters": {"default": {
-        "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-    }},
-    "handlers": {"packet_logger": {
-        "class": "logging.StreamHandler",
-        "stream": "ext://sys.stdout",
-        "formatter": "default"
-    }},
-    "root": {
-        "level": app.config["LOG_LEVEL"],
-        "handlers": ["packet_logger"]
-    }
-})
+logging.getLogger().setLevel(app.config["LOG_LEVEL"])
 
 # Initialize the extensions
 db = SQLAlchemy(app)
