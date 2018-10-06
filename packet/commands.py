@@ -199,3 +199,27 @@ def fetch_results():
         print()
 
         print("\tTotal missed:", required.total - received.total)
+
+
+@app.cli.command("extend-packet")
+@click.argument("packet_id")
+def extend_packet(packet_id):
+    pass
+
+
+def remove_sig(packet_id, username, is_member):
+    pass
+
+
+@app.cli.command("remove-member-sig")
+@click.argument("packet_id")
+@click.argument("username")
+def remove_member_sig(packet_id, username):
+    remove_sig(packet_id, username, True)
+
+
+@app.cli.command("remove-freshman-sig")
+@click.argument("packet_id")
+@click.argument("username")
+def remove_freshman_sig(packet_id, username):
+    remove_sig(packet_id, username, False)
