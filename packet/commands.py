@@ -222,18 +222,51 @@ def extend_packet(packet_id):
 
 
 def remove_sig(packet_id, username, is_member):
-    pass
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so its signatures cannot be modified")
+        return
+    elif is_member:
+        sig = UpperSignature.query.filter_by(packet_id=packet_id, member=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            result = MiscSignature.query.filter_by(packet_id=packet_id, member=username).delete()
+            if result == 1:
+                db.session.commit()
+                print("Successfully unsigned packet")
+            else:
+                print("Failed to unsign packet; could not find signature")
+    else:
+        sig = FreshSignature.query.filter_by(packet_id=packet_id, freshman_username=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            print("Failed to unsign packet; {} is not an onfloor".format(username))
 
 
 @app.cli.command("remove-member-sig")
 @click.argument("packet_id")
-@click.argument("username")
-def remove_member_sig(packet_id, username):
-    remove_sig(packet_id, username, True)
+@click.argument("member")
+def remove_member_sig(packet_id, member):
+    """
+    Removes the given member's signature from the given packet
+    :param member: The member's CSH username
+    """
+    remove_sig(packet_id, member, True)
 
 
 @app.cli.command("remove-freshman-sig")
 @click.argument("packet_id")
-@click.argument("username")
-def remove_freshman_sig(packet_id, username):
-    remove_sig(packet_id, username, False)
+@click.argument("freshman")
+def remove_freshman_sig(packet_id, freshman):
+    """
+    Removes the given freshman's signature from the given packet
+    :param freshman: The freshman's RIT username
+    """
+    remove_sig(packet_id, freshman, False)
