@@ -57,6 +57,8 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 # LDAP
 _ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
+app.logger.info("DB and LDAP configured")
+
 # pylint: disable=wrong-import-position
 from . import models
 from . import context_processors
@@ -67,3 +69,5 @@ if app.config["REALM"] == "csh":
     from .routes import upperclassmen
 else:
     from .routes import freshmen
+
+app.logger.info("Routes registered")

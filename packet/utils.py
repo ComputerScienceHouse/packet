@@ -79,7 +79,9 @@ def packet_auth(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         if app.config["REALM"] == "csh":
-            if ldap_is_intromember(ldap_get_member(str(session["userinfo"].get("preferred_username", "")))):
+            username = str(session["userinfo"].get("preferred_username", ""))
+            if ldap_is_intromember(ldap_get_member(username)):
+                app.logger.warn("Stopped intro member {} from accessing upperclassmen packet".format(username))
                 return "Sorry, upperclassmen packet is not available to intro members.", 401
 
         return func(*args, **kwargs)
