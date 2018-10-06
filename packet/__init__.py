@@ -3,6 +3,7 @@ The application setup and initialization code lives here.
 """
 
 import os
+from logging.config import dictConfig
 
 import csh_ldap
 from flask import Flask
@@ -22,6 +23,23 @@ if os.path.exists(os.path.join(os.getcwd(), "config.py")):
     app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
 
 app.config["VERSION"] = __version__
+
+# Logger configuration
+dictConfig({
+    "version": 1,
+    "formatters": {"default": {
+        "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+    }},
+    "handlers": {"packet_logger": {
+        "class": "logging.StreamHandler",
+        "stream": "ext://sys.stdout",
+        "formatter": "default"
+    }},
+    "root": {
+        "level": app.config["LOG_LEVEL"],
+        "handlers": ["packet_logger"]
+    }
+})
 
 # Initialize the extensions
 db = SQLAlchemy(app)
