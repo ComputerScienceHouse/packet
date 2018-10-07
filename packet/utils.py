@@ -79,7 +79,9 @@ def packet_auth(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
         if app.config["REALM"] == "csh":
-            if ldap_is_intromember(ldap_get_member(str(session["userinfo"].get("preferred_username", "")))):
+            username = str(session["userinfo"].get("preferred_username", ""))
+            if ldap_is_intromember(ldap_get_member(username)):
+                app.logger.warn("Stopped intro member {} from accessing upperclassmen packet".format(username))
                 return "Sorry, upperclassmen packet is not available to intro members.", 401
 
         return func(*args, **kwargs)
@@ -88,10 +90,12 @@ def packet_auth(func):
 
 def notify_slack(name: str):
     """
-    Sends a congratulate on sight decree to Slack.
+    Sends a congratulate on sight decree to Slack
     """
     if app.config["SLACK_WEBHOOK_URL"] is None:
-        print("SLACK_WEBHOOK_URL not configured, not sending message to slack.")
+        app.logger.warn("SLACK_WEBHOOK_URL not configured, not sending message to slack.")
         return
+
     msg = f'{name} got :100: on packet. Shower on sight.'
     requests.put(app.config["SLACK_WEBHOOK_URL"], json={'text':msg})
+    app.logger.info("Posted 100% notification to slack for " + name)

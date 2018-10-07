@@ -9,6 +9,7 @@ from operator import itemgetter
 from packet import app
 from packet.models import Packet, MiscSignature
 from packet.utils import before_request, packet_auth
+from packet.log_utils import log_cache, log_time
 
 
 @app.route("/")
@@ -18,8 +19,10 @@ def index():
 
 
 @app.route("/member/<uid>/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def upperclassman(uid, info=None):
     open_packets = Packet.open_packets()
 
@@ -37,8 +40,10 @@ def upperclassman(uid, info=None):
 
 
 @app.route("/upperclassmen/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def upperclassmen_total(info=None):
     open_packets = Packet.open_packets()
 
