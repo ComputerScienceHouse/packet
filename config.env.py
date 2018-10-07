@@ -1,3 +1,7 @@
+"""
+Default packet config values. See the readme for details.
+"""
+
 from os import environ
 
 # Flask config
@@ -7,6 +11,7 @@ PORT = environ.get("PACKET_PORT", "8000")
 SERVER_NAME = environ.get("PACKET_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("PACKET_SECRET_KEY", "PLEASE_REPLACE_ME")
 
+# Logging config
 LOG_LEVEL = environ.get("PACKET_LOG_LEVEL", "INFO")
 
 # OpenID Connect SSO config
