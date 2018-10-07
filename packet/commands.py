@@ -42,6 +42,15 @@ def parse_csv(freshmen_csv):
         raise e
 
 
+def input_date(prompt):
+    while True:
+        try:
+            date_str = input(prompt + " (format: MM/DD/YYYY): ")
+            return datetime.strptime(date_str, "%m/%d/%Y").date()
+        except ValueError:
+            pass
+
+
 @app.cli.command("sync-freshmen")
 @click.argument("freshmen_csv")
 def sync_freshmen(freshmen_csv):
@@ -99,14 +108,7 @@ def create_packets(freshmen_csv):
         return
 
     # Collect the necessary data
-    base_date = None
-    while base_date is None:
-        try:
-            date_str = input("Input the first day of packet season (format: MM/DD/YYYY): ")
-            base_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
+    base_date = input_date("Input the first day of packet season")
     start = datetime.combine(base_date, packet_start_time)
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
@@ -175,16 +177,8 @@ def fetch_results():
     """
     Fetches and prints the results from a given packet season.
     """
-    end_date = None
-    while end_date is None:
-        try:
-            date_str = input("Enter the last day of the packet season you'd like to retrieve results from " +
-                             "(format: MM/DD/YYYY): ")
-            end_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
-    end_date = datetime.combine(end_date, packet_end_time)
+    end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
+                                           "from"), packet_end_time)
 
     for packet in Packet.query.filter_by(end=end_date).all():
         print()
@@ -205,3 +199,74 @@ def fetch_results():
         print()
 
         print("\tTotal missed:", required.total - received.total)
+
+
+@app.cli.command("extend-packet")
+@click.argument("packet_id")
+def extend_packet(packet_id):
+    """
+    Extends the given packet by setting a new end date.
+    """
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so it cannot be extended")
+        return
+    else:
+        print("Ready to extend packet #{} for {}".format(packet_id, packet.freshman_username))
+
+    packet.end = input_date("Enter the new end date for this packet")
+    db.session.commit()
+
+    print("Packet successfully extended")
+
+
+def remove_sig(packet_id, username, is_member):
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so its signatures cannot be modified")
+        return
+    elif is_member:
+        sig = UpperSignature.query.filter_by(packet_id=packet_id, member=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            result = MiscSignature.query.filter_by(packet_id=packet_id, member=username).delete()
+            if result == 1:
+                db.session.commit()
+                print("Successfully unsigned packet")
+            else:
+                print("Failed to unsign packet; could not find signature")
+    else:
+        sig = FreshSignature.query.filter_by(packet_id=packet_id, freshman_username=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            print("Failed to unsign packet; {} is not an onfloor".format(username))
+
+
+@app.cli.command("remove-member-sig")
+@click.argument("packet_id")
+@click.argument("member")
+def remove_member_sig(packet_id, member):
+    """
+    Removes the given member's signature from the given packet.
+    :param member: The member's CSH username
+    """
+    remove_sig(packet_id, member, True)
+
+
+@app.cli.command("remove-freshman-sig")
+@click.argument("packet_id")
+@click.argument("freshman")
+def remove_freshman_sig(packet_id, freshman):
+    """
+    Removes the given freshman's signature from the given packet.
+    :param freshman: The freshman's RIT username
+    """
+    remove_sig(packet_id, freshman, False)
