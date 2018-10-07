@@ -54,38 +54,33 @@ To switch between OIDC realms you'll need to set the modify the following values
 
 By default `OIDC_ISSUER` and `REALM` are configured for the CSH members realm.
 
-Authorization
--------------
-
-Authentication happens via pyOIDC with CSH SSO, authenticating as the user who is viewing the page.
-We have two different realms, and the site changes depending which realm is in use.
-
-The server uses heavy caching via lru_cache to speed up the results as much as possible
-
-Setup
-------
-
-For local development setup follow these steps:
-
-1. ```pip install -r requirements.txt```
-2. `Create config.py` or set environment variables
-    - Several of these variables require keys and information, please reach out to an RTP for testing information
-3. Run `wsgi.py`
-
-
-Commands
---------
-
-The flask CLI provides all the methods needed to setup a packet and a packet season
-
+## Usage
+To run packet using the flask dev server use this command:
+```bash
+python3 wsgi.py
 ```
-  create-packets  Creates a new packet season for each of the freshmen in the given CSV.
-  create-secret   Generates a securely random token.
-  db              Perform database migrations.
-  ldap-sync       Updates the upper and misc sigs in the DB to match ldap.
-  sync-freshmen   Updates the freshmen entries in the DB to match the given CSV.
-  fetch-results   Fetches and prints the results from a given packet season.
+The Flask debug mode flag can be set using via the config system explained above.
+
+Alternative you can run it through [gunicorn](https://gunicorn.org/) using this command:
+```bash
+gunicorn -b :8000 packet:app --access-logfile -
 ```
+
+### CLI
+Packet makes use of the Flask CLI for exposing functionality to devs and admins. This is primarily designed to be used 
+locally with the target DB set via the server's config values.
+
+To use the CLI just set the project up as normal and then run the `flask` command in the project's root directory. 
+It'll automatically load up the app and show you a list of available commands. For more details on a particular command 
+use the help flag like this:
+```bash
+flask {command} --help
+```
+
+**WARNING:** Be sure to double check which DB you're pointed at when using one of the admin or DB commands.
+
+All DB commands are from the `Flask-Migrate` library and are used to configure DB migrations through Alembic. See their 
+docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
 Code Standards
 ------------
