@@ -1,5 +1,5 @@
 """
-Defines the application's database models.
+Defines the application's database models
 """
 
 from datetime import datetime

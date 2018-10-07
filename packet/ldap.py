@@ -1,3 +1,7 @@
+"""
+Helper functions for working with the csh_ldap library
+"""
+
 from functools import lru_cache
 
 from packet import _ldap

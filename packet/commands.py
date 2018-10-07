@@ -1,5 +1,5 @@
 """
-Defines command-line utilities for use with the app
+Defines command-line utilities for use with packet
 """
 
 from secrets import token_hex
