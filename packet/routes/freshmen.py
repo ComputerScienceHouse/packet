@@ -45,6 +45,7 @@ def submit_essays(packet_id, info=None):
         packet.info_achieve = request.form.get("info_achieve", None)
 
         db.session.commit()
+        app.logger.info("Updated essays for {}".format(info["uid"]))
         return redirect(url_for("essays", packet_id=packet_id), 302)
     else:
         return redirect(url_for("index"), 302)
