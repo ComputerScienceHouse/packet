@@ -34,7 +34,8 @@ def _format_cache(func):
     :return: The output of func.cache_info() as a compactly formatted string
     """
     info = func.cache_info()
-    return "{}[hits={}, misses={}, size={}/{}]".format(func.__name__, info.hits, info.misses, info.currsize, info.maxsize)
+    return "{}[hits={}, misses={}, size={}/{}]".format(func.__name__, info.hits, info.misses, info.currsize,
+                                                       info.maxsize)
 
 
 # Tuple of lru_cache functions to log stats from
