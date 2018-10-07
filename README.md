@@ -82,10 +82,11 @@ flask {command} --help
 All DB commands are from the `Flask-Migrate` library and are used to configure DB migrations through Alembic. See their 
 docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
-Code Standards
-------------
+## Code standards
+This project is configured to use Pylint. Commits will be pylinted by Travis CI and if the score drops your build will 
+fail blocking you from merging. To make your life easier just run it before making a PR.
 
-Use Pylint to ensure your code follows standards. Commits will be pylinted by Travis CI, if your
-build fails you must fix whatever it tells you is wrong before it will be merged.
-
-To check locally, run ```pylint packet```
+To run pylint use this command:
+```bash
+pylint packet
+```
