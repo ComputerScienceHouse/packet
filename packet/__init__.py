@@ -16,11 +16,13 @@ from ._version import __version__
 app = Flask(__name__)
 
 # Load default configuration and any environment variable overrides
-app.config.from_pyfile(os.path.join(os.getcwd(), "config.env.py"))
+_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+app.config.from_pyfile(os.path.join(_root_dir, "config.env.py"))
 
 # Load file based configuration overrides if present
-if os.path.exists(os.path.join(os.getcwd(), "config.py")):
-    app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
+_pyfile_config = os.path.join(_root_dir, "config.py")
+if os.path.exists(_pyfile_config):
+    app.config.from_pyfile(_pyfile_config)
 
 app.config["VERSION"] = __version__
 
