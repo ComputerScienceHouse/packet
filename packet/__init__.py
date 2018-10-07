@@ -27,6 +27,8 @@ app.config["VERSION"] = __version__
 # Logger configuration
 logging.getLogger().setLevel(app.config["LOG_LEVEL"])
 
+app.logger.info("Using the {} realm".format(app.config["REALM"]))
+
 # Initialize the extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
