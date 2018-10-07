@@ -1,10 +1,58 @@
-CSH Web Packet
-==============
+# CSH Web Packet
 
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Build Status](https://travis-ci.org/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.org/ComputerScienceHouse/packet)
 
-Web Packet is used by CSH to facilitate the evaluations of our members and keep track of packet signatures on the web
+Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
+the second major iteration of packet on the web. The first was [Tal packet](https://github.com/TalCohen/CSHWebPacket).
+
+## Setup
+**Requires Python 3.6 or newer.**
+
+To get the server working you'll just need the Python dependencies and some secrets. There will be some UI issues due 
+to missing assets though. To solve that you'll want to set up the front end dependencies or download a copy of the 
+current assets from prod.
+
+Alternatively, you can set up a Docker container using `Dockerfile`. This is what's used in prod so it's the most 
+reliable method.
+
+### Python dependencies
+Use `pip3 install -r requirements.txt` to install the required python dependencies. A 
+[venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments) is *highly* 
+recommended. 
+
+If 1 or more of the packages fail to install the likely issue is missing header files for the libraries with native C 
+components. See the contents of `Dockerfile` for the Linux packages that you'll need. On windows it's a bit more of a 
+pain. Try using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) or finding a pre-compiled wheel from a 
+trustworthy source.
+
+### Frontend dependencies
+*Devin please help.*
+
+### Secrets and configuration
+Packet supports 2 primary configuration methods:
+1. Environment variables - See `config.env.py` for the expected names and default values.
+2. Pyfile config - Create a `config.py` file in the root directory of the project and set variables to override the 
+values in `config.env.py`.
+
+Both methods can be used at the same time, though Pyfile config will take priority over environment variables.
+
+**Required configuration values:**
+* `SQLALCHEMY_DATABASE_URI` - Must be set to a valid [SQLAlchemy DB URI](http://flask-sqlalchemy.pocoo.org/2.3/config/#connection-uri-format). 
+A dev database for the project is hosted by CSH. Contact a current maintainer of packet for the details.
+* `LDAP_BIND_DN` - Must point to a valid CSH account on LDAP. Use the form 
+`uid={username},cn=users,cn=accounts,dc=csh,dc=rit,dc=edu`.
+* `LDAP_BIND_PASS` - The password for that CSH account.
+* `SECRET_KEY` - Use a sufficiently long random string here. The `flask create-secret` command can generate a good one 
+for you.
+* `OIDC_CLIENT_SECRET` - Required to use CSH auth. Contact a current maintainer of packet for the details.
+
+To switch between OIDC realms you'll need to set the modify the following values:
+* `OIDC_CLIENT_SECRET` - Unique to each realm. Again, contact a current maintainer of packet for the details.
+* `OIDC_ISSUER` - The OIDC issuer URL.
+* `REALM` - Set to `"csh"` or `"intro"` depending on the realm you want.
+
+By default `OIDC_ISSUER` and `REALM` are configured for the CSH members realm.
 
 Authorization
 -------------
