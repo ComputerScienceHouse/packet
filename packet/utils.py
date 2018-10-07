@@ -22,7 +22,7 @@ def before_request(func):
             info = {
                 "realm": "intro",
                 "uid": uid,
-                "onfloor": is_on_floor(uid)
+                "onfloor": is_freshman_on_floor(uid)
             }
         else:
             info = {
@@ -37,7 +37,7 @@ def before_request(func):
 
 
 @lru_cache(maxsize=128)
-def is_on_floor(rit_username):
+def is_freshman_on_floor(rit_username):
     """
     Checks if a freshman is on floor
     """
