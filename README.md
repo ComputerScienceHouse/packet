@@ -27,7 +27,24 @@ pain. Try using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) or fin
 trustworthy source.
 
 ### Frontend dependencies
-*Devin please help.*
+To build any of the frontend dependencies you're going to need [node](https://nodejs.org/), 
+[npm](https://www.npmjs.com/get-npm), and [yarn](https://yarnpkg.com/).
+
+Make sure your system is also capable of building with [Sass](https://sass-lang.com/). To download all node 
+dependencies run.
+```bash
+yarn install
+```
+
+Following the install, you should be able to run `gulp`
+```bash
+gulp production
+```
+
+If it doesn't work for some reason, you may have to globally install gulp through npm
+```bash
+npm install -g gulp
+```
 
 ### Secrets and configuration
 Packet supports 2 primary configuration methods:
