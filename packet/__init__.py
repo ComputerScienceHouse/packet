@@ -24,8 +24,8 @@ if os.path.exists(_pyfile_config):
     app.config.from_pyfile(_pyfile_config)
 
 # Fetch the version number from the npm package file
-_package_file = open(os.path.join(_root_dir, "package.json"))
-app.config["VERSION"] = json.load(_package_file)["version"]
+with open(os.path.join(_root_dir, "package.json")) as package_file:
+    app.config["VERSION"] = json.load(package_file)["version"]
 
 # Logger configuration
 logging.getLogger().setLevel(app.config["LOG_LEVEL"])
