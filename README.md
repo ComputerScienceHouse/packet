@@ -4,7 +4,8 @@
 [![Build Status](https://travis-ci.org/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.org/ComputerScienceHouse/packet)
 
 Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
-the second major iteration of packet on the web. The first was [Tal packet](https://github.com/TalCohen/CSHWebPacket).
+the second major iteration of packet on the web. The first version was 
+[Tal packet](https://github.com/TalCohen/CSHWebPacket).
 
 ## Setup
 **Requires Python 3.6 or newer.**
@@ -107,3 +108,6 @@ To run pylint use this command:
 ```bash
 pylint packet
 ```
+
+All python files should have a top-level docstring explaining the contents of the file and complex functions should 
+have docstrings explaining any non-obvious portions.
