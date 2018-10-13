@@ -12,8 +12,6 @@ from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
-from ._version import __version__
-
 app = Flask(__name__)
 
 # Load default configuration and any environment variable overrides
