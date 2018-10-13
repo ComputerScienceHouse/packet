@@ -1,5 +1,6 @@
 """
-Default packet config values. See the readme for details.
+Default configuration settings and environment variable based configuration logic
+    See the readme for more information
 """
 
 from os import environ
