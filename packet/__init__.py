@@ -4,6 +4,7 @@ The application setup and initialization code lives here.
 
 import os
 import logging
+import json
 
 import csh_ldap
 from flask import Flask
@@ -11,25 +12,29 @@ from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_sqlalchemy import SQLAlchemy
 
-from ._version import __version__
-
 app = Flask(__name__)
 
 # Load default configuration and any environment variable overrides
-app.config.from_pyfile(os.path.join(os.getcwd(), "config.env.py"))
+_root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+app.config.from_pyfile(os.path.join(_root_dir, "config.env.py"))
 
 # Load file based configuration overrides if present
-if os.path.exists(os.path.join(os.getcwd(), "config.py")):
-    app.config.from_pyfile(os.path.join(os.getcwd(), "config.py"))
+_pyfile_config = os.path.join(_root_dir, "config.py")
+if os.path.exists(_pyfile_config):
+    app.config.from_pyfile(_pyfile_config)
 
-app.config["VERSION"] = __version__
+# Fetch the version number from the npm package file
+with open(os.path.join(_root_dir, "package.json")) as package_file:
+    app.config["VERSION"] = json.load(package_file)["version"]
 
 # Logger configuration
 logging.getLogger().setLevel(app.config["LOG_LEVEL"])
+app.logger.info("Launching packet v" + app.config["VERSION"])
 
 # Initialize the extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+app.logger.info("SQLAlchemy pointed at " + repr(db.engine.url))
 
 auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registration_info={
     "client_id": app.config["OIDC_CLIENT_ID"],
@@ -40,7 +45,7 @@ auth = OIDCAuthentication(app, issuer=app.config["OIDC_ISSUER"], client_registra
 # LDAP
 _ldap = csh_ldap.CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
 
-app.logger.info("DB and LDAP configured")
+app.logger.info("OIDCAuth and LDAP configured")
 
 # pylint: disable=wrong-import-position
 from . import models
