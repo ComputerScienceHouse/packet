@@ -31,6 +31,8 @@ with open(os.path.join(_root_dir, "package.json")) as package_file:
 logging.getLogger().setLevel(app.config["LOG_LEVEL"])
 app.logger.info("Launching packet v" + app.config["VERSION"])
 
+app.logger.info("Using the {} realm".format(app.config["REALM"]))
+
 # Initialize the extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

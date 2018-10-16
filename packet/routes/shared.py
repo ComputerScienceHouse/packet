@@ -45,6 +45,13 @@ def freshman_packet(packet_id, info=None):
                                upper=filter(lambda sig: not sig.eboard, packet.upper_signatures))
 
 
+def packet_sort_key(packet):
+    """
+    Utility function for generating keys for sorting packets
+    """
+    return packet.signatures_received_result.total, packet.did_sign_result
+
+
 @app.route("/packets/")
 @log_cache
 @packet_auth
@@ -59,7 +66,6 @@ def packets(info=None):
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
-    open_packets.sort(key=lambda packet: packet.signatures_received_result.total, reverse=True)
-    open_packets.sort(key=lambda packet: packet.did_sign_result, reverse=True)
+    open_packets.sort(key=packet_sort_key, reverse=True)
 
     return render_template("active_packets.html", info=info, packets=open_packets)

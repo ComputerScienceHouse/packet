@@ -1,5 +1,5 @@
 """
-Defines the application's database models.
+Defines the application's database models
 """
 
 from datetime import datetime
@@ -107,7 +107,7 @@ class Packet(db.Model):
         """
         Checks if this packet has reached 100%
         """
-        return self.signatures_required().total == self.signatures_recieved().total
+        return self.signatures_required().total == self.signatures_received().total
 
     @classmethod
     def open_packets(cls):
