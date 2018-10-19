@@ -10,8 +10,8 @@ from sqlalchemy.orm import relationship
 
 from . import db
 
-# The required number of off-floor and alumni signatures
-REQUIRED_MISC_SIGNATURES = 15
+# The required number of honorary member, advisor, and alumni signatures
+REQUIRED_MISC_SIGNATURES = 10
 
 
 class SigCounts:
