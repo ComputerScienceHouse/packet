@@ -50,9 +50,6 @@ class Packet(db.Model):
     freshman_username = Column(ForeignKey("freshman.rit_username"))
     start = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
-    info_eboard = Column(Text, nullable=True)   # Used to fulfil the eboard description requirement
-    info_events = Column(Text, nullable=True)   # Used to fulfil the events list requirement
-    info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
     upper_signatures = relationship("UpperSignature", lazy="subquery",
