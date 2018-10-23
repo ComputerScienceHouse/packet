@@ -55,6 +55,9 @@ class Packet(db.Model):
     info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
+
+    # The `lazy="subquery"` kwarg enables eager loading for signatures which makes signature calculations much faster
+    # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
     upper_signatures = relationship("UpperSignature", lazy="subquery",
                                     order_by="UpperSignature.signed.desc(), UpperSignature.updated")
     fresh_signatures = relationship("FreshSignature", lazy="subquery",
