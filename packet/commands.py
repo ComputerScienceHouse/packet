@@ -9,7 +9,7 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard, ldap_get_live_onfloor
+from .ldap import ldap_get_active_members, ldap_is_eboard, ldap_is_intromember
 
 
 @app.cli.command("create-secret")
@@ -113,9 +113,7 @@ def create_packets(freshmen_csv):
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
-    eboard = set(member.uid for member in ldap_get_eboard())
-    onfloor = set(member.uid for member in ldap_get_live_onfloor())
-    all_upper = eboard.union(onfloor)
+    all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
@@ -125,7 +123,7 @@ def create_packets(freshmen_csv):
         db.session.add(packet)
 
         for member in all_upper:
-            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
+            db.session.add(UpperSignature(packet=packet, member=member.uid, eboard=ldap_is_eboard(member)))
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
                                                                               freshman.rit_username).all():
@@ -141,32 +139,32 @@ def ldap_sync():
     Updates the upper and misc sigs in the DB to match ldap.
     """
     print("Fetching data from LDAP...")
-    eboard = set(member.uid for member in ldap_get_eboard())
-    onfloor = set(member.uid for member in ldap_get_live_onfloor())
-    all_upper = eboard.union(onfloor)
+    all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
+                                                         ldap_get_active_members())}
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the eboard state of all UpperSignatures
-        for sig in packet.upper_signatures:
-            sig.eboard = sig.member in eboard
+        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
+            sig.eboard = ldap_is_eboard(all_upper[sig.member])
 
-        # Migrate UpperSignatures that are from accounts that are not eboard or onfloor anymore
+        # Migrate UpperSignatures that are from accounts that are not active anymore
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
             UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             if sig.signed:
                 db.session.add(MiscSignature(packet=packet, member=sig.member))
 
-        # Migrate MiscSignatures that are from accounts that are now eboard or onfloor members
+        # Migrate MiscSignatures that are from accounts that are now active members
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            db.session.add(UpperSignature(packet=packet, member=sig.member, eboard=sig.member in eboard, signed=True))
+            db.session.add(UpperSignature(packet=packet, member=sig.member,
+                                          eboard=ldap_is_eboard(all_upper[sig.member]), signed=True))
 
-        # Create UpperSignatures for any new eboard or onfloor members
+        # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
-            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
+            db.session.add(UpperSignature(packet=packet, member=member, eboard=ldap_is_eboard(all_upper[member])))
 
     db.session.commit()
     print("Done!")
