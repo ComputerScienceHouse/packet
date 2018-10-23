@@ -140,12 +140,12 @@ def ldap_sync():
     """
     print("Fetching data from LDAP...")
     all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
-        ldap_get_active_members())}
+                                                         ldap_get_active_members())}
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the eboard state of all UpperSignatures
-        for sig in packet.upper_signatures:
+        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
             sig.eboard = ldap_is_eboard(all_upper[sig.member])
 
         # Migrate UpperSignatures that are from accounts that are not active anymore
@@ -157,8 +157,8 @@ def ldap_sync():
         # Migrate MiscSignatures that are from accounts that are now active members
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            db.session.add(UpperSignature(packet=packet, member=sig.member, eboard=ldap_is_eboard(all_upper[member]),
-                signed=True))
+            db.session.add(UpperSignature(packet=packet, member=sig.member,
+                                          eboard=ldap_is_eboard(all_upper[sig.member]), signed=True))
 
         # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
