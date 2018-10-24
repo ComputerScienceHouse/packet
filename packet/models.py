@@ -52,6 +52,9 @@ class Packet(db.Model):
     end = Column(DateTime, nullable=False)
 
     freshman = relationship("Freshman", back_populates="packets")
+
+    # The `lazy="subquery"` kwarg enables eager loading for signatures which makes signature calculations much faster
+    # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
     upper_signatures = relationship("UpperSignature", lazy="subquery",
                                     order_by="UpperSignature.signed.desc(), UpperSignature.updated")
     fresh_signatures = relationship("FreshSignature", lazy="subquery",
