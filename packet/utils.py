@@ -5,7 +5,7 @@ General utilities and decorators for supporting the Python logic
 from functools import wraps, lru_cache
 
 import requests
-from flask import session
+from flask import session, redirect
 
 from packet import auth, app
 from packet.models import Freshman
@@ -63,7 +63,7 @@ def packet_auth(func):
             username = str(session["userinfo"].get("preferred_username", ""))
             if ldap_is_intromember(ldap_get_member(username)):
                 app.logger.warn("Stopped intro member {} from accessing upperclassmen packet".format(username))
-                return "Sorry, upperclassmen packet is not available to intro members.", 401
+                return redirect("https://freshmen-packet.csh.rit.edu", code=301)
 
         return func(*args, **kwargs)
 
