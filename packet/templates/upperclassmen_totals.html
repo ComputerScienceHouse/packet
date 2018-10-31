@@ -9,42 +9,48 @@
         </div>
 
         <div id="eval-blocks">
-            <div id="eval-table">
-                <div class="card">
-                    <div class="card-body table-fill">
-                        <div class="table-responsive">
-                            <table class="table table-striped no-bottom-margin" data-module="table"
-                                   data-searchable="true" data-sort-column="1" data-sort-order="asc"
-                                   data-length-changable="true" data-paginated="false">
-                                <thead>
-                                <tr>
-                                    <th>Upperclassman</th>
-                                    <th>Signatures</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for member, signed_count in upperclassmen %}
+            {% if num_open_packets > 0 %}
+                <div id="eval-table">
+                    <div class="card">
+                        <div class="card-body table-fill">
+                            <div class="table-responsive">
+                                <table class="table table-striped no-bottom-margin" data-module="table"
+                                       data-searchable="true" data-sort-column="1" data-sort-order="asc"
+                                       data-length-changable="true" data-paginated="false">
+                                    <thead>
                                     <tr>
-                                        <td>
-                                            <a href="{{ url_for("upperclassman", uid=member) }}">
-                                                <img class="eval-user-img"
-                                                     alt="{{ member }}"
-                                                     src="https://profiles.csh.rit.edu/image/{{ member }}"
-                                                     width="25"
-                                                     height="25"/> {{ get_csh_name(member) }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{ signed_count }}/{{ num_open_packets }}
-                                        </td>
+                                        <th>Upperclassman</th>
+                                        <th>Signatures</th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% for member, signed_count in upperclassmen %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for("upperclassman", uid=member) }}">
+                                                    <img class="eval-user-img"
+                                                         alt="{{ member }}"
+                                                         src="https://profiles.csh.rit.edu/image/{{ member }}"
+                                                         width="25"
+                                                         height="25"/> {{ get_csh_name(member) }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ signed_count }}/{{ num_open_packets }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    There are currently no active packets.
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
