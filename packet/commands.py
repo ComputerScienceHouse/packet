@@ -1,5 +1,5 @@
 """
-Defines command-line utilities for use with the app
+Defines command-line utilities for use with packet
 """
 
 from secrets import token_hex
@@ -9,7 +9,7 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard, ldap_get_live_onfloor
+from .ldap import ldap_get_active_members, ldap_is_eboard, ldap_is_intromember
 
 
 @app.cli.command("create-secret")
@@ -40,6 +40,15 @@ def parse_csv(freshmen_csv):
     except Exception as e:
         print("Failure while parsing CSV")
         raise e
+
+
+def input_date(prompt):
+    while True:
+        try:
+            date_str = input(prompt + " (format: MM/DD/YYYY): ")
+            return datetime.strptime(date_str, "%m/%d/%Y").date()
+        except ValueError:
+            pass
 
 
 @app.cli.command("sync-freshmen")
@@ -99,21 +108,12 @@ def create_packets(freshmen_csv):
         return
 
     # Collect the necessary data
-    base_date = None
-    while base_date is None:
-        try:
-            date_str = input("Input the first day of packet season (format: MM/DD/YYYY): ")
-            base_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
+    base_date = input_date("Input the first day of packet season")
     start = datetime.combine(base_date, packet_start_time)
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
-    eboard = set(member.uid for member in ldap_get_eboard())
-    onfloor = set(member.uid for member in ldap_get_live_onfloor())
-    all_upper = eboard.union(onfloor)
+    all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
@@ -123,7 +123,7 @@ def create_packets(freshmen_csv):
         db.session.add(packet)
 
         for member in all_upper:
-            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
+            db.session.add(UpperSignature(packet=packet, member=member.uid, eboard=ldap_is_eboard(member)))
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
                                                                               freshman.rit_username).all():
@@ -139,32 +139,32 @@ def ldap_sync():
     Updates the upper and misc sigs in the DB to match ldap.
     """
     print("Fetching data from LDAP...")
-    eboard = set(member.uid for member in ldap_get_eboard())
-    onfloor = set(member.uid for member in ldap_get_live_onfloor())
-    all_upper = eboard.union(onfloor)
+    all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
+                                                         ldap_get_active_members())}
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the eboard state of all UpperSignatures
-        for sig in packet.upper_signatures:
-            sig.eboard = sig.member in eboard
+        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
+            sig.eboard = ldap_is_eboard(all_upper[sig.member])
 
-        # Migrate UpperSignatures that are from accounts that are not eboard or onfloor anymore
+        # Migrate UpperSignatures that are from accounts that are not active anymore
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
             UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             if sig.signed:
                 db.session.add(MiscSignature(packet=packet, member=sig.member))
 
-        # Migrate MiscSignatures that are from accounts that are now eboard or onfloor members
+        # Migrate MiscSignatures that are from accounts that are now active members
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            db.session.add(UpperSignature(packet=packet, member=sig.member, eboard=sig.member in eboard, signed=True))
+            db.session.add(UpperSignature(packet=packet, member=sig.member,
+                                          eboard=ldap_is_eboard(all_upper[sig.member]), signed=True))
 
-        # Create UpperSignatures for any new eboard or onfloor members
+        # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
-            db.session.add(UpperSignature(packet=packet, member=member, eboard=member in eboard))
+            db.session.add(UpperSignature(packet=packet, member=member, eboard=ldap_is_eboard(all_upper[member])))
 
     db.session.commit()
     print("Done!")
@@ -175,16 +175,8 @@ def fetch_results():
     """
     Fetches and prints the results from a given packet season.
     """
-    end_date = None
-    while end_date is None:
-        try:
-            date_str = input("Enter the last day of the packet season you'd like to retrieve results from " +
-                             "(format: MM/DD/YYYY): ")
-            end_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-        except ValueError:
-            pass
-
-    end_date = datetime.combine(end_date, packet_end_time)
+    end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
+                                           "from"), packet_end_time)
 
     for packet in Packet.query.filter_by(end=end_date).all():
         print()
@@ -205,3 +197,74 @@ def fetch_results():
         print()
 
         print("\tTotal missed:", required.total - received.total)
+
+
+@app.cli.command("extend-packet")
+@click.argument("packet_id")
+def extend_packet(packet_id):
+    """
+    Extends the given packet by setting a new end date.
+    """
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so it cannot be extended")
+        return
+    else:
+        print("Ready to extend packet #{} for {}".format(packet_id, packet.freshman_username))
+
+    packet.end = input_date("Enter the new end date for this packet")
+    db.session.commit()
+
+    print("Packet successfully extended")
+
+
+def remove_sig(packet_id, username, is_member):
+    packet = Packet.by_id(packet_id)
+
+    if not packet.is_open():
+        print("Packet is already closed so its signatures cannot be modified")
+        return
+    elif is_member:
+        sig = UpperSignature.query.filter_by(packet_id=packet_id, member=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            result = MiscSignature.query.filter_by(packet_id=packet_id, member=username).delete()
+            if result == 1:
+                db.session.commit()
+                print("Successfully unsigned packet")
+            else:
+                print("Failed to unsign packet; could not find signature")
+    else:
+        sig = FreshSignature.query.filter_by(packet_id=packet_id, freshman_username=username).first()
+        if sig is not None:
+            sig.signed = False
+            db.session.commit()
+            print("Successfully unsigned packet")
+        else:
+            print("Failed to unsign packet; {} is not an onfloor".format(username))
+
+
+@app.cli.command("remove-member-sig")
+@click.argument("packet_id")
+@click.argument("member")
+def remove_member_sig(packet_id, member):
+    """
+    Removes the given member's signature from the given packet.
+    :param member: The member's CSH username
+    """
+    remove_sig(packet_id, member, True)
+
+
+@app.cli.command("remove-freshman-sig")
+@click.argument("packet_id")
+@click.argument("freshman")
+def remove_freshman_sig(packet_id, freshman):
+    """
+    Removes the given freshman's signature from the given packet.
+    :param freshman: The freshman's RIT username
+    """
+    remove_sig(packet_id, freshman, False)

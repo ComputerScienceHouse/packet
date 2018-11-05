@@ -7,6 +7,7 @@ from flask import render_template, redirect
 from packet import auth, app
 from packet.utils import before_request, packet_auth
 from packet.models import Packet
+from packet.log_utils import log_cache, log_time
 
 
 @app.route("/logout/")
@@ -16,8 +17,10 @@ def logout():
 
 
 @app.route("/packet/<packet_id>/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def freshman_packet(packet_id, info=None):
     packet = Packet.by_id(packet_id)
 
@@ -42,9 +45,18 @@ def freshman_packet(packet_id, info=None):
                                upper=filter(lambda sig: not sig.eboard, packet.upper_signatures))
 
 
+def packet_sort_key(packet):
+    """
+    Utility function for generating keys for sorting packets
+    """
+    return packet.signatures_received_result.total, packet.did_sign_result
+
+
 @app.route("/packets/")
+@log_cache
 @packet_auth
 @before_request
+@log_time
 def packets(info=None):
     open_packets = Packet.open_packets()
 
@@ -54,7 +66,6 @@ def packets(info=None):
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
-    open_packets.sort(key=lambda packet: packet.signatures_received_result.total, reverse=True)
-    open_packets.sort(key=lambda packet: packet.did_sign_result, reverse=True)
+    open_packets.sort(key=packet_sort_key, reverse=True)
 
     return render_template("active_packets.html", info=info, packets=open_packets)

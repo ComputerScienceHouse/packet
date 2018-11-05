@@ -1,17 +1,17 @@
 """
-Defines the application's database models.
+Defines the application's database models
 """
 
 from datetime import datetime
 from itertools import chain
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
 from . import db
 
-# The required number of off-floor and alumni signatures
-REQUIRED_MISC_SIGNATURES = 15
+# The required number of honorary member, advisor, and alumni signatures
+REQUIRED_MISC_SIGNATURES = 10
 
 
 class SigCounts:
@@ -50,11 +50,11 @@ class Packet(db.Model):
     freshman_username = Column(ForeignKey("freshman.rit_username"))
     start = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
-    info_eboard = Column(Text, nullable=True)   # Used to fulfil the eboard description requirement
-    info_events = Column(Text, nullable=True)   # Used to fulfil the events list requirement
-    info_achieve = Column(Text, nullable=True)  # Used to fulfil the technical achievements list requirement
 
     freshman = relationship("Freshman", back_populates="packets")
+
+    # The `lazy="subquery"` kwarg enables eager loading for signatures which makes signature calculations much faster
+    # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
     upper_signatures = relationship("UpperSignature", lazy="subquery",
                                     order_by="UpperSignature.signed.desc(), UpperSignature.updated")
     fresh_signatures = relationship("FreshSignature", lazy="subquery",
@@ -102,6 +102,12 @@ class Packet(db.Model):
 
         # The user must be a misc CSHer that hasn't signed this packet or an off-floor freshmen
         return False
+
+    def is_100(self):
+        """
+        Checks if this packet has reached 100%
+        """
+        return self.signatures_required().total == self.signatures_received().total
 
     @classmethod
     def open_packets(cls):
