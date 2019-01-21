@@ -60,7 +60,7 @@ def ldap_get_eboard():
         ) + _ldap_get_group_members("eboard-financial") + _ldap_get_group_members("eboard-history"
         ) + _ldap_get_group_members("eboard-imps") + _ldap_get_group_members("eboard-opcomm"
         ) + _ldap_get_group_members("eboard-research") + _ldap_get_group_members("eboard-social"
-        ) + _ldap_get_group_members("eboard-pr")
+        )
 
     return members
 
