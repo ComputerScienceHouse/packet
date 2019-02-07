@@ -18,10 +18,9 @@ class SigCounts:
     """
     Utility class for returning counts of signatures broken out by type
     """
-    def __init__(self, eboard, upper, fresh, misc):
+    def __init__(self, upper, fresh, misc):
         # Base fields
-        self.eboard = eboard
-        self.upper = upper      # Upperclassmen excluding eboard
+        self.upper = upper
         self.fresh = fresh
         self.misc = misc
 
@@ -29,8 +28,8 @@ class SigCounts:
         self.misc_capped = misc if misc <= REQUIRED_MISC_SIGNATURES else REQUIRED_MISC_SIGNATURES
 
         # Totals (calculated using misc_capped)
-        self.member_total = eboard + upper + self.misc_capped
-        self.total = eboard + upper + fresh + self.misc_capped
+        self.member_total = upper + self.misc_capped
+        self.total = upper + fresh + self.misc_capped
 
 
 class Freshman(db.Model):
@@ -68,21 +67,19 @@ class Packet(db.Model):
         """
         :return: A SigCounts instance with the fields set to the number of signatures received by this packet
         """
-        eboard = sum(map(lambda sig: 1 if sig.eboard else 0, self.upper_signatures))
-        upper = len(self.upper_signatures) - eboard
+        upper = len(self.upper_signatures)
         fresh = len(self.fresh_signatures)
 
-        return SigCounts(eboard, upper, fresh, REQUIRED_MISC_SIGNATURES)
+        return SigCounts(upper, fresh, REQUIRED_MISC_SIGNATURES)
 
     def signatures_received(self):
         """
         :return: A SigCounts instance with the fields set to the number of required signatures for this packet
         """
-        eboard = sum(map(lambda sig: 1 if sig.eboard and sig.signed else 0, self.upper_signatures))
-        upper = sum(map(lambda sig: 1 if not sig.eboard and sig.signed else 0, self.upper_signatures))
+        upper = sum(map(lambda sig: 1 if sig.signed else 0, self.upper_signatures))
         fresh = sum(map(lambda sig: 1 if sig.signed else 0, self.fresh_signatures))
 
-        return SigCounts(eboard, upper, fresh, len(self.misc_signatures))
+        return SigCounts(upper, fresh, len(self.misc_signatures))
 
     def did_sign(self, username, is_csh):
         """

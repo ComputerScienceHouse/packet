@@ -190,7 +190,6 @@ def fetch_results():
         print("\tTotal score: {:0.2f}%".format(received.total / required.total * 100))
         print()
 
-        print("\tEboard: {}/{}".format(received.eboard, required.eboard))
         print("\tUpperclassmen: {}/{}".format(received.upper, required.upper))
         print("\tFreshmen: {}/{}".format(received.fresh, required.fresh))
         print("\tMiscellaneous: {}/{}".format(received.misc, required.misc))
