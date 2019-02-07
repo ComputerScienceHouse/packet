@@ -125,7 +125,12 @@ class UpperSignature(db.Model):
     packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
     member = Column(String(36), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
-    eboard = Column(Boolean, default=False, nullable=False)
+    eboard = Column(String(12), nullable=True)
+    active_rtp = Column(Boolean, default=False, nullable=False)
+    three_da = Column(Boolean, default=False, nullable=False)
+    webmaster = Column(Boolean, default=False, nullable=False)
+    cm = Column(Boolean, default=False, nullable=False)
+    drink_admin = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     packet = relationship("Packet", back_populates="upper_signatures")

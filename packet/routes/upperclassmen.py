@@ -2,9 +2,9 @@
 Routes available to CSH users only
 """
 
-from flask import redirect, render_template, url_for
 from itertools import chain
 from operator import itemgetter
+from flask import redirect, render_template, url_for
 
 from packet import app
 from packet.models import Packet, MiscSignature
