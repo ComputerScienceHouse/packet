@@ -119,7 +119,7 @@ def create_packets(freshmen_csv):
     rtp = ldap_get_active_rtp()
     three_da = ldap_get_3da()
     webmaster = ldap_get_webmaster()
-    cm = ldap_get_constitutional_maintainer()
+    c_m = ldap_get_constitutional_maintainer()
     drink = ldap_get_drink_admin()
 
     # Create the new packets and the signatures for each freshman in the given CSV
@@ -132,11 +132,11 @@ def create_packets(freshmen_csv):
         for member in all_upper:
             sig = UpperSignature(packet=packet, member=member.uid)
             sig.eboard = ldap_get_eboard_role(member)
-            sig.active_rtp = member in rtp
-            sig.three_da = member in three_da
-            sig.webmaster = member in webmaster
-            sig.cm = member in cm
-            sig.drink_admin = member in drink
+            sig.active_rtp = member.uid in rtp
+            sig.three_da = member.uid in three_da
+            sig.webmaster = member.uid in webmaster
+            sig.c_m = member.uid in c_m
+            sig.drink_admin = member.uid in drink
             db.session.add(sig)
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
@@ -159,7 +159,7 @@ def ldap_sync():
     rtp = ldap_get_active_rtp()
     three_da = ldap_get_3da()
     webmaster = ldap_get_webmaster()
-    cm = ldap_get_constitutional_maintainer()
+    c_m = ldap_get_constitutional_maintainer()
     drink = ldap_get_drink_admin()
 
     print("Applying updates to the DB...")
@@ -167,11 +167,11 @@ def ldap_sync():
         # Update the role state of all UpperSignatures
         for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = all_upper[sig.member] in rtp
-            sig.three_da = all_upper[sig.member] in three_da
-            sig.webmaster = all_upper[sig.member] in webmaster
-            sig.cm = all_upper[sig.member] in cm
-            sig.drink_admin = all_upper[sig.member] in drink
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
 
         # Migrate UpperSignatures that are from accounts that are not active anymore
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
@@ -184,11 +184,11 @@ def ldap_sync():
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             sig = UpperSignature(packet=packet, member=sig.member, signed=True)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = all_upper[sig.member] in rtp
-            sig.three_da = all_upper[sig.member] in three_da
-            sig.webmaster = all_upper[sig.member] in webmaster
-            sig.cm = all_upper[sig.member] in cm
-            sig.drink_admin = all_upper[sig.member] in drink
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
             db.session.add(sig)
 
         # Create UpperSignatures for any new active members
@@ -197,11 +197,11 @@ def ldap_sync():
         for member in filter(lambda member: member not in upper_sigs, all_upper):
             UpperSignature(packet=packet, member=member)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = all_upper[sig.member] in rtp
-            sig.three_da = all_upper[sig.member] in three_da
-            sig.webmaster = all_upper[sig.member] in webmaster
-            sig.cm = all_upper[sig.member] in cm
-            sig.drink_admin = all_upper[sig.member] in drink
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
             db.session.add(sig)
 
     db.session.commit()

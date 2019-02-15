@@ -77,6 +77,9 @@
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
+                                            {% for role in get_roles(sig) %}
+                                                <span class="badge badge-pill badge-{{ role }}">{{ get_roles(sig)[role] }}</span>
+                                            {% endfor %}
                                         </td>
                                         <td width="15%">
                                             {% if sig.signed %}
