@@ -41,8 +41,7 @@ def freshman_packet(packet_id, info=None):
                                did_sign=packet.did_sign(info["uid"], app.config["REALM"] == "csh"),
                                required=packet.signatures_required(),
                                received=packet.signatures_received(),
-                               eboard=filter(lambda sig: sig.eboard, packet.upper_signatures),
-                               upper=filter(lambda sig: not sig.eboard, packet.upper_signatures))
+                               upper=packet.upper_signatures)
 
 
 def packet_sort_key(packet):

@@ -2,9 +2,9 @@
 Routes available to freshmen only
 """
 
-from flask import redirect, render_template, request, url_for
+from flask import redirect, url_for
 
-from packet import app, db
+from packet import app
 from packet.models import Packet
 from packet.utils import before_request, packet_auth
 

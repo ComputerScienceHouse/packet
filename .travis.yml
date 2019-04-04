@@ -5,4 +5,4 @@ python:
 install:
   - "pip install -r requirements.txt"
 script:
-  - "pylint packet"
+  - "pylint packet/routes packet"

@@ -79,6 +79,73 @@ def ldap_get_live_onfloor():
     return members
 
 
+def ldap_get_active_rtp():
+    """
+    All active RTPs
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members("active_rtp")]
+
+
+def ldap_get_3da():
+    """
+    All 3das
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members("3da")]
+
+
+def ldap_get_webmaster():
+    """
+    All webmasters
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members("webmaster")]
+
+
+def ldap_get_constitutional_maintainer():
+    """
+    All constitutional maintainers
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members("constitutional_maintainers")]
+
+
+def ldap_get_drink_admin():
+    """
+    All drink admins
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members("drink")]
+
+
+def ldap_get_eboard_role(member):
+    """
+    :param member: A CSHMember instance
+    :return: A String or None
+    """
+
+    return_val = None
+
+    if _ldap_is_member_of_group(member, "eboard-chairman"):
+        return_val = "Chairman"
+    elif _ldap_is_member_of_group(member, "eboard-evaluations"):
+        return_val = "Evals"
+    elif _ldap_is_member_of_group(member, "eboard-financial"):
+        return_val = "Financial"
+    elif _ldap_is_member_of_group(member, "eboard-history"):
+        return_val = "History"
+    elif _ldap_is_member_of_group(member, "eboard-imps"):
+        return_val = "Imps"
+    elif _ldap_is_member_of_group(member, "eboard-opcomm"):
+        return_val = "OpComm"
+    elif _ldap_is_member_of_group(member, "eboard-research"):
+        return_val = "R&D"
+    elif _ldap_is_member_of_group(member, "eboard-social"):
+        return_val = "Social"
+
+    return return_val
+
 # Status checkers
 
 def ldap_is_eboard(member):
