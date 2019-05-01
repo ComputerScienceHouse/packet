@@ -37,4 +37,12 @@
 
     <link rel="stylesheet" href="/static/css/packet.min.css">
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-134137724-9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('set', {'user_id': '{{ info.uid }}' });
+        gtag('config', 'UA-134137724-9');
+    </script>
 </head>
