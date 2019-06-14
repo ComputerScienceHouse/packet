@@ -106,6 +106,9 @@ ENV/
 # Configurations
 config.py
 
+# Setup
+node_modules
+
 # Generated Assets
 packet/static/css/packet.css
 *.min.css
@@ -124,3 +127,4 @@ packet/static/mstile-70x70.png
 packet/static/safari-pinned-tab.svg
 packet/static/site.webmanifest
 faviconData.json
+
