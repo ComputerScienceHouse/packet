@@ -1,23 +1,34 @@
 $(document).ready(function () {
 
+    const dialogs = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn m-1 btn-primary',
+            cancelButton: 'btn btn-light'
+        },
+        buttonsStyling: false,
+    });
+
     $('.sign-button').click(function () {
         var packetData = $(this).get(0).dataset;
         var userData = $("#userInfo").val();
-        swal({
+        dialogs.fire({
             title: "Are you sure?",
             text: "Once a packet is signed it can only be unsigned from request to the Evals Director",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
+            type: "warning",
+            confirmButtonText: 'Sign',
+            showCancelButton: true,
+            reverseButtons: true
         })
             .then((willSign) => {
-                if (willSign) {
+                if (willSign.value) {
                     $.ajax({
                         url: "/api/v1/sign/" + packetData.packet_id + "/",
                         method: "POST",
                         success: function (data) {
-                            swal("Congratulations or I'm sorry\nYou've signed " + packetData.freshman_name + "'s packet.", {
-                                icon: "success",
+                            dialogs.fire({
+                                title: "Congratulations or I'm sorry",
+                                text: "You've signed " + packetData.freshman_name + "'s packet",
+                                type: "success",
                             })
                                 .then(() => {
                                     location.reload();

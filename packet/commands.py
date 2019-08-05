@@ -10,7 +10,7 @@ import click
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
 from .ldap import ldap_get_eboard_role, ldap_get_active_rtp, ldap_get_3da, ldap_get_webmaster, ldap_get_drink_admin, \
-                  ldap_get_constitutional_maintainer, ldap_is_intromember, ldap_get_active_members
+    ldap_get_constitutional_maintainer, ldap_is_intromember, ldap_get_active_members, ldap_is_on_coop
 
 
 @app.cli.command("create-secret")
@@ -155,6 +155,8 @@ def ldap_sync():
     print("Fetching data from LDAP...")
     all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
                                                          ldap_get_active_members())}
+    on_coop = {member.uid: member for member in filter(lambda member: ldap_is_on_coop(member),
+                                                       ldap_get_active_members())}
 
     rtp = ldap_get_active_rtp()
     three_da = ldap_get_3da()
@@ -177,7 +179,15 @@ def ldap_sync():
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
             UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             if sig.signed:
-                db.session.add(MiscSignature(packet=packet, member=sig.member))
+                sig = MiscSignature(packet=packet, member=sig.member)
+                db.session.add(sig)
+
+        # Migrate UpperSignatures that are from accounts that are on co-op currently
+        for sig in filter(lambda sig: sig.member in on_coop, packet.upper_signatures):
+            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
+            if sig.signed:
+                sig = MiscSignature(packet=packet, member=sig.member)
+                db.session.add(sig)
 
         # Migrate MiscSignatures that are from accounts that are now active members
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):

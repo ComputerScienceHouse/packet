@@ -3,6 +3,7 @@ Helper functions for working with the csh_ldap library
 """
 
 from functools import lru_cache
+from datetime import date
 
 from packet import _ldap
 
@@ -160,6 +161,16 @@ def ldap_is_intromember(member):
     :param member: A CSHMember instance
     """
     return _ldap_is_member_of_group(member, "intromembers")
+
+
+def ldap_is_on_coop(member):
+    """
+    :param member: A CSHMember instance
+    """
+    if date.today().month > 6:
+        return _ldap_is_member_of_group(member, "fall_coop")
+    else:
+        return _ldap_is_member_of_group(member, "spring_coop")
 
 
 def ldap_get_roomnumber(member):
