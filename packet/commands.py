@@ -9,8 +9,9 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, ldap_get_drink_admins, \
-    ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, ldap_is_on_coop
+from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
+    ldap_is_on_coop
 
 
 @app.cli.command("create-secret")
