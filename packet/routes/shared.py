@@ -68,3 +68,8 @@ def packets(info=None):
     open_packets.sort(key=packet_sort_key, reverse=True)
 
     return render_template("active_packets.html", info=info, packets=open_packets)
+
+
+@app.route('/firebase-messaging-sw.js', methods=['GET'])
+def firebase_service_worker():
+    return send_static_file('firebase-messaging-sw.js')

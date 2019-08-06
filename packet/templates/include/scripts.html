@@ -9,4 +9,20 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
 
+<!-- Firebase Setup-->
+<script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-app.js"></script>
+<script>
+    // Initialize outside of file to allow flask injection
+    var firebaseConfig = {
+	    apiKey: '{{ config["FIREBASE_API_KEY"] }}',
+	    messagingSenderId: '{{ config["FIREBASE_SENDER_ID"] }}'
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const messaging = firebase.messaging();
+    messaging.usePublicVapidKey('<YOUR_PUBLIC_VAPID_KEY_HERE>');
+</script>
+
+<!-- Packet Js -->
 <script src="/static/js/signing.js"></script>

@@ -8,6 +8,7 @@
   "orientation": "portrait",
   "short_name": "Packet",
   "start_url": "/",
+  "gcm_sender_id": "103953800507",
   "theme_color": "#b0197e",
   "icons": [
     {
