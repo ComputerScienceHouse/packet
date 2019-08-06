@@ -155,10 +155,10 @@ def ldap_sync():
     Updates the upper and misc sigs in the DB to match ldap.
     """
     print("Fetching data from LDAP...")
-    all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
-                                                         ldap_get_active_members())}
-    on_coop = {member.uid: member for member in filter(lambda member: ldap_is_on_coop(member),
-                                                       ldap_get_active_members())}
+    all_upper = {member.uid: member for member in filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
+    on_coop = {member.uid: member for member in filter(
+        lambda member: ldap_is_on_coop(member), ldap_get_active_members())}
 
     rtp = ldap_get_active_rtps()
     three_da = ldap_get_3das()
@@ -169,7 +169,7 @@ def ldap_sync():
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the role state of all UpperSignatures
-        for sig in filter(lambda sig: sig.member in all_upper and not on_coop, packet.upper_signatures):
+        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
@@ -192,7 +192,7 @@ def ldap_sync():
                 db.session.add(sig)
 
         # Migrate MiscSignatures that are from accounts that are now active members
-        for sig in filter(lambda sig: sig.member in all_upper and not on_coop, packet.misc_signatures):
+        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             sig = UpperSignature(packet=packet, member=sig.member, signed=True)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
@@ -206,7 +206,7 @@ def ldap_sync():
         # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
-        for member in filter(lambda member: member not in upper_sigs or on_coop, all_upper):
+        for member in filter(lambda member: member not in upper_sigs, all_upper):
             UpperSignature(packet=packet, member=member)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
