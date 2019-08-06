@@ -190,7 +190,7 @@ def ldap_sync():
                 db.session.add(sig)
 
         # Migrate MiscSignatures that are from accounts that are now active members
-        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
+        for sig in filter(lambda sig: sig.member in all_upper and not on_coop, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             sig = UpperSignature(packet=packet, member=sig.member, signed=True)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])

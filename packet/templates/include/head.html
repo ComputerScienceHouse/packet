@@ -2,41 +2,38 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    <meta name="description" content="CSH Web Packet">
     <meta name="author" content="Computer Science House">
 
     <title>CSH Packet</title>
 
-    <link rel="manifest" href="/static/manifest.json">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#b0197e">
     <meta name="theme-color" href="https://themeswitcher.csh.rit.edu/api/colour">
 
     <!-- Icons -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='assets/logo.svg') }}" color="#b0197e">
 
     <meta name="msapplication-TileColor" content="#b0197e">
     <meta name="msapplication-TileImage" content="{{ url_for('static', filename='mstile-144x144.png') }}">
     <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}">
 
-    <link rel="mask-icon" href="{{ url_for('static', filename='assets/logo.svg') }}" color="#b0197e">
-
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
-
-    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://themeswitcher.csh.rit.edu/api/get" media="screen">
 
+    <!-- Additional dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8.15.1/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.15.1/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/all.css">
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="/static/css/packet.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/packet.min.css') }}">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ config['ANALYTICS_ID'] }}"></script>
     <script>

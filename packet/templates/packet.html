@@ -4,9 +4,9 @@
 
 {% block body %}
     <div class="container main">
-        <div class="mb-2">
+        <div class="mb-2 m-1">
             <div class="row justify-content-between w-100">
-                <div class="col">
+                <div class="col m-1">
                     <h3>{{ get_rit_name(packet.freshman_username) }}</h3>
                 </div>
                 <div class="col">
@@ -22,12 +22,12 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="row justify-content-between">
-                <div class="col">
-                    <h5>Signatures: {{ received.total }}/{{ required.total }}</h5>
+            <div class="row">
+                <div class="col ml-1 mb-1">
+                    <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span></h6>
                 </div>
-                <div class="col">
-                    <h5 class="right-align">Packet Ends: {{ packet_end }}</h5>
+                <div class="col mr-1 mb-1">
+                    <h6 class="right-align">Ends: <span class="badge badge-secondary">{{ packet_end }}</span></h6>
                 </div>
             </div>
             <div class="card card-body">
