@@ -157,8 +157,6 @@ def ldap_sync():
     print("Fetching data from LDAP...")
     all_upper = {member.uid: member for member in filter(
         lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
-    on_coop = {member.uid: member for member in filter(
-        lambda member: ldap_is_on_coop(member), ldap_get_active_members())}
 
     rtp = ldap_get_active_rtps()
     three_da = ldap_get_3das()
@@ -179,13 +177,6 @@ def ldap_sync():
 
         # Migrate UpperSignatures that are from accounts that are not active anymore
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
-            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            if sig.signed:
-                sig = MiscSignature(packet=packet, member=sig.member)
-                db.session.add(sig)
-
-        # Migrate UpperSignatures that are from accounts that are on co-op currently
-        for sig in filter(lambda sig: sig.member in on_coop, packet.upper_signatures):
             UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             if sig.signed:
                 sig = MiscSignature(packet=packet, member=sig.member)
