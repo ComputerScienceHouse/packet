@@ -9,8 +9,8 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard_role, ldap_get_active_rtp, ldap_get_3da, ldap_get_webmaster, ldap_get_drink_admin, \
-    ldap_get_constitutional_maintainer, ldap_is_intromember, ldap_get_active_members, ldap_is_on_coop
+from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, ldap_get_drink_admins, \
+    ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, ldap_is_on_coop
 
 
 @app.cli.command("create-secret")
@@ -117,11 +117,11 @@ def create_packets(freshmen_csv):
     all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
     on_coop = list(filter(lambda member: ldap_is_on_coop(member), ldap_get_active_members()))
 
-    rtp = ldap_get_active_rtp()
-    three_da = ldap_get_3da()
-    webmaster = ldap_get_webmaster()
-    c_m = ldap_get_constitutional_maintainer()
-    drink = ldap_get_drink_admin()
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
@@ -159,16 +159,16 @@ def ldap_sync():
     on_coop = {member.uid: member for member in filter(lambda member: ldap_is_on_coop(member),
                                                        ldap_get_active_members())}
 
-    rtp = ldap_get_active_rtp()
-    three_da = ldap_get_3da()
-    webmaster = ldap_get_webmaster()
-    c_m = ldap_get_constitutional_maintainer()
-    drink = ldap_get_drink_admin()
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the role state of all UpperSignatures
-        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
+        for sig in filter(lambda sig: sig.member in all_upper and not on_coop, packet.upper_signatures):
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
@@ -205,7 +205,8 @@ def ldap_sync():
         # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
-        for member in filter(lambda member: member not in upper_sigs, all_upper):
+        co_op = set(map(lambda member: member, on_coop))
+        for member in filter(lambda member: member not in upper_sigs or co_op, all_upper):
             UpperSignature(packet=packet, member=member)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
