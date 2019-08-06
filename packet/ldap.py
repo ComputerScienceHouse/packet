@@ -80,7 +80,7 @@ def ldap_get_live_onfloor():
     return members
 
 
-def ldap_get_active_rtp():
+def ldap_get_active_rtps():
     """
     All active RTPs
     :return: A list of CSHMember instances
@@ -88,7 +88,7 @@ def ldap_get_active_rtp():
     return [member.uid for member in _ldap_get_group_members("active_rtp")]
 
 
-def ldap_get_3da():
+def ldap_get_3das():
     """
     All 3das
     :return: A list of CSHMember instances
@@ -96,7 +96,7 @@ def ldap_get_3da():
     return [member.uid for member in _ldap_get_group_members("3da")]
 
 
-def ldap_get_webmaster():
+def ldap_get_webmasters():
     """
     All webmasters
     :return: A list of CSHMember instances
@@ -104,7 +104,7 @@ def ldap_get_webmaster():
     return [member.uid for member in _ldap_get_group_members("webmaster")]
 
 
-def ldap_get_constitutional_maintainer():
+def ldap_get_constitutional_maintainers():
     """
     All constitutional maintainers
     :return: A list of CSHMember instances
@@ -112,7 +112,7 @@ def ldap_get_constitutional_maintainer():
     return [member.uid for member in _ldap_get_group_members("constitutional_maintainers")]
 
 
-def ldap_get_drink_admin():
+def ldap_get_drink_admins():
     """
     All drink admins
     :return: A list of CSHMember instances

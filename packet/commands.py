@@ -9,8 +9,9 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard_role, ldap_get_active_rtp, ldap_get_3da, ldap_get_webmaster, ldap_get_drink_admin, \
-    ldap_get_constitutional_maintainer, ldap_is_intromember, ldap_get_active_members, ldap_is_on_coop
+from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
+    ldap_is_on_coop
 
 
 @app.cli.command("create-secret")
@@ -117,11 +118,11 @@ def create_packets(freshmen_csv):
     all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
     on_coop = list(filter(lambda member: ldap_is_on_coop(member), ldap_get_active_members()))
 
-    rtp = ldap_get_active_rtp()
-    three_da = ldap_get_3da()
-    webmaster = ldap_get_webmaster()
-    c_m = ldap_get_constitutional_maintainer()
-    drink = ldap_get_drink_admin()
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
@@ -154,16 +155,14 @@ def ldap_sync():
     Updates the upper and misc sigs in the DB to match ldap.
     """
     print("Fetching data from LDAP...")
-    all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
-                                                         ldap_get_active_members())}
-    on_coop = {member.uid: member for member in filter(lambda member: ldap_is_on_coop(member),
-                                                       ldap_get_active_members())}
+    all_upper = {member.uid: member for member in filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
 
-    rtp = ldap_get_active_rtp()
-    three_da = ldap_get_3da()
-    webmaster = ldap_get_webmaster()
-    c_m = ldap_get_constitutional_maintainer()
-    drink = ldap_get_drink_admin()
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
@@ -183,15 +182,8 @@ def ldap_sync():
                 sig = MiscSignature(packet=packet, member=sig.member)
                 db.session.add(sig)
 
-        # Migrate UpperSignatures that are from accounts that are on co-op currently
-        for sig in filter(lambda sig: sig.member in on_coop, packet.upper_signatures):
-            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            if sig.signed:
-                sig = MiscSignature(packet=packet, member=sig.member)
-                db.session.add(sig)
-
         # Migrate MiscSignatures that are from accounts that are now active members
-        for sig in filter(lambda sig: sig.member in all_upper and not on_coop, packet.misc_signatures):
+        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             sig = UpperSignature(packet=packet, member=sig.member, signed=True)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
