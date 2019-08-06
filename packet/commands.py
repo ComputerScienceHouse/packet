@@ -115,6 +115,7 @@ def create_packets(freshmen_csv):
 
     print("Fetching data from LDAP...")
     all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
+    on_coop = list(filter(lambda member: ldap_is_on_coop(member), ldap_get_active_members()))
 
     rtp = ldap_get_active_rtp()
     three_da = ldap_get_3da()
@@ -129,7 +130,7 @@ def create_packets(freshmen_csv):
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
 
-        for member in all_upper:
+        for member in all_upper and not on_coop:
             sig = UpperSignature(packet=packet, member=member.uid)
             sig.eboard = ldap_get_eboard_role(member)
             sig.active_rtp = member.uid in rtp
