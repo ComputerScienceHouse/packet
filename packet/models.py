@@ -154,3 +154,10 @@ class MiscSignature(db.Model):
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     packet = relationship("Packet", back_populates="misc_signatures")
+
+
+class NotificationSubscription(db.Model):
+    __tablename__ = "notification_subscriptions"
+    member = Column(String(36), nullable=True)
+    freshman_username = Column(ForeignKey("freshman.rit_username"), nullable=True)
+    token = Column(String(64), primary_key=True, nullable=False)

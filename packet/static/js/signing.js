@@ -9,8 +9,8 @@ $(document).ready(function () {
     });
 
     $('.sign-button').click(function () {
-        var packetData = $(this).get(0).dataset;
-        var userData = $("#userInfo").val();
+        let packetData = $(this).get(0).dataset;
+        let userData = $("#userInfo").val();
         dialogs.fire({
             title: "Are you sure?",
             text: "Once a packet is signed it can only be unsigned from request to the Evals Director",

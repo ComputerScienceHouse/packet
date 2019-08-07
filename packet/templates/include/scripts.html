@@ -11,9 +11,10 @@
 
 <!-- Firebase Setup-->
 <script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-messaging.js"></script>
 <script>
     // Initialize outside of file to allow flask injection
-    var firebaseConfig = {
+    const firebaseConfig = {
 	    apiKey: '{{ config["FIREBASE_API_KEY"] }}',
 	    messagingSenderId: '{{ config["FIREBASE_SENDER_ID"] }}'
     };
@@ -21,8 +22,9 @@
     firebase.initializeApp(firebaseConfig);
 
     const messaging = firebase.messaging();
-    messaging.usePublicVapidKey('<YOUR_PUBLIC_VAPID_KEY_HERE>');
+    messaging.usePublicVapidKey('{{ config["FIREBASE_VAPID_KEY"] }}');
 </script>
+<script src="/static/js/firebase.js"></script>
 
 <!-- Packet Js -->
 <script src="/static/js/signing.js"></script>

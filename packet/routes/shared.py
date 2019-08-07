@@ -72,4 +72,4 @@ def packets(info=None):
 
 @app.route('/firebase-messaging-sw.js', methods=['GET'])
 def firebase_service_worker():
-    return send_static_file('firebase-messaging-sw.js')
+    return app.send_static_file('firebase-messaging-sw.js')

@@ -30,7 +30,7 @@ $(document).ready(function () {
         ]
     });
 
-    var table = $('#active_packets_table');
+    let table = $('#active_packets_table');
 
     $("#sig-filter").on('change', function () {
         if ($(this).val() === 'Total') {
