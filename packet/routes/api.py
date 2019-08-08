@@ -53,6 +53,7 @@ def subscribe(info):
     else:
         subscription = NotificationSubscription(token=data['token'], freshman_username=info["uid"])
     db.session.add(subscription)
+    db.session.commit()
     return "Token subscribed for " + info["uid"]
 
 

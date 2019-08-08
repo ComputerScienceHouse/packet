@@ -22,4 +22,4 @@ gulp.task('css', ['sass:compile', 'css:minify']);
 
 // Default task
 gulp.task('default', ['css']);
-gulp.task('production', ['css', 'generate-favicon', 'pylint']);
+gulp.task('production', ['css', 'generate-favicon', 'copy_secrets', 'pylint']);

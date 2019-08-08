@@ -1,7 +1,16 @@
+import os
+
+import firebase_admin
 import requests
-from firebase_admin import messaging
+from firebase_admin import credentials, messaging
 
 from packet import app
+
+if not len(firebase_admin._apps):
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, 'serviceAccountKey.json')
+    cred = credentials.Certificate(filename)
+    default_app = firebase_admin.initialize_app(cred)
 
 
 def subscribeToken(token):
@@ -10,9 +19,9 @@ def subscribeToken(token):
 
 def packet_signed_notification(token, signer):
     message = messaging.Message(
+        token=token,
         webpush=messaging.WebpushConfig(
             notification=messaging.WebpushNotification(
-                token=token,
                 title='New Packet Signature!',
                 body=signer + ' signed your packet! Congrats or I\'m Sorry',
                 icon='https://profiles.csh.rit.edu/image/' + signer,
@@ -20,14 +29,14 @@ def packet_signed_notification(token, signer):
         )
     )
     response = messaging.send(message)
-    print('Successfully sent message:', response)
+    app.logger.info("The notification ({}) sent out successfully".format(response))
 
 
 def packet_100_percent_notification(token, freshman):
     message = messaging.Message(
+        token=token,
         webpush=messaging.WebpushConfig(
             notification=messaging.WebpushNotification(
-                token=token,
                 title='New 100% on Packet!',
                 body=freshman.name + ' got on packet!',
                 icon='https://profiles.csh.rit.edu/image/' + freshman.rit_username,
@@ -35,7 +44,7 @@ def packet_100_percent_notification(token, freshman):
         )
     )
     response = messaging.send(message)
-    print('Successfully sent message:', response)
+    app.logger.info("The notification ({}) sent out successfully".format(response))
 
 
 def notify_slack(name: str):

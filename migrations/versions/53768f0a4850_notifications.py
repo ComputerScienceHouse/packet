@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('notification_subscriptions',
     sa.Column('member', sa.String(length=36), nullable=True),
     sa.Column('freshman_username', sa.String(length=10), nullable=True),
-    sa.Column('token', sa.String(length=64), nullable=False),
+    sa.Column('token', sa.String(length=256), nullable=False),
     sa.ForeignKeyConstraint(['freshman_username'], ['freshman.rit_username'], ),
     sa.PrimaryKeyConstraint('token')
     )

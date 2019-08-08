@@ -160,4 +160,4 @@ class NotificationSubscription(db.Model):
     __tablename__ = "notification_subscriptions"
     member = Column(String(36), nullable=True)
     freshman_username = Column(ForeignKey("freshman.rit_username"), nullable=True)
-    token = Column(String(64), primary_key=True, nullable=False)
+    token = Column(String(256), primary_key=True, nullable=False)

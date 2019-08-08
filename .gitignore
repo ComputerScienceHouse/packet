@@ -110,7 +110,7 @@ config.py
 node_modules
 
 # Generated Assets
-packet/static/css/packet.css
+packet/static/css/*
 *.min.css
 packet/static/android-chrome-192x192.png
 packet/static/android-chrome-512x512.png
@@ -126,5 +126,5 @@ packet/static/mstile-310x310.png
 packet/static/mstile-70x70.png
 packet/static/safari-pinned-tab.svg
 packet/static/site.webmanifest
+packet/serviceAccountKey.json
 faviconData.json
-
