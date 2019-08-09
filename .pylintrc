@@ -15,7 +15,8 @@ disable =
 	cyclic-import,
 	locally-disabled,
 	file-ignored,
-	no-else-return
+	no-else-return,
+	unnecessary-lambda
 
 [REPORTS]
 output-format = text

@@ -4,9 +4,9 @@
 
 {% block body %}
     <div class="container main">
-        <div class="mb-2">
+        <div class="mb-2 m-1">
             <div class="row justify-content-between w-100">
-                <div class="col">
+                <div class="col m-1">
                     <h3>{{ get_rit_name(packet.freshman_username) }}</h3>
                 </div>
                 <div class="col">
@@ -22,12 +22,12 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="row justify-content-between">
-                <div class="col">
-                    <h5>Signatures: {{ received.total }}/{{ required.total }}</h5>
+            <div class="row">
+                <div class="col ml-1 mb-1">
+                    <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span></h6>
                 </div>
-                <div class="col">
-                    <h5 class="right-align">Packet Ends: {{ packet_end }}</h5>
+                <div class="col mr-1 mb-1">
+                    <h6 class="right-align">Ends: <span class="badge badge-secondary">{{ packet_end }}</span></h6>
                 </div>
             </div>
             <div class="card card-body">
@@ -55,45 +55,6 @@
             <div id="eval-table">
                 <div class="card mb-2">
                     <div class="card-header">
-                        <b>EBoard Signatures</b>
-                        <b class="signature-count">{{ received.eboard }}/{{ required.eboard }}</b>
-                    </div>
-                    <div class="card-body table-fill">
-                        <div class="table-responsive">
-                            <table class="table table-striped no-bottom-margin" data-module="table"
-                                   data-searchable="true" data-sort-column="3" data-sort-order="asc"
-                                   data-length-changable="true" data-paginated="false">
-                                <tbody>
-                                {% for sig in eboard %}
-                                    <tr {% if sig.signed %}style="background-color: #4caf505e" {% endif %}>
-                                        <td>
-                                            {% if info.realm == "csh" %}
-                                                <a href="/member/{{ sig.member }}">
-                                            {% endif %}
-                                            <img class="eval-user-img" alt="{{ sig.member }}"
-                                                 src="https://profiles.csh.rit.edu/image/{{ sig.member }}"
-                                                 width="25" height="25"/>
-                                            {{ get_csh_name(sig.member) }}
-                                            {% if info.realm == "csh" %}
-                                                </a>
-                                            {% endif %}
-                                        </td>
-                                        <td width="15%">
-                                            {% if sig.signed %}
-                                                <i class="fas fa-check"></i>
-                                            {% else %}
-                                                <i class="fas fa-times"></i>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-2">
-                    <div class="card-header">
                         <b>Active Upperclassmen Signatures</b>
                         <b class="signature-count">{{ received.upper }}/{{ required.upper }}</b>
                     </div>
@@ -116,6 +77,9 @@
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
+                                            {% for role in get_roles(sig) %}
+                                                <span class="badge badge-pill badge-{{ role }}">{{ get_roles(sig)[role] }}</span>
+                                            {% endfor %}
                                         </td>
                                         <td width="15%">
                                             {% if sig.signed %}

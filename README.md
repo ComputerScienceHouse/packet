@@ -1,7 +1,7 @@
 # CSH Web Packet
 
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
-[![Build Status](https://travis-ci.org/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.org/ComputerScienceHouse/packet)
+[![Build Status](https://travis-ci.com/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.com/ComputerScienceHouse/packet)
 
 Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
 the second major iteration of packet on the web. The first version was 

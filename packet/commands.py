@@ -9,7 +9,9 @@ import click
 
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_active_members, ldap_is_eboard, ldap_is_intromember
+from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
+    ldap_is_on_coop
 
 
 @app.cli.command("create-secret")
@@ -113,7 +115,14 @@ def create_packets(freshmen_csv):
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
     print("Fetching data from LDAP...")
-    all_upper = list(filter(lambda member: not ldap_is_intromember(member), ldap_get_active_members()))
+    all_upper = list(filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members()))
+
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
@@ -123,7 +132,14 @@ def create_packets(freshmen_csv):
         db.session.add(packet)
 
         for member in all_upper:
-            db.session.add(UpperSignature(packet=packet, member=member.uid, eboard=ldap_is_eboard(member)))
+            sig = UpperSignature(packet=packet, member=member.uid)
+            sig.eboard = ldap_get_eboard_role(member)
+            sig.active_rtp = member.uid in rtp
+            sig.three_da = member.uid in three_da
+            sig.webmaster = member.uid in webmaster
+            sig.c_m = member.uid in c_m
+            sig.drink_admin = member.uid in drink
+            db.session.add(sig)
 
         for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
                                                                               freshman.rit_username).all():
@@ -139,32 +155,57 @@ def ldap_sync():
     Updates the upper and misc sigs in the DB to match ldap.
     """
     print("Fetching data from LDAP...")
-    all_upper = {member.uid: member for member in filter(lambda member: not ldap_is_intromember(member),
-                                                         ldap_get_active_members())}
+    all_upper = {member.uid: member for member in filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
+
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
 
     print("Applying updates to the DB...")
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
-        # Update the eboard state of all UpperSignatures
+        # Update the role state of all UpperSignatures
         for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
-            sig.eboard = ldap_is_eboard(all_upper[sig.member])
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
 
         # Migrate UpperSignatures that are from accounts that are not active anymore
         for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
             UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             if sig.signed:
-                db.session.add(MiscSignature(packet=packet, member=sig.member))
+                sig = MiscSignature(packet=packet, member=sig.member)
+                db.session.add(sig)
 
         # Migrate MiscSignatures that are from accounts that are now active members
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            db.session.add(UpperSignature(packet=packet, member=sig.member,
-                                          eboard=ldap_is_eboard(all_upper[sig.member]), signed=True))
+            sig = UpperSignature(packet=packet, member=sig.member, signed=True)
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
+            db.session.add(sig)
 
         # Create UpperSignatures for any new active members
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
-            db.session.add(UpperSignature(packet=packet, member=member, eboard=ldap_is_eboard(all_upper[member])))
+            UpperSignature(packet=packet, member=member)
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
+            db.session.add(sig)
 
     db.session.commit()
     print("Done!")
@@ -190,7 +231,6 @@ def fetch_results():
         print("\tTotal score: {:0.2f}%".format(received.total / required.total * 100))
         print()
 
-        print("\tEboard: {}/{}".format(received.eboard, required.eboard))
         print("\tUpperclassmen: {}/{}".format(received.upper, required.upper))
         print("\tFreshmen: {}/{}".format(received.fresh, required.fresh))
         print("\tMiscellaneous: {}/{}".format(received.misc, required.misc))

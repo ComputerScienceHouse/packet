@@ -18,6 +18,26 @@ def get_csh_name(username):
     except:
         return username
 
+def get_roles(sig):
+    """
+    Converts a signature's role fields to a dict for ease of access.
+    :return: A dictionary of role short names to role long names
+    """
+    out = {}
+    if sig.eboard:
+        out["eboard"] = sig.eboard
+    if sig.active_rtp:
+        out["rtp"] = "RTP"
+    if sig.three_da:
+        out["three_da"] = "3DA"
+    if sig.webmaster:
+        out["webmaster"] = "Webmaster"
+    if sig.c_m:
+        out["cm"] = "Constitutional Maintainer"
+    if sig.drink_admin:
+        out["drink"] = "Drink Admin"
+    return out
+
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=128)
@@ -38,4 +58,4 @@ def log_time(label):
 
 @app.context_processor
 def utility_processor():
-    return dict(get_csh_name=get_csh_name, get_rit_name=get_rit_name, log_time=log_time)
+    return dict(get_csh_name=get_csh_name, get_rit_name=get_rit_name, log_time=log_time, get_roles=get_roles)

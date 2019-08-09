@@ -2,9 +2,16 @@
 
 {% block body %}
     <div class="container main">
-        <div class="row mobile-hide">
-            <div class="col-sm-10">
-                <h3 class="page-title">{{ get_csh_name(member) }}</h3>
+        <div class="ml-1">
+            <div class="row">
+                <div class="col">
+                    <h3 class="page-title">
+                        <img class="eval-user-img" alt="{{ member }}"
+                             src="https://profiles.csh.rit.edu/image/{{ member }}"
+                             width="35" height="35"/>
+                        {{ get_csh_name(member) }}
+                    </h3>
+                </div>
             </div>
         </div>
         <div id="eval-blocks">
