@@ -36,7 +36,7 @@ MAIL_PROD = environ.get("PACKET_MAIL_PROD", False)
 MAIL_SERVER = environ.get("PACKET_MAIL_SERVER", "thoth.csh.rit.edu")
 MAIL_USERNAME = environ.get("PACKET_MAIL_USERNAME", "packet@csh.rit.edu")
 MAIL_PASSWORD = environ.get("PACKET_MAIL_PASSWORD", None)
-MAIL_USE_TLS = environ.get("PACKET_MAIL_PASSWORD", True)
+MAIL_USE_TLS = environ.get("PACKET_MAIL_TLS", True)
 
 # Slack URL for pushing to #general
 SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)

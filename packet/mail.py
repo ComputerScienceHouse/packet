@@ -9,7 +9,7 @@ mail = Mail(app)
 def send_mail(packet):
     if app.config['MAIL_PROD']:
         recipients = ["<" + packet.freshman.rit_username + "@rit.edu>"]
-        msg = Message(subject="CSH Packet Starts " + packet.start.strftime('%D'),
+        msg = Message(subject="CSH Packet Starts " + packet.start.strftime('%A, %B %-d'),
                       sender=app.config.get("MAIL_USERNAME"),
                       recipients=recipients)
 

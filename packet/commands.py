@@ -127,11 +127,10 @@ def create_packets(freshmen_csv):
 
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
-    print("Creating DB entries...")
+    print("Creating DB entries and sending emails...")
     for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_in_csv)).all():
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
-        print("Sending Email...")
         send_mail(packet)
 
         for member in all_upper:

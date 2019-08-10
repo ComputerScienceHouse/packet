@@ -4,7 +4,7 @@ Welcome to Computer Science House!
 
 Soon you'll starting the introductory process for CSH, and the first part of that is Packet.
 
-Your packet will start on {{ packet.start.strftime('%D') }} at {{ packet.start.strftime('%I:%M %p') }}
+Your packet will start on {{ packet.start.strftime('%A, %B %-d') }} at {{ packet.start.strftime('%-I:%M %p') }}
 
 You can view your packet at freshmen-packet.csh.rit.edu with the credentials you should have been sent.
 If you don't know your credentials, reach out to an RTP
