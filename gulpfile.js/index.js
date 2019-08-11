@@ -11,15 +11,12 @@
  when you run `gulp`.
  */
 
-var requireDir = require('require-dir');
-var gulp = require('gulp');
+const requireDir = require('require-dir');
+const gulp = require('gulp');
 
 // Require all tasks in gulpfile.js/tasks, including subfolders
 requireDir('./tasks', {recurse: true});
 
-// CSS
-gulp.task('css', ['sass:compile', 'css:minify']);
-
 // Default task
-gulp.task('default', ['css']);
-gulp.task('production', ['css', 'generate-favicon', 'pylint']);
+gulp.task('default', gulp.parallel('css'));
+gulp.task('production', gulp.parallel('css', 'generate-favicon', 'pylint'));
