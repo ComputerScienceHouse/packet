@@ -108,5 +108,5 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="/static/js/tables.js"></script>
+    <script src="{{ url_for('static', filename='js/tables.min.js') }}"></script>
 {% endblock %}
