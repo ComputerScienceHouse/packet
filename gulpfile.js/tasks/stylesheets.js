@@ -4,7 +4,7 @@ const cleanCSS = require('gulp-clean-css');
 const rename = require("gulp-rename");
 
 // Compile SCSS
-gulp.task('sass:compile', function () {
+gulp.task('sass:compile', () => {
     return gulp.src('frontend/scss/**/*.scss')
         .pipe(sass.sync({
             outputStyle: 'expanded'
@@ -13,7 +13,7 @@ gulp.task('sass:compile', function () {
 });
 
 // Minify CSS
-gulp.task('css:minify', gulp.series('sass:compile'), function () {
+gulp.task('css:minify', () => {
     return gulp.src([
         'packet/static/css/*.css',
         '!packet/static/css/*.min.css'

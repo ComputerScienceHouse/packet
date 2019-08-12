@@ -9,7 +9,7 @@ const FAVICON_DATA_FILE = 'faviconData.json';
 // You should run it at least once to create the icons. Then,
 // you should run it whenever RealFaviconGenerator updates its
 // package (see the check-for-favicon-update task below).
-gulp.task('generate-favicon', function (done) {
+gulp.task('generate-favicon', (done) => {
     realFavicon.generateFavicon({
         masterPicture: 'packet/static/assets/logo.svg',
         dest: 'packet/static',
