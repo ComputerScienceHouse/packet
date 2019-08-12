@@ -18,5 +18,5 @@ const gulp = require('gulp');
 requireDir('./tasks', {recurse: true});
 
 // Default task
-gulp.task('default', gulp.parallel('css'));
-gulp.task('production', gulp.parallel('css', 'generate-favicon', 'pylint'));
+gulp.task('default', gulp.parallel('css', 'js'));
+gulp.task('production', gulp.parallel('css', 'js', 'generate-favicon', 'pylint'));

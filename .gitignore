@@ -110,8 +110,8 @@ config.py
 node_modules
 
 # Generated Assets
-packet/static/css/packet.css
-*.min.css
+packet/static/css/**/*.css
+packet/static/js/*.min.js
 packet/static/android-chrome-192x192.png
 packet/static/android-chrome-512x512.png
 packet/static/apple-touch-icon.png
