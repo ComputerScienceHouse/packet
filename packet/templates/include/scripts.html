@@ -10,3 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
 
 <script src="{{ url_for('static', filename='js/signing.min.js') }}"></script>
+{% if info.realm == "intro" %}
+    <script src="{{ url_for('static', filename='js/report.min.js') }}"></script>
+{% endif %}
