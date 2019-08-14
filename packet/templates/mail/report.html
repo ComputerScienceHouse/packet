@@ -1,0 +1,10 @@
+{% extends "extend/email.html" %}
+
+{% block body %}
+    <div class="container main">
+        <p>Hello,</p>
+        <p><code>{{ reporter }}</code> just made a report against <code>{{ person }}</code></p>
+        <p>The report reads: </p>
+        <pre><code>{{ report }}</code></pre>
+    </div>
+{% endblock %}

@@ -7,7 +7,7 @@ from datetime import datetime, time, timedelta
 import csv
 import click
 
-from packet.mail import send_mail
+from packet.mail import send_start_packet_mail
 from . import app, db
 from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
 from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
@@ -131,7 +131,7 @@ def create_packets(freshmen_csv):
     for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_in_csv)).all():
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
-        send_mail(packet)
+        send_start_packet_mail(packet)
 
         for member in all_upper:
             sig = UpperSignature(packet=packet, member=member.uid)

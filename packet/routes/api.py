@@ -1,8 +1,11 @@
 """
 Shared API endpoints
 """
+from flask import request
 
 from packet import app, db
+from packet.context_processors import get_rit_name
+from packet.mail import send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack
 from packet.models import Packet, MiscSignature
 
@@ -35,6 +38,16 @@ def sign(packet_id, info):
 
     app.logger.warn("Failed to add {}'s signature to packet {}".format(info["uid"], packet_id))
     return "Error: Signature not valid.  Reason: Unknown"
+
+
+@app.route("/api/v1/report/", methods=["POST"])
+@packet_auth
+@before_request
+def report(info):
+    form_results = request.form
+    send_report_mail(form_results, get_rit_name(info['uid']))
+    return "Success: " + get_rit_name(info['uid']) + " sent a report"
+
 
 def commit_sig(packet, was_100):
     db.session.commit()
