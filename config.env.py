@@ -9,6 +9,7 @@ from os import environ
 DEBUG = False
 IP = environ.get("PACKET_IP", "localhost")
 PORT = environ.get("PACKET_PORT", "8000")
+PROTOCOL = environ.get("PACKET_PROTOCOL", "https://")
 SERVER_NAME = environ.get("PACKET_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("PACKET_SECRET_KEY", "PLEASE_REPLACE_ME")
 
