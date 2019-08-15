@@ -47,8 +47,16 @@
             OneSignal.showNativePrompt();
             OneSignal.on("subscriptionChange", function(){
 		OneSignal.getUserId().then(function(result){
-			// TODO: Send to backend
-			console.log(result);
+			$.ajax({
+            			url: "/api/v1/subscribe/",
+            			method: "POST",
+            			data: {
+                			token: result
+            			},
+            			success: function (data) {
+                			console.log(data);
+            			}
+        		});
 		});
 	    });
         });

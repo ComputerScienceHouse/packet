@@ -7,7 +7,7 @@ from packet import app, db
 from packet.context_processors import get_rit_name
 from packet.mail import send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack
-from packet.models import Packet, MiscSignature
+from packet.models import Packet, MiscSignature, NotificationSubscription
 
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
@@ -38,6 +38,20 @@ def sign(packet_id, info):
 
     app.logger.warn("Failed to add {}'s signature to packet {}".format(info["uid"], packet_id))
     return "Error: Signature not valid.  Reason: Unknown"
+
+
+@app.route("/api/v1/subscribe/", methods=["POST"])
+@packet_auth
+@before_request
+def subscribe(info):
+    data = request.form
+    if app.config["REALM"] == "csh":
+        subscription = NotificationSubscription(token=data['token'], member=info["uid"])
+    else:
+        subscription = NotificationSubscription(token=data['token'], freshman_username=info["uid"])
+    db.session.add(subscription)
+    db.session.commit()
+    return "Token subscribed for " + info["uid"]
 
 
 @app.route("/api/v1/report/", methods=["POST"])

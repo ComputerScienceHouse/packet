@@ -80,4 +80,3 @@ def service_worker():
 @app.route('/OneSignalSDKUpdaterWorker.js', methods=['GET'])
 def update_service_worker():
     return app.send_static_file('js/update-sw.js')
-
