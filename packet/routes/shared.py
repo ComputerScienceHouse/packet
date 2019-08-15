@@ -68,3 +68,16 @@ def packets(info=None):
     open_packets.sort(key=packet_sort_key, reverse=True)
 
     return render_template("active_packets.html", info=info, packets=open_packets)
+
+
+@app.route('/sw.js', methods=['GET'])
+@app.route('/OneSignalSDKWorker.js', methods=['GET'])
+def service_worker():
+    return app.send_static_file('js/sw.js')
+
+
+@app.route('/update-sw.js', methods=['GET'])
+@app.route('/OneSignalSDKUpdaterWorker.js', methods=['GET'])
+def update_service_worker():
+    return app.send_static_file('js/update-sw.js')
+

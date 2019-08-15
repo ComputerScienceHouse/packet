@@ -38,5 +38,10 @@ MAIL_USERNAME = environ.get("PACKET_MAIL_USERNAME", "packet@csh.rit.edu")
 MAIL_PASSWORD = environ.get("PACKET_MAIL_PASSWORD", None)
 MAIL_USE_TLS = strtobool(environ.get("PACKET_MAIL_TLS", 'True'))
 
+# OneSignal Config
+ONESIGNAL_USER_AUTH_KEY = environ.get("PACKET_ONESIGNAL_USER_AUTH_KEY", None)
+ONESIGNAL_APP_AUTH_KEY = environ.get("PACKET_ONESIGNAL_APP_AUTH_KEY", None)
+ONESIGNAL_APP_ID = environ.get("PACKET_ONESIGNAL_APP_ID", "6eff123a-0852-4027-804e-723044756f00")
+
 # Slack URL for pushing to #general
 SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)

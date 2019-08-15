@@ -34,6 +34,27 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/packet.min.css') }}">
 
+    <!-- Push Notifications -->
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        var OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+		    appId: "{{ config['ONESIGNAL_APP_ID'] }}",
+		autoResubscribe: true,
+                allowLocalhostAsSecureOrigin: true,
+            });
+            OneSignal.showNativePrompt();
+            OneSignal.on("subscriptionChange", function(){
+		OneSignal.getUserId().then(function(result){
+			// TODO: Send to backend
+			console.log(result);
+		});
+	    });
+        });
+    </script>
+
+    <!-- Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ config['ANALYTICS_ID'] }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
