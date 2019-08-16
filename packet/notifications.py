@@ -16,7 +16,7 @@ post_body = {
 def packet_signed_notification(packet, signer):
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
-        tokens = list(filter(lambda subscription: subscription.token, subscriptions))
+        tokens = list(map(lambda subscription: subscription.token, subscriptions))
 
         notification = onesignal.Notification(post_body=post_body)
         notification.post_body["content"]["en"] = signer + ' signed your packet! Congrats or I\'m Sorry'
@@ -32,7 +32,7 @@ def packet_signed_notification(packet, signer):
 def packet_100_percent_notification(packet):
     subscriptions = NotificationSubscription.query.all()
     if subscriptions:
-        tokens = list(filter(lambda subscription: subscription.token, subscriptions))
+        tokens = list(map(lambda subscription: subscription.token, subscriptions))
 
         notification = onesignal.Notification(post_body=post_body)
         notification.post_body["content"]["en"] = packet.freshman.name + ' got 💯 on packet!'
