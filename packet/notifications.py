@@ -25,8 +25,6 @@ def packet_signed_notification(packet, signer):
         notification.post_body["include_player_ids"] = tokens
 
         onesignal_response = onesignal_client.send_notification(notification)
-        print(onesignal_response.status_code)
-        print(onesignal_response.json())
         if onesignal_response.status_code == 200:
             app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
 
@@ -44,7 +42,5 @@ def packet_100_percent_notification(packet):
         notification.post_body["include_player_ids"] = tokens
 
         onesignal_response = onesignal_client.send_notification(notification)
-        print(onesignal_response.status_code)
-        print(onesignal_response.json())
         if onesignal_response.status_code == 200:
             app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
