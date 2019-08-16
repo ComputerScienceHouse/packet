@@ -7,6 +7,7 @@ import logging
 import json
 
 import csh_ldap
+import onesignal
 from flask import Flask
 from flask_gzip import Gzip
 from flask_migrate import Migrate
@@ -43,6 +44,11 @@ app.logger.info("SQLAlchemy pointed at " + repr(db.engine.url))
 APP_CONFIG = ProviderConfiguration(issuer=app.config["OIDC_ISSUER"],
                           client_metadata=ClientMetadata(app.config["OIDC_CLIENT_ID"],
                                                             app.config["OIDC_CLIENT_SECRET"]))
+
+# Initialize Onesignal Notification apps
+onesignal_client = onesignal.Client(user_auth_key=app.config["ONESIGNAL_USER_AUTH_KEY"],
+                                    app_auth_key=app.config["ONESIGNAL_APP_AUTH_KEY"],
+                                    app_id=app.config["ONESIGNAL_APP_ID"])
 
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
 
