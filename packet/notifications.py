@@ -4,9 +4,8 @@ from packet import app, onesignal_client
 from packet.models import NotificationSubscription
 
 post_body = {
-    "content": {"en": "Default message"},
+    "contents": {"en": "Default message"},
     "headings": {"en": "Default Title"},
-    "included_segments": ["Active Users", "Inactive Users"],
     "chrome_web_icon": app.config["PROTOCOL"] + app.config["SERVER_NAME"] + "/static/android-chrome-512x512.png",
     "chrome_web_badge": app.config["PROTOCOL"] + app.config["SERVER_NAME"] + "/static/android-chrome-512x512.png",
     "url": app.config["PROTOCOL"] + app.config["SERVER_NAME"]
@@ -19,7 +18,7 @@ def packet_signed_notification(packet, signer):
         tokens = list(map(lambda subscription: subscription.token, subscriptions))
 
         notification = onesignal.Notification(post_body=post_body)
-        notification.post_body["content"]["en"] = signer + ' signed your packet! Congrats or I\'m Sorry'
+        notification.post_body["contents"]["en"] = signer + ' signed your packet! Congrats or I\'m Sorry'
         notification.post_body["headings"]["en"] = 'New Packet Signature!'
         notification.post_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + signer
         notification.post_body["include_player_ids"] = tokens
@@ -35,7 +34,7 @@ def packet_100_percent_notification(packet):
         tokens = list(map(lambda subscription: subscription.token, subscriptions))
 
         notification = onesignal.Notification(post_body=post_body)
-        notification.post_body["content"]["en"] = packet.freshman.name + ' got 💯 on packet!'
+        notification.post_body["contents"]["en"] = packet.freshman.name + ' got 💯 on packet!'
         notification.post_body["headings"]["en"] = 'New 100% on Packet!'
         # TODO: Issue #156
         notification.post_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + packet.freshman_username
