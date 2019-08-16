@@ -27,3 +27,22 @@ def packet_signed_notification(packet, signer):
         print(onesignal_response.json())
         if onesignal_response.status_code == 200:
             app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
+
+
+def packet_100_percent_notification(packet):
+    subscriptions = NotificationSubscription.query.all()
+    if subscriptions:
+        tokens = list(filter(lambda subscription: subscription.token, subscriptions))
+
+        notification = onesignal.Notification(post_body=post_body)
+        notification.post_body["content"]["en"] = packet.freshman.name + ' got 💯 on packet!'
+        notification.post_body["headings"]["en"] = 'New 100% on Packet!'
+        # TODO: Issue #156
+        notification.post_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + packet.freshman_username
+        notification.post_body["include_player_ids"] = tokens
+        
+        onesignal_response = onesignal_client.send_notification(notification)
+        print(onesignal_response.status_code)
+        print(onesignal_response.json())
+        if onesignal_response.status_code == 200:
+            app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
