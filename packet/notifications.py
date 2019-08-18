@@ -1,6 +1,6 @@
 import onesignal
 
-from packet import app, onesignal_client
+from packet import app, intro_onesignal_client
 from packet.models import NotificationSubscription
 
 post_body = {
@@ -23,12 +23,13 @@ def packet_signed_notification(packet, signer):
         notification.post_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + signer
         notification.post_body["include_player_ids"] = tokens
 
-        onesignal_response = onesignal_client.send_notification(notification)
+        onesignal_response = intro_onesignal_client.send_notification(notification)
         if onesignal_response.status_code == 200:
             app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
 
 
 def packet_100_percent_notification(packet):
+    # TODO: Split into csh and intro subscriptions
     subscriptions = NotificationSubscription.query.all()
     if subscriptions:
         tokens = list(map(lambda subscription: subscription.token, subscriptions))
