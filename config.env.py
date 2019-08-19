@@ -48,3 +48,7 @@ ONESIGNAL_INTRO_APP_ID = environ.get("PACKET_ONESIGNAL_INTRO_APP_ID", "6eff123a-
 
 # Slack URL for pushing to #general
 SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)
+
+# Packet Config
+PACKET_UPPER = environ.get("PACKET_UPPER", "packet.csh.rit.edu")
+PACKET_INTRO = environ.get("PACKET_INTRO", "freshmen-packet.csh.rit.edu")
