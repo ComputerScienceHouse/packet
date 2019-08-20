@@ -27,18 +27,13 @@ def send_notification(notification_body, subscriptions, client):
 def packet_signed_notification(packet, signer):
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
-        tokens = list(map(lambda subscription: subscription.token, subscriptions))
+        notification_body = post_body
+        notification_body["contents"]["en"] = signer + ' signed your packet! Congrats or I\'m Sorry'
+        notification_body["headings"]["en"] = 'New Packet Signature!'
+        notification_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + signer
+        notification_body["url"] = app.config["PROTOCOL"] + app.config["PACKET_INTRO"]
 
-        notification = onesignal.Notification(post_body=post_body)
-        notification.post_body["contents"]["en"] = signer + ' signed your packet! Congrats or I\'m Sorry'
-        notification.post_body["headings"]["en"] = 'New Packet Signature!'
-        notification.post_body["chrome_web_icon"] = 'https://profiles.csh.rit.edu/image/' + signer
-        notification.post_body["include_player_ids"] = tokens
-        notification.post_body["url"] = app.config["PROTOCOL"] + app.config["PACKET_INTRO"]
-
-        onesignal_response = intro_onesignal_client.send_notification(notification)
-        if onesignal_response.status_code == 200:
-            app.logger.info("The notification ({}) sent out successfully".format(notification.post_body))
+        send_notification(notification_body, subscriptions, intro_onesignal_client)
 
 
 def packet_100_percent_notification(packet):
