@@ -126,6 +126,9 @@ def create_packets(freshmen_csv):
     c_m = ldap_get_constitutional_maintainers()
     drink = ldap_get_drink_admins()
 
+    # Packet starting notifications
+    packets_starting_notification(start)
+
     # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
     print("Creating DB entries and sending emails...")
@@ -134,7 +137,6 @@ def create_packets(freshmen_csv):
         db.session.add(packet)
         send_start_packet_mail(packet)
         packet_starting_notification(packet)
-        packets_starting_notification(start)
 
         for member in all_upper:
             sig = UpperSignature(packet=packet, member=member.uid)
