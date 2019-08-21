@@ -57,7 +57,7 @@ def packet_starting_notification(packet):
         notification_body["contents"]["en"] = 'Log into your packet, and get started meeting people!'
         notification_body["headings"]["en"] = 'Your packet has begun!'
         notification_body["url"] = app.config["PROTOCOL"] + app.config["PACKET_INTRO"]
-        notification_body["send_after"] = packet.start
+        notification_body["send_after"] = packet.start.strftime("%Y-%m-%d %H:%M:%S")
 
         send_notification(notification_body, subscriptions, intro_onesignal_client)
 
