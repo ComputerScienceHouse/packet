@@ -63,7 +63,7 @@ def packet_auth(func):
             username = str(session["userinfo"].get("preferred_username", ""))
             if ldap_is_intromember(ldap_get_member(username)):
                 app.logger.warn("Stopped intro member {} from accessing upperclassmen packet".format(username))
-                return redirect("https://freshmen-packet.csh.rit.edu", code=301)
+                return redirect(app.config["PROTOCOL"] + app.config["PACKET_INTRO"], code=301)
 
         return func(*args, **kwargs)
 
