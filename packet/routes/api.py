@@ -47,9 +47,9 @@ def sign(packet_id, info):
 def subscribe(info):
     data = request.form
     if app.config["REALM"] == "csh":
-        subscription = NotificationSubscription(token=data['token'], member=info["uid"])
+        subscription = NotificationSubscription(token=data["token"], member=info["uid"])
     else:
-        subscription = NotificationSubscription(token=data['token'], freshman_username=info["uid"])
+        subscription = NotificationSubscription(token=data["token"], freshman_username=info["uid"])
     db.session.add(subscription)
     db.session.commit()
     return "Token subscribed for " + info["uid"]
@@ -60,8 +60,8 @@ def subscribe(info):
 @before_request
 def report(info):
     form_results = request.form
-    send_report_mail(form_results, get_rit_name(info['uid']))
-    return "Success: " + get_rit_name(info['uid']) + " sent a report"
+    send_report_mail(form_results, get_rit_name(info["uid"]))
+    return "Success: " + get_rit_name(info["uid"]) + " sent a report"
 
 
 def commit_sig(packet, was_100, uid):
