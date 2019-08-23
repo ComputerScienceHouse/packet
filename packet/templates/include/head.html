@@ -38,9 +38,14 @@
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
         var OneSignal = window.OneSignal || [];
+        {% if info.realm == "csh" %}
+            var appId = "{{ config['ONESIGNAL_CSH_APP_ID'] }}";
+        {% else %}
+            var appId = "{{ config['ONESIGNAL_INTRO_APP_ID'] }}";
+        {% endif %}
         OneSignal.push(function () {
             OneSignal.init({
-                appId: "{{ config['ONESIGNAL_APP_ID'] }}",
+                appId: appId,
                 autoResubscribe: true,
                 allowLocalhostAsSecureOrigin: true,
             });
