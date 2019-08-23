@@ -1,0 +1,14 @@
+Hello {{ packet.freshman.name }},
+
+Welcome to Computer Science House!
+
+Soon you'll starting the introductory process for CSH, and the first part of that is Packet.
+
+Your packet will start on {{ packet.start.strftime('%A, %B %-d') }} at {{ packet.start.strftime('%-I:%M %p') }}
+
+You can view your packet at {{ config["PROTOCOL"] + config["PACKET_INTRO"] }} with the credentials you should have been sent.
+If you don't know your credentials, reach out to an RTP
+
+If you have any questions about Packet or the introductory process, email evals@csh.rit.edu
+
+If you have any questions about login credentials or any technical issues, email rtp@csh.rit.edu

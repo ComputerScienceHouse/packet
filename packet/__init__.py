@@ -7,13 +7,16 @@ import logging
 import json
 
 import csh_ldap
+import onesignal
 from flask import Flask
+from flask_gzip import Gzip
 from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+gzip = Gzip(app)
 
 # Load default configuration and any environment variable overrides
 _root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -42,6 +45,16 @@ APP_CONFIG = ProviderConfiguration(issuer=app.config["OIDC_ISSUER"],
                           client_metadata=ClientMetadata(app.config["OIDC_CLIENT_ID"],
                                                             app.config["OIDC_CLIENT_SECRET"]))
 
+# Initialize Onesignal Notification apps
+csh_onesignal_client = onesignal.Client(user_auth_key=app.config["ONESIGNAL_USER_AUTH_KEY"],
+                                    app_auth_key=app.config["ONESIGNAL_CSH_APP_AUTH_KEY"],
+                                    app_id=app.config["ONESIGNAL_CSH_APP_ID"])
+
+intro_onesignal_client = onesignal.Client(user_auth_key=app.config["ONESIGNAL_USER_AUTH_KEY"],
+                                    app_auth_key=app.config["ONESIGNAL_INTRO_APP_AUTH_KEY"],
+                                    app_id=app.config["ONESIGNAL_INTRO_APP_ID"])
+
+# OIDC Auth
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
 
 # LDAP

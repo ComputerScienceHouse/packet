@@ -2,13 +2,14 @@
 Default configuration settings and environment variable based configuration logic
     See the readme for more information
 """
-
+from distutils.util import strtobool
 from os import environ
 
 # Flask config
 DEBUG = False
 IP = environ.get("PACKET_IP", "localhost")
 PORT = environ.get("PACKET_PORT", "8000")
+PROTOCOL = environ.get("PACKET_PROTOCOL", "https://")
 SERVER_NAME = environ.get("PACKET_SERVER_NAME", IP + ":" + PORT)
 SECRET_KEY = environ.get("PACKET_SECRET_KEY", "PLEASE_REPLACE_ME")
 
@@ -31,5 +32,23 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
 
+# Mail Config
+MAIL_PROD = strtobool(environ.get("PACKET_MAIL_PROD", "False"))
+MAIL_SERVER = environ.get("PACKET_MAIL_SERVER", "thoth.csh.rit.edu")
+MAIL_USERNAME = environ.get("PACKET_MAIL_USERNAME", "packet@csh.rit.edu")
+MAIL_PASSWORD = environ.get("PACKET_MAIL_PASSWORD", None)
+MAIL_USE_TLS = strtobool(environ.get("PACKET_MAIL_TLS", "True"))
+
+# OneSignal Config
+ONESIGNAL_USER_AUTH_KEY = environ.get("PACKET_ONESIGNAL_USER_AUTH_KEY", None)
+ONESIGNAL_CSH_APP_AUTH_KEY = environ.get("PACKET_ONESIGNAL_CSH_APP_AUTH_KEY", None)
+ONESIGNAL_CSH_APP_ID = environ.get("PACKET_ONESIGNAL_CSH_APP_ID", "6eff123a-0852-4027-804e-723044756f00")
+ONESIGNAL_INTRO_APP_AUTH_KEY = environ.get("PACKET_ONESIGNAL_INTRO_APP_AUTH_KEY", None)
+ONESIGNAL_INTRO_APP_ID = environ.get("PACKET_ONESIGNAL_INTRO_APP_ID", "6eff123a-0852-4027-804e-723044756f00")
+
 # Slack URL for pushing to #general
 SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)
+
+# Packet Config
+PACKET_UPPER = environ.get("PACKET_UPPER", "packet.csh.rit.edu")
+PACKET_INTRO = environ.get("PACKET_INTRO", "freshmen-packet.csh.rit.edu")

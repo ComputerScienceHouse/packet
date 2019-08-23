@@ -1,0 +1,15 @@
+{% extends "extend/email.html" %}
+
+{% block body %}
+    <div class="container main">
+        <h2>Hello {{ packet.freshman.name }},</h2>
+        <h3>Welcome to Computer Science House!</h3>
+        <p>Soon you'll starting the introductory process for CSH, and the first part of that is Packet.</p>
+        <p>Your packet will start on <span class="badge">{{ packet.start.strftime('%A, %B %-d') }} at {{ packet.start.strftime('%-I:%M %p') }}</span></p>
+        <p>You can view your packet at <a href="{{ config["PROTOCOL"] + config["PACKET_INTRO"] }}">{{ config["PACKET_INTRO"] }}</a> with
+            the credentials you should have been sent.</p>
+        <p>If you don't know your credentials, reach out to an <a href="mailto:rtp@csh.rit.edu">RTP</a></p>
+        <p>If you have any questions about Packet or the introductory process, email <a href="mailto:evals@csh.rit.edu">evals@csh.rit.edu</a></p>
+        <p>If you have any questions about login credentials or any technical issues, email <a href="mailto:rtp@csh.rit.edu">rtp@csh.rit.edu</a></p>
+    </div>
+{% endblock %}

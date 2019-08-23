@@ -27,10 +27,8 @@
                                     <thead>
                                     <tr>
                                         <th>Name</th>
-                                        {% if info.realm == "csh" %}
-                                            <th>Signatures</th>
-                                            <th>Signatures</th>
-                                        {% endif %}
+                                        <th>Signatures</th>
+                                        <th>Signatures</th>
                                         <th>Signatures</th>
                                         {% if can_sign %}
                                             <th>Sign</th>
@@ -108,5 +106,5 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="/static/js/tables.js"></script>
+    <script src="{{ url_for('static', filename='js/tables.min.js') }}"></script>
 {% endblock %}
