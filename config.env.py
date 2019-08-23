@@ -33,11 +33,11 @@ LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
 
 # Mail Config
-MAIL_PROD = strtobool(environ.get("PACKET_MAIL_PROD", 'False'))
+MAIL_PROD = strtobool(environ.get("PACKET_MAIL_PROD", "False"))
 MAIL_SERVER = environ.get("PACKET_MAIL_SERVER", "thoth.csh.rit.edu")
 MAIL_USERNAME = environ.get("PACKET_MAIL_USERNAME", "packet@csh.rit.edu")
 MAIL_PASSWORD = environ.get("PACKET_MAIL_PASSWORD", None)
-MAIL_USE_TLS = strtobool(environ.get("PACKET_MAIL_TLS", 'True'))
+MAIL_USE_TLS = strtobool(environ.get("PACKET_MAIL_TLS", "True"))
 
 # OneSignal Config
 ONESIGNAL_USER_AUTH_KEY = environ.get("PACKET_ONESIGNAL_USER_AUTH_KEY", None)
