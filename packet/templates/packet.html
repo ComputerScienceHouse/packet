@@ -110,7 +110,7 @@
                                     <tr {% if sig.signed %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
                                             <img class="eval-user-img" alt="{{ sig.freshman_username }}"
-                                                 src="https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+                                                 src="{{ get_rit_image(packet.freshman_username) }}"
                                                  width="25" height="25"/>
                                             {{ get_rit_name(sig.freshman_username) }}
                                         </td>
