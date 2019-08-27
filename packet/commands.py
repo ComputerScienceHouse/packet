@@ -205,7 +205,7 @@ def ldap_sync():
         # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
-            UpperSignature(packet=packet, member=member)
+            sig = UpperSignature(packet=packet, member=member)
             sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
