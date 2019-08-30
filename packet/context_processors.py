@@ -72,4 +72,7 @@ def log_time(label):
 
 @app.context_processor
 def utility_processor():
-    return dict(get_csh_name=get_csh_name, get_rit_name=get_rit_name, log_time=log_time, get_roles=get_roles)
+    return dict(
+        get_csh_name=get_csh_name, get_rit_name=get_rit_name, get_rit_image=get_rit_image, log_time=log_time,
+        get_roles=get_roles
+    )
