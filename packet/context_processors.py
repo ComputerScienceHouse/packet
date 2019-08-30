@@ -1,7 +1,8 @@
 """
 Context processors used by the jinja templates
 """
-
+import hashlib
+import urllib
 from functools import lru_cache
 from datetime import datetime
 
@@ -17,6 +18,7 @@ def get_csh_name(username):
         return member.cn + " (" + member.uid + ")"
     except:
         return username
+
 
 def get_roles(sig):
     """
@@ -49,6 +51,22 @@ def get_rit_name(username):
         return username
 
 
+# pylint: disable=bare-except
+@lru_cache(maxsize=128)
+def get_rit_image(username):
+    if username:
+        addresses = [username + "@rit.edu", username + "@g.rit.edu"]
+        for addr in addresses:
+            url = "https://gravatar.com/avatar/" + hashlib.md5(addr.encode("utf8")).hexdigest() + ".jpg?d=404&s=250"
+            try:
+                gravatar = urllib.request.urlopen(url)
+                if gravatar.getcode() == 200:
+                    return url
+            except:
+                continue
+    return "https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+
+
 def log_time(label):
     """
     Used during debugging to log timestamps while rendering templates
@@ -58,4 +76,7 @@ def log_time(label):
 
 @app.context_processor
 def utility_processor():
-    return dict(get_csh_name=get_csh_name, get_rit_name=get_rit_name, log_time=log_time, get_roles=get_roles)
+    return dict(
+        get_csh_name=get_csh_name, get_rit_name=get_rit_name, get_rit_image=get_rit_image, log_time=log_time,
+        get_roles=get_roles
+    )

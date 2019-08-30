@@ -3,6 +3,7 @@ $(document).ready(function () {
     $('#active_packets_table').DataTable({
         "searching": true,
         "order": [],
+        "scrollX": false,
         "paging": false,
         "info": false,
         "columnDefs": [
