@@ -47,12 +47,12 @@
                                                          height="25"/> {{ get_rit_name(packet.freshman_username) }}
                                                 </a>
                                             </td>
-                                            <td data-sort="{{ packet.signatures_received_result.upper }}">
-                                                {% if packet.signatures_received_result.upper == packet.signatures_required_result.upper %}
+                                            <td data-sort="{{ packet.signatures_received_result.member_total }}">
+                                                {% if packet.signatures_received_result.member_total == packet.signatures_required_result.member_total %}
                                                     💯 {# 100% emoji #}
                                                 {% else %}
-                                                    {{ packet.signatures_received_result.upper }} /
-                                                    {{ packet.signatures_required_result.upper }}
+                                                    {{ packet.signatures_received_result.member_total }} /
+                                                    {{ packet.signatures_required_result.member_total }}
                                                 {% endif %}
                                             </td>
                                             <td data-sort="{{ packet.signatures_received_result.fresh }}">
