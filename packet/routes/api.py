@@ -252,6 +252,39 @@ def report(info):
     return 'Success: ' + get_rit_name(info['uid']) + ' sent a report'
 
 
+@app.route("/api/v1/stats/packet/<packet_id>")
+@packet_auth
+def packet_stats(packet_id):
+    packet = Packet.by_id(packet_id)
+
+    dates = [packet.start.date() + timedelta(days=x) for x in range(0, (packet.end-packet.start).days)]
+
+    upper_stats = dict()
+    for date in map(lambda sig: sig.updated, filter(lambda sig: sig.signed, packet.upper_signatures)):
+        upper_stats[date.date()] = upper_stats.get(date.date(), 0) + 1
+
+    fresh_stats = dict()
+    for date in map(lambda sig: sig.updated, filter(lambda sig: sig.signed, packet.fresh_signatures)):
+        fresh_stats[date.date()] = fresh_stats.get(date.date(), 0) + 1
+
+    misc_stats = dict()
+    for date in map(lambda sig: sig.updated, packet.misc_signatures):
+        misc_stats[date.date()] = misc_stats.get(date.date(), 0) + 1
+
+    total_stats = dict()
+    for date in dates:
+        total_stats[date.isoformat()] = {
+                'upper': upper_stats.get(date, 0),
+                'fresh': fresh_stats.get(date, 0),
+                'misc': misc_stats.get(date, 0),
+                }
+
+    return {
+            'packet_id': packet_id,
+            'dates': total_stats,
+            }
+
+
 def commit_sig(packet, was_100, uid):
     packet_signed_notification(packet, uid)
     db.session.commit()
