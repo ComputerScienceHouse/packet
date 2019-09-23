@@ -260,7 +260,7 @@ def extend_packet(packet_id):
     else:
         print("Ready to extend packet #{} for {}".format(packet_id, packet.freshman_username))
 
-    packet.end = input_date("Enter the new end date for this packet")
+    packet.end = datetime.combine(input_date("Enter the new end date for this packet"), packet_end_time)
     db.session.commit()
 
     print("Packet successfully extended")

@@ -12,6 +12,7 @@ from packet import app
 
 
 # pylint: disable=bare-except
+@lru_cache(maxsize=128)
 def get_csh_name(username):
     try:
         member = ldap_get_member(username)
