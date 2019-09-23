@@ -28,4 +28,4 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
-CMD ["gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-"]
+CMD ["gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-", "--timeout=600"]
