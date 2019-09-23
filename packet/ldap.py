@@ -144,6 +144,8 @@ def ldap_get_eboard_role(member):
         return_val = "R&D"
     elif _ldap_is_member_of_group(member, "eboard-social"):
         return_val = "Social"
+    elif _ldap_is_member_of_group(member, "eboard-secretary"):
+        return_val = "Secretary"
 
     return return_val
 
