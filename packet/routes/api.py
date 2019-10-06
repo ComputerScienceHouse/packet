@@ -257,26 +257,30 @@ def report(info):
 def packet_stats(packet_id):
     packet = Packet.by_id(packet_id)
 
-    dates = [packet.start.date() + timedelta(days=x) for x in range(0, (packet.end-packet.start).days)]
+    dates = [packet.start.date() + timedelta(days=x) for x in range(0, (packet.end-packet.start).days + 1)]
 
-    upper_stats = dict()
-    for date in map(lambda sig: sig.updated, filter(lambda sig: sig.signed, packet.upper_signatures)):
-        upper_stats[date.date()] = upper_stats.get(date.date(), 0) + 1
+    print(dates)
 
-    fresh_stats = dict()
-    for date in map(lambda sig: sig.updated, filter(lambda sig: sig.signed, packet.fresh_signatures)):
-        fresh_stats[date.date()] = fresh_stats.get(date.date(), 0) + 1
+    upper_stats = {date: list() for date in dates}
+    for uid, date in map(lambda sig: (sig.member, sig.updated),
+                         filter(lambda sig: sig.signed, packet.upper_signatures)):
+        upper_stats[date.date()].append(uid)
 
-    misc_stats = dict()
-    for date in map(lambda sig: sig.updated, packet.misc_signatures):
-        misc_stats[date.date()] = misc_stats.get(date.date(), 0) + 1
+    fresh_stats = {date: list() for date in dates}
+    for username, date in map(lambda sig: (sig.freshman_username, sig.updated),
+                              filter(lambda sig: sig.signed, packet.fresh_signatures)):
+        fresh_stats[date.date()].append(username)
+
+    misc_stats = {date: list() for date in dates}
+    for uid, date in map(lambda sig: (sig.member, sig.updated), packet.misc_signatures):
+        misc_stats[date.date()].append(uid)
 
     total_stats = dict()
     for date in dates:
         total_stats[date.isoformat()] = {
-                'upper': upper_stats.get(date, 0),
-                'fresh': fresh_stats.get(date, 0),
-                'misc': misc_stats.get(date, 0),
+                'upper': upper_stats[date],
+                'fresh': fresh_stats[date],
+                'misc': misc_stats[date],
                 }
 
     return {
