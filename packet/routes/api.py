@@ -11,7 +11,7 @@ from packet.models import Packet, MiscSignature, NotificationSubscription, Fresh
 from packet.notifications import packet_signed_notification, packet_100_percent_notification
 
 
-@app.route("/api/v1/packets/<username>", methods=["get"])
+@app.route("/api/v1/packets/<username>", methods=["GET"])
 @packet_auth
 def get_packets_by_user(username: str) -> dict:
     """
@@ -25,7 +25,7 @@ def get_packets_by_user(username: str) -> dict:
         } for packet in frosh.packets}
 
 
-@app.route("/api/v1/packets/<username>/newest", methods=["get"])
+@app.route("/api/v1/packets/<username>/newest", methods=["GET"])
 @packet_auth
 def get_newest_packet_by_user(username: str) -> dict:
     """
@@ -45,7 +45,7 @@ def get_newest_packet_by_user(username: str) -> dict:
             }
 
 
-@app.route("/api/v1/packet/<packet_id>", methods=["get"])
+@app.route("/api/v1/packet/<packet_id>", methods=["GET"])
 @packet_auth
 def get_packet_by_id(packet_id: int) -> dict:
     """
