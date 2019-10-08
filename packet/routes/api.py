@@ -39,8 +39,8 @@ def get_newest_packet_by_user(username: str) -> dict:
             packet.id: {
                 'start': packet.start,
                 'end': packet.end,
-                'required': packet.signatures_required().as_dict(),
-                'received': packet.signatures_received().as_dict(),
+                'required': vars(packet.signatures_required()),
+                'received': vars(packet.signatures_received()),
                 }
             }
 
