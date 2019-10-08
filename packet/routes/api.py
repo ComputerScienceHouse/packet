@@ -28,8 +28,7 @@ def get_packets_by_user(username: str, info) -> dict:
 
 @app.route("/api/v1/packets/<username>/newest", methods=["get"])
 @packet_auth
-@before_request
-def get_newest_packet_by_user(username: str, info) -> dict:
+def get_newest_packet_by_user(username: str) -> dict:
     """
     Return a user's newest packet
     """
@@ -49,8 +48,7 @@ def get_newest_packet_by_user(username: str, info) -> dict:
 
 @app.route("/api/v1/packet/<packet_id>", methods=["get"])
 @packet_auth
-@before_request
-def get_packet_by_id(packet_id: int, info) -> dict:
+def get_packet_by_id(packet_id: int) -> dict:
     """
     Return the scores of the packet in question
     """
@@ -64,8 +62,7 @@ def get_packet_by_id(packet_id: int, info) -> dict:
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
 @packet_auth
-@before_request
-def sign(packet_id, info):
+def sign(packet_id):
     packet = Packet.by_id(packet_id)
 
     if packet is not None and packet.is_open():
