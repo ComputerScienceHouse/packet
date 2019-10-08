@@ -16,7 +16,7 @@ from packet import app
 def get_csh_name(username):
     try:
         member = ldap_get_member(username)
-        return member.cn + " (" + member.uid + ")"
+        return member.cn + ' (' + member.uid + ')'
     except:
         return username
 
@@ -28,17 +28,17 @@ def get_roles(sig):
     """
     out = {}
     if sig.eboard:
-        out["eboard"] = sig.eboard
+        out['eboard'] = sig.eboard
     if sig.active_rtp:
-        out["rtp"] = "RTP"
+        out['rtp'] = 'RTP'
     if sig.three_da:
-        out["three_da"] = "3DA"
+        out['three_da'] = '3DA'
     if sig.webmaster:
-        out["webmaster"] = "Webmaster"
+        out['webmaster'] = 'Webmaster'
     if sig.c_m:
-        out["cm"] = "Constitutional Maintainer"
+        out['cm'] = 'Constitutional Maintainer'
     if sig.drink_admin:
-        out["drink"] = "Drink Admin"
+        out['drink'] = 'Drink Admin'
     return out
 
 
@@ -47,7 +47,7 @@ def get_roles(sig):
 def get_rit_name(username):
     try:
         freshman = Freshman.query.filter_by(rit_username=username).first()
-        return freshman.name + " (" + username + ")"
+        return freshman.name + ' (' + username + ')'
     except:
         return username
 
@@ -56,16 +56,16 @@ def get_rit_name(username):
 @lru_cache(maxsize=128)
 def get_rit_image(username):
     if username:
-        addresses = [username + "@rit.edu", username + "@g.rit.edu"]
+        addresses = [username + '@rit.edu', username + '@g.rit.edu']
         for addr in addresses:
-            url = "https://gravatar.com/avatar/" + hashlib.md5(addr.encode("utf8")).hexdigest() + ".jpg?d=404&s=250"
+            url = 'https://gravatar.com/avatar/' + hashlib.md5(addr.encode('utf8')).hexdigest() + '.jpg?d=404&s=250'
             try:
                 gravatar = urllib.request.urlopen(url)
                 if gravatar.getcode() == 200:
                     return url
             except:
                 continue
-    return "https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+    return 'https://www.gravatar.com/avatar/freshmen?d=mp&f=y'
 
 
 def log_time(label):

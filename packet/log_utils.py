@@ -22,7 +22,7 @@ def log_time(func):
         result = func(*args, **kwargs)
 
         seconds = (datetime.now() - start).total_seconds()
-        app.logger.info("{}.{}() returned after {} seconds".format(func.__module__, func.__name__, seconds))
+        app.logger.info('{}.{}() returned after {} seconds'.format(func.__module__, func.__name__, seconds))
 
         return result
 
@@ -34,7 +34,7 @@ def _format_cache(func):
     :return: The output of func.cache_info() as a compactly formatted string
     """
     info = func.cache_info()
-    return "{}[hits={}, misses={}, size={}/{}]".format(func.__name__, info.hits, info.misses, info.currsize,
+    return '{}[hits={}, misses={}, size={}/{}]'.format(func.__name__, info.hits, info.misses, info.currsize,
                                                        info.maxsize)
 
 
@@ -51,7 +51,7 @@ def log_cache(func):
     def wrapped_function(*args, **kwargs):
         result = func(*args, **kwargs)
 
-        app.logger.info("Cache stats: " + ", ".join(map(_format_cache, _caches)))
+        app.logger.info('Cache stats: ' + ', '.join(map(_format_cache, _caches)))
 
         return result
 
