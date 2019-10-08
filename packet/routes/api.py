@@ -58,8 +58,8 @@ def get_packet_by_id(packet_id: int, info) -> dict:
     packet = Packet.by_id(packet_id)
 
     return {
-            'required': packet.signatures_required().as_dict(),
-            'received': packet.signatures_received().as_dict(),
+            'required': vars(packet.signatures_required()),
+            'received': vars(packet.signatures_received()),
             }
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
