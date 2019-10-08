@@ -13,8 +13,7 @@ from packet.notifications import packet_signed_notification, packet_100_percent_
 
 @app.route("/api/v1/packets/<username>", methods=["get"])
 @packet_auth
-@before_request
-def get_packets_by_user(username: str, info) -> dict:
+def get_packets_by_user(username: str) -> dict:
     """
     Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
     """
@@ -62,7 +61,8 @@ def get_packet_by_id(packet_id: int) -> dict:
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
 @packet_auth
-def sign(packet_id):
+@before_request
+def sign(packet_id, info):
     packet = Packet.by_id(packet_id)
 
     if packet is not None and packet.is_open():
