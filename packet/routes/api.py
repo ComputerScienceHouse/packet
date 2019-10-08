@@ -7,9 +7,57 @@ from packet import app, db
 from packet.context_processors import get_rit_name
 from packet.mail import send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack
-from packet.models import Packet, MiscSignature, NotificationSubscription
+from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman
 from packet.notifications import packet_signed_notification, packet_100_percent_notification
 
+
+@app.route("/api/v1/packets/<username>", methods=["GET"])
+@packet_auth
+def get_packets_by_user(username: str) -> dict:
+    """
+    Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
+    """
+    frosh = Freshman.by_username(username)
+
+    return {packet.id: {
+        'start': packet.start,
+        'end': packet.end,
+        } for packet in frosh.packets}
+
+
+@app.route("/api/v1/packets/<username>/newest", methods=["GET"])
+@packet_auth
+def get_newest_packet_by_user(username: str) -> dict:
+    """
+    Return a user's newest packet
+    """
+    frosh = Freshman.by_username(username)
+
+    packet = frosh.packets[-1]
+
+    return {
+            packet.id: {
+                'start': packet.start,
+                'end': packet.end,
+                'required': vars(packet.signatures_required()),
+                'received': vars(packet.signatures_received()),
+                }
+            }
+
+
+@app.route("/api/v1/packet/<packet_id>", methods=["GET"])
+@packet_auth
+def get_packet_by_id(packet_id: int) -> dict:
+    """
+    Return the scores of the packet in question
+    """
+
+    packet = Packet.by_id(packet_id)
+
+    return {
+            'required': vars(packet.signatures_required()),
+            'received': vars(packet.signatures_received()),
+            }
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
 @packet_auth
