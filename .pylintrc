@@ -30,6 +30,9 @@ single-line-if-stmt = no
 no-space-check = trailing-comma,dict-separator
 max-module-lines = 1000
 indent-string = '    '
+string-quote=single-avoid-escape
+triple-quote=single
+docstring-quote=double
 
 [MISCELLANEOUS]
 notes = FIXME,XXX,TODO
