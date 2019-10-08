@@ -42,6 +42,13 @@ class Freshman(db.Model):
     # One freshman can have multiple packets if they repeat the intro process
     packets = relationship("Packet", order_by="desc(Packet.id)")
 
+    @classmethod
+    def by_username(cls, username: str):
+        """
+        Helper method to retrieve a freshman by their RIT username
+        """
+        return cls.query.filter_by(rit_username=username).first()
+
 
 class Packet(db.Model):
     __tablename__ = "packet"

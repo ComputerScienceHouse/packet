@@ -7,8 +7,23 @@ from packet import app, db
 from packet.context_processors import get_rit_name
 from packet.mail import send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack
-from packet.models import Packet, MiscSignature, NotificationSubscription
+from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman
 from packet.notifications import packet_signed_notification, packet_100_percent_notification
+
+
+@app.route("/api/v1/packets/<username>", methods=["get"])
+@packet_auth
+@before_request
+def get_packets_by_user(username: str, info) -> dict:
+    """
+    Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
+    """
+    frosh = Freshman.by_username(username)
+
+    return {packet.id: {
+        'start': packet.start,
+        'end': packet.end,
+        } for packet in frosh.packets}
 
 
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
