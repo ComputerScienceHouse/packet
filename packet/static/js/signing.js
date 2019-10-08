@@ -13,7 +13,7 @@ $(document).ready(function () {
         var userData = $("#userInfo").val();
         dialogs.fire({
             title: "Are you sure?",
-            text: "Once a packet is signed it can only be unsigned from request to the Evals Director",
+            text: "Once " + packetData.freshman_name + "'s packet is signed it can only be unsigned from request to the Evals Director",
             type: "warning",
             confirmButtonText: 'Sign',
             showCancelButton: true,
