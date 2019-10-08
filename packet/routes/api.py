@@ -26,6 +26,21 @@ def get_packets_by_user(username: str, info) -> dict:
         } for packet in frosh.packets}
 
 
+@app.route("/api/v1/packet/<packet_id>", methods=["get"])
+@packet_auth
+@before_request
+def get_packet_by_id(packet_id: int, info) -> dict:
+    """
+    Return the scores of the packet in question
+    """
+
+    packet = Packet.by_id(packet_id)
+
+    return {
+            'required': packet.signatures_required().as_dict(),
+            'received': packet.signatures_received().as_dict(),
+            }
+
 @app.route("/api/v1/sign/<packet_id>/", methods=["POST"])
 @packet_auth
 @before_request

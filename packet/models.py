@@ -31,6 +31,20 @@ class SigCounts:
         self.member_total = upper + self.misc_capped
         self.total = upper + fresh + self.misc_capped
 
+    def as_dict(self) -> dict:
+        """
+        Return a dictionary representing these sig counts
+        """
+
+        return {
+                'upper': self.upper,
+                'fresh': self.fresh,
+                'misc': self.misc,
+                'misc_capped': self.misc_capped,
+                'member_total': self.member_total,
+                'total': self.total,
+                }
+
 
 class Freshman(db.Model):
     __tablename__ = "freshman"
