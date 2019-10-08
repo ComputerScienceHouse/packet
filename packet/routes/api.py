@@ -26,6 +26,27 @@ def get_packets_by_user(username: str, info) -> dict:
         } for packet in frosh.packets}
 
 
+@app.route("/api/v1/packets/<username>/newest", methods=["get"])
+@packet_auth
+@before_request
+def get_newest_packet_by_user(username: str, info) -> dict:
+    """
+    Return a user's newest packet
+    """
+    frosh = Freshman.by_username(username)
+
+    packet = frosh.packets[-1]
+
+    return {
+            packet.id: {
+                'start': packet.start,
+                'end': packet.end,
+                'required': packet.signatures_required().as_dict(),
+                'received': packet.signatures_received().as_dict(),
+                }
+            }
+
+
 @app.route("/api/v1/packet/<packet_id>", methods=["get"])
 @packet_auth
 @before_request
