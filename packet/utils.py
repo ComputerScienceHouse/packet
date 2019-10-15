@@ -11,7 +11,7 @@ from packet import auth, app
 from packet.models import Freshman
 from packet.ldap import ldap_get_member, ldap_is_intromember
 
-INTRO_REALM = "https://sso.csh.rit.edu/auth/realms/intro"
+INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
 
 def before_request(func):
     """
@@ -20,21 +20,21 @@ def before_request(func):
     """
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        uid = str(session["userinfo"].get("preferred_username", ""))
+        uid = str(session['userinfo'].get('preferred_username', ''))
 
-        if session["id_token"]["iss"] == INTRO_REALM:
+        if session['id_token']['iss'] == INTRO_REALM:
             info = {
-                "realm": "intro",
-                "uid": uid,
-                "onfloor": is_freshman_on_floor(uid)
+                'realm': 'intro',
+                'uid': uid,
+                'onfloor': is_freshman_on_floor(uid)
             }
         else:
             info = {
-                "realm": "csh",
-                "uid": uid
+                'realm': 'csh',
+                'uid': uid
             }
 
-        kwargs["info"] = info
+        kwargs['info'] = info
         return func(*args, **kwargs)
 
     return wrapped_function
@@ -59,11 +59,11 @@ def packet_auth(func):
     @auth.oidc_auth('app')
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        if app.config["REALM"] == "csh":
-            username = str(session["userinfo"].get("preferred_username", ""))
+        if app.config['REALM'] == 'csh':
+            username = str(session['userinfo'].get('preferred_username', ''))
             if ldap_is_intromember(ldap_get_member(username)):
-                app.logger.warn("Stopped intro member {} from accessing upperclassmen packet".format(username))
-                return redirect(app.config["PROTOCOL"] + app.config["PACKET_INTRO"], code=301)
+                app.logger.warn('Stopped intro member {} from accessing upperclassmen packet'.format(username))
+                return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
 
         return func(*args, **kwargs)
 
@@ -74,10 +74,10 @@ def notify_slack(name: str):
     """
     Sends a congratulate on sight decree to Slack
     """
-    if app.config["SLACK_WEBHOOK_URL"] is None:
-        app.logger.warn("SLACK_WEBHOOK_URL not configured, not sending message to slack.")
+    if app.config['SLACK_WEBHOOK_URL'] is None:
+        app.logger.warn('SLACK_WEBHOOK_URL not configured, not sending message to slack.')
         return
 
     msg = f':pizza-party: {name} got :100: on packet! :pizza-party:'
-    requests.put(app.config["SLACK_WEBHOOK_URL"], json={'text':msg})
-    app.logger.info("Posted 100% notification to slack for " + name)
+    requests.put(app.config['SLACK_WEBHOOK_URL'], json={'text':msg})
+    app.logger.info('Posted 100% notification to slack for ' + name)

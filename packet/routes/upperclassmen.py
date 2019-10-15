@@ -12,13 +12,13 @@ from packet.utils import before_request, packet_auth
 from packet.log_utils import log_cache, log_time
 
 
-@app.route("/")
+@app.route('/')
 @packet_auth
 def index():
-    return redirect(url_for("packets"), 302)
+    return redirect(url_for('packets'), 302)
 
 
-@app.route("/member/<uid>/")
+@app.route('/member/<uid>/')
 @log_cache
 @packet_auth
 @before_request
@@ -35,11 +35,11 @@ def upperclassman(uid, info=None):
     open_packets.sort(key=lambda packet: packet.freshman_username)
     open_packets.sort(key=lambda packet: packet.did_sign_result, reverse=True)
 
-    return render_template("upperclassman.html", info=info, open_packets=open_packets, member=uid,
+    return render_template('upperclassman.html', info=info, open_packets=open_packets, member=uid,
                            signatures=signatures)
 
 
-@app.route("/upperclassmen/")
+@app.route('/upperclassmen/')
 @log_cache
 @packet_auth
 @before_request
@@ -59,5 +59,5 @@ def upperclassmen_total(info=None):
             elif sig.signed:
                 upperclassmen[sig.member] += 1
 
-    return render_template("upperclassmen_totals.html", info=info, num_open_packets=len(open_packets),
+    return render_template('upperclassmen_totals.html', info=info, num_open_packets=len(open_packets),
                            upperclassmen=sorted(upperclassmen.items(), key=itemgetter(1), reverse=True))
