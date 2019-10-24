@@ -33,32 +33,39 @@ class SigCounts:
 
 
 class Freshman(db.Model):
-    __tablename__ = "freshman"
+    __tablename__ = 'freshman'
     rit_username = Column(String(10), primary_key=True)
     name = Column(String(64), nullable=False)
     onfloor = Column(Boolean, nullable=False)
-    fresh_signatures = relationship("FreshSignature")
+    fresh_signatures = relationship('FreshSignature')
 
     # One freshman can have multiple packets if they repeat the intro process
-    packets = relationship("Packet", order_by="desc(Packet.id)")
+    packets = relationship('Packet', order_by='desc(Packet.id)')
+
+    @classmethod
+    def by_username(cls, username: str):
+        """
+        Helper method to retrieve a freshman by their RIT username
+        """
+        return cls.query.filter_by(rit_username=username).first()
 
 
 class Packet(db.Model):
-    __tablename__ = "packet"
+    __tablename__ = 'packet'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    freshman_username = Column(ForeignKey("freshman.rit_username"))
+    freshman_username = Column(ForeignKey('freshman.rit_username'))
     start = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
 
-    freshman = relationship("Freshman", back_populates="packets")
+    freshman = relationship('Freshman', back_populates='packets')
 
-    # The `lazy="subquery"` kwarg enables eager loading for signatures which makes signature calculations much faster
+    # The `lazy='subquery'` kwarg enables eager loading for signatures which makes signature calculations much faster
     # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
-    upper_signatures = relationship("UpperSignature", lazy="subquery",
-                                    order_by="UpperSignature.signed.desc(), UpperSignature.updated")
-    fresh_signatures = relationship("FreshSignature", lazy="subquery",
-                                    order_by="FreshSignature.signed.desc(), FreshSignature.updated")
-    misc_signatures = relationship("MiscSignature", lazy="subquery", order_by="MiscSignature.updated")
+    upper_signatures = relationship('UpperSignature', lazy='subquery',
+                                    order_by='UpperSignature.signed.desc(), UpperSignature.updated')
+    fresh_signatures = relationship('FreshSignature', lazy='subquery',
+                                    order_by='FreshSignature.signed.desc(), FreshSignature.updated')
+    misc_signatures = relationship('MiscSignature', lazy='subquery', order_by='MiscSignature.updated')
 
     def is_open(self):
         return self.start < datetime.now() < self.end
@@ -121,8 +128,8 @@ class Packet(db.Model):
         return cls.query.filter_by(id=packet_id).first()
 
 class UpperSignature(db.Model):
-    __tablename__ = "signature_upper"
-    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
+    __tablename__ = 'signature_upper'
+    packet_id = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     member = Column(String(36), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
     eboard = Column(String(12), nullable=True)
@@ -133,31 +140,31 @@ class UpperSignature(db.Model):
     drink_admin = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
-    packet = relationship("Packet", back_populates="upper_signatures")
+    packet = relationship('Packet', back_populates='upper_signatures')
 
 
 class FreshSignature(db.Model):
-    __tablename__ = "signature_fresh"
-    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
-    freshman_username = Column(ForeignKey("freshman.rit_username"), primary_key=True)
+    __tablename__ = 'signature_fresh'
+    packet_id = Column(Integer, ForeignKey('packet.id'), primary_key=True)
+    freshman_username = Column(ForeignKey('freshman.rit_username'), primary_key=True)
     signed = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
-    packet = relationship("Packet", back_populates="fresh_signatures")
-    freshman = relationship("Freshman", back_populates="fresh_signatures")
+    packet = relationship('Packet', back_populates='fresh_signatures')
+    freshman = relationship('Freshman', back_populates='fresh_signatures')
 
 
 class MiscSignature(db.Model):
-    __tablename__ = "signature_misc"
-    packet_id = Column(Integer, ForeignKey("packet.id"), primary_key=True)
+    __tablename__ = 'signature_misc'
+    packet_id = Column(Integer, ForeignKey('packet.id'), primary_key=True)
     member = Column(String(36), primary_key=True)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
-    packet = relationship("Packet", back_populates="misc_signatures")
+    packet = relationship('Packet', back_populates='misc_signatures')
 
 
 class NotificationSubscription(db.Model):
-    __tablename__ = "notification_subscriptions"
+    __tablename__ = 'notification_subscriptions'
     member = Column(String(36), nullable=True)
-    freshman_username = Column(ForeignKey("freshman.rit_username"), nullable=True)
+    freshman_username = Column(ForeignKey('freshman.rit_username'), nullable=True)
     token = Column(String(256), primary_key=True, nullable=False)
