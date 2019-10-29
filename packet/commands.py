@@ -2,6 +2,8 @@
 Defines command-line utilities for use with packet
 """
 
+import sys
+
 from secrets import token_hex
 from datetime import datetime, time, timedelta
 import csv
@@ -219,31 +221,59 @@ def ldap_sync():
 
 
 @app.cli.command('fetch-results')
-def fetch_results():
+@click.option('-f', '--file', 'file_path', required=False, type=click.Path(exists=False, writable=True),
+        help='The file to write to. If no file provided, output is sent to stdout.')
+@click.option('--csv/--no-csv', 'use_csv', required=False, default=False, help='Format output as comma separated list.')
+@click.option('--date', 'date_str', required=False, default='', help='Packet end date in the format MM/DD/YYYY.')
+def fetch_results(file_path, use_csv, date_str):
     """
     Fetches and prints the results from a given packet season.
     """
-    end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
+    end_date = None
+    try:
+        end_date = datetime.combine(datetime.strptime(date_str, '%m/%d/%Y').date(), packet_end_time)
+    except ValueError:
+        end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
                                            'from'), packet_end_time)
 
+
+    file_handle = open(file_path, 'w', newline='') if file_path else sys.stdout
+
+    column_titles = ['Name (RIT Username)', 'Upperclassmen Score', 'Total Score', 'Upperclassmen', 'Freshmen',
+            'Miscellaneous', 'Total Missed']
+    data = list()
     for packet in Packet.query.filter_by(end=end_date).all():
-        print()
-
-        print('{} ({}):'.format(packet.freshman.name, packet.freshman.rit_username))
-
         received = packet.signatures_received()
         required = packet.signatures_required()
 
-        print('\tUpperclassmen score: {:0.2f}%'.format(received.member_total / required.member_total * 100))
-        print('\tTotal score: {:0.2f}%'.format(received.total / required.total * 100))
-        print()
+        row = [
+        '{} ({}):'.format(packet.freshman.name, packet.freshman.rit_username),
+        '{:0.2f}%'.format(received.member_total / required.member_total * 100),
+        '{:0.2f}%'.format(received.total / required.total * 100),
+        '{}/{}'.format(received.upper, required.upper),
+        '{}/{}'.format(received.fresh, required.fresh),
+        '{}/{}'.format(received.misc, required.misc),
+        required.total - received.total,
+        ]
+        data.append(row)
 
-        print('\tUpperclassmen: {}/{}'.format(received.upper, required.upper))
-        print('\tFreshmen: {}/{}'.format(received.fresh, required.fresh))
-        print('\tMiscellaneous: {}/{}'.format(received.misc, required.misc))
-        print()
+    if use_csv:
+        writer = csv.writer(file_handle)
+        writer.writerow(column_titles)
+        writer.writerows(data)
+    else:
+        for row in data:
+            file_handle.write(f'''
 
-        print('\tTotal missed:', required.total - received.total)
+{row[0]}
+\t{column_titles[1]}: {row[1]}
+\t{column_titles[2]}: {row[2]}
+\t{column_titles[3]}: {row[3]}
+\t{column_titles[4]}: {row[4]}
+\t{column_titles[5]}: {row[5]}
+
+\t{column_titles[6]}: {row[6]}
+''')
 
 
 @app.cli.command('extend-packet')
