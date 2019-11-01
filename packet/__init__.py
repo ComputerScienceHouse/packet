@@ -2,18 +2,20 @@
 The application setup and initialization code lives here
 """
 
-import os
-import logging
 import json
+import logging
+import os
 
 import csh_ldap
 import onesignal
+import sentry_sdk
 from flask import Flask
 from flask_gzip import Gzip
 from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 from flask_sqlalchemy import SQLAlchemy
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 app = Flask(__name__)
 gzip = Gzip(app)
@@ -59,6 +61,12 @@ auth = OIDCAuthentication({'app': APP_CONFIG}, app)
 
 # LDAP
 _ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
+
+# Sentry
+sentry_sdk.init(
+    dsn=app.config['SENTRY_DSN'],
+    integrations=[FlaskIntegration()]
+)
 
 app.logger.info('OIDCAuth and LDAP configured')
 
