@@ -17,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 app = Flask(__name__)
 gzip = Gzip(app)
@@ -66,7 +67,7 @@ _ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'
 # Sentry
 sentry_sdk.init(
     dsn=app.config['SENTRY_DSN'],
-    integrations=[FlaskIntegration()]
+    integrations=[FlaskIntegration(), SqlalchemyIntegration()]
 )
 
 app.logger.info('OIDCAuth and LDAP configured')
