@@ -1,14 +1,81 @@
 """
 Shared API endpoints
 """
-from flask import request
+from datetime import datetime, timedelta
+from json import dumps
+
+from flask import session, request
 
 from packet import app, db
 from packet.context_processors import get_rit_name
-from packet.mail import send_report_mail
+from packet.commands import packet_start_time, packet_end_time
+from packet.ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
+    ldap_is_on_coop, _ldap_is_member_of_group, ldap_get_member
+from packet.mail import send_report_mail, send_start_packet_mail
 from packet.utils import before_request, packet_auth, notify_slack
-from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman
-from packet.notifications import packet_signed_notification, packet_100_percent_notification
+from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman, FreshSignature, UpperSignature
+from packet.notifications import packet_signed_notification, packet_100_percent_notification, \
+        packet_starting_notification, packets_starting_notification
+
+
+@app.route('/api/v1/freshmen', methods=['POST'])
+@packet_auth
+def sync_freshman():
+    """
+    Create or update freshmen entries from a list
+
+    Body parameters: [
+        {
+         rit_username: string
+         name: string
+         onfloor: boolean
+        }
+    ]
+    """
+
+    # Only allow evals to create new frosh
+    username = str(session['userinfo'].get('preferred_username', ''))
+    if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
+        return 'Forbidden: not Evaluations Director', 403
+
+    freshmen = request.json
+    results = list()
+
+    packets = Packet.query.filter(Packet.end > datetime.now()).all()
+
+    for freshman in freshmen:
+        rit_username = freshman['rit_username']
+        name = freshman['name']
+        onfloor = freshman['onfloor']
+
+        frosh = Freshman.query.filter_by(rit_username=rit_username).first()
+        if frosh:
+            if onfloor and not frosh.onfloor:
+                # Add new onfloor signature
+                for packet in packets:
+                    db.session.add(FreshSignature(packet=packet, freshman=frosh))
+            elif not onfloor and frosh.onfloor:
+                # Remove outdated onfloor signature
+                for packet in packets:
+                    FreshSignature.query.filter_by(packet_id=packet.id, freshman_username=frosh.rit_username).delete()
+
+            frosh.name = name
+            frosh.onfloor = onfloor
+
+            results.append(f"'{name} ({rit_username})' updated")
+        else:
+            frosh = Freshman(rit_username=rit_username, name=name, onfloor=onfloor)
+            db.session.add(frosh)
+            if onfloor:
+                # Add onfloor signature
+                for packet in packets:
+                    db.session.add(FreshSignature(packet=packet, freshman=frosh))
+
+            results.append(f"Freshman '{name} ({rit_username})' created")
+
+    db.session.commit()
+    return dumps(results), 200
 
 
 @app.route('/api/v1/packets/<username>', methods=['GET'])
