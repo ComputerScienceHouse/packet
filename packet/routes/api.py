@@ -78,6 +78,79 @@ def sync_freshman():
     return dumps(results), 200
 
 
+@app.route('/api/v1/packets', methods=['POST'])
+@packet_auth
+def create_packet():
+    """
+    Create a new packet.
+
+    Body parameters: {
+      start_date: the start date of the packets in MM/DD/YYYY format
+      freshmen: [
+        rit_username: string
+      ]
+    }
+    """
+
+    # Only allow evals to create new packets
+    username = str(session['userinfo'].get('preferred_username', ''))
+    if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
+        return 'Forbidden: not Evaluations Director', 403
+
+    base_date = datetime.strptime(request.json['start_date'], '%m/%d/%Y').date()
+
+    start = datetime.combine(base_date, packet_start_time)
+    end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
+
+    frosh = request.json['freshmen']
+    results = list()
+
+    # Gather upperclassmen data from LDAP
+    all_upper = list(filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members()))
+
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
+
+    # Packet starting notifications
+    packets_starting_notification(start)
+
+    for frosh_rit_username in frosh:
+        # Create the packet and signatures
+        freshman = Freshman.query.filter_by(rit_username=frosh_rit_username).first()
+        if freshman is None:
+            results.append(f"Freshman '{frosh_rit_username}' not found")
+            continue
+
+        packet = Packet(freshman=freshman, start=start, end=end)
+        db.session.add(packet)
+        send_start_packet_mail(packet)
+        packet_starting_notification(packet)
+
+        for member in all_upper:
+            sig = UpperSignature(packet=packet, member=member.uid)
+            sig.eboard = ldap_get_eboard_role(member)
+            sig.active_rtp = member.uid in rtp
+            sig.three_da = member.uid in three_da
+            sig.webmaster = member.uid in webmaster
+            sig.c_m = member.uid in c_m
+            sig.drink_admin = member.uid in drink
+            db.session.add(sig)
+
+        for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
+                                                                              freshman.rit_username).all():
+            db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
+
+        results.append(f'Packet created for {frosh_rit_username}')
+
+    db.session.commit()
+
+    return dumps(results), 201
+
+
 @app.route('/api/v1/packets/<username>', methods=['GET'])
 @packet_auth
 def get_packets_by_user(username: str) -> dict:
