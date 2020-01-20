@@ -252,7 +252,7 @@ def report(info):
     return 'Success: ' + get_rit_name(info['uid']) + ' sent a report'
 
 
-@app.route("/api/v1/stats/packet/<packet_id>")
+@app.route('/api/v1/stats/packet/<packet_id>')
 @packet_auth
 def packet_stats(packet_id):
     packet = Packet.by_id(packet_id)
@@ -288,6 +288,47 @@ def packet_stats(packet_id):
             'dates': total_stats,
             }
 
+
+def sig2dict(sig):
+    """
+    A utility function for upperclassman stats.
+    Converts an UpperSignature to a dictionary with the date and the packet.
+    """
+    packet = Packet.by_id(sig.packet_id)
+    return {
+            'date': sig.updated.date(),
+            'packet': {
+                'id': packet.id,
+                'freshman_username': packet.freshman_username,
+                },
+            }
+
+
+@app.route('/api/v1/stats/upperclassman/<uid>')
+@packet_auth
+def upperclassman_stats(uid):
+
+    sigs = UpperSignature.query.filter(
+            UpperSignature.signed,
+            UpperSignature.member == uid
+            ).all() + MiscSignature.query.filter(MiscSignature.member == uid).all()
+
+    sig_dicts = list(map(sig2dict, sigs))
+
+    dates = set(map(lambda sd: sd['date'], sig_dicts))
+
+    return {
+            'member': uid,
+            'signatures': {
+                date.isoformat() : list(
+                    map(lambda sd: sd['packet'],
+                        filter(lambda sig, d=date: sig['date'] == d,
+                            sig_dicts
+                            )
+                        )
+                    ) for date in dates
+                }
+            }
 
 def commit_sig(packet, was_100, uid):
     packet_signed_notification(packet, uid)
