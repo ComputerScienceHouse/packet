@@ -33,9 +33,9 @@ packet_end_time = time(hour=21)
 
 class CSVFreshman:
     def __init__(self, row):
-        self.name = row[0]
-        self.rit_username = row[3]
-        self.onfloor = row[1] == 'TRUE'
+        self.name = row[0].strip()
+        self.rit_username = row[3].strip()
+        self.onfloor = row[1].strip() == 'TRUE'
 
 
 def parse_csv(freshmen_csv):
