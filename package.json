@@ -1,7 +1,7 @@
 {
   "title": "CSH Packet",
   "name": "csh-packet",
-  "version": "3.3.3",
+  "version": "3.4.0",
   "description": "A web app implementation of the CSH introductory packet.",
   "bugs": {
     "url": "https://github.com/ComputerScienceHouse/packet/issues",
@@ -10,7 +10,8 @@
   "license": "MIT",
   "contributors": [
     "Devin Matte (https://devinmatte.com/)",
-    "Joel Eager (https://github.com/JoelEager)"
+    "Joel Eager (https://github.com/JoelEager)",
+    "Max Meinhold (https://github.com/mxmeinhold)"
   ],
   "repository": {
     "type": "git",
