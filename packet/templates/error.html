@@ -1,0 +1,20 @@
+{% extends 'extend/base.html' %}
+
+{% block body %}
+    <div class="container main">
+    <h1 class="card-title">Oops!</h1>
+        <div class="card mb-3">
+            <div class="card-body" style="text-align: left;">
+                <h5 class="card-text">
+                    I guess this is what you get when you trust a bunch of college kids.
+                </h5>
+                <p class="card-text">
+                    <pre><code>{{ e }}</code></pre>
+                </p>
+                <h5 class="card-text">
+                    Do us a favor, try again. If you end up here on the second try, <a href="mailto:rtp@csh.rit.edu">shoot us an email</a>.
+                </h5>
+            </div>
+        </div>
+    </div>
+{% endblock %}
