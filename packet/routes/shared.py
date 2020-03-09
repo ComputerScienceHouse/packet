@@ -86,11 +86,11 @@ def update_service_worker():
 @packet_auth
 @before_request
 def not_found(e, info=None):
-    return render_template("not_found.html", info=info), 404
+    return render_template('not_found.html', e=e, info=info), 404
 
 
 @app.errorhandler(500)
 @packet_auth
 @before_request
 def error(e, info=None):
-    return render_template("error.html", e=e, info=info), 500
+    return render_template('error.html', e=e, info=info), 500
