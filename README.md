@@ -106,7 +106,7 @@ fail blocking you from merging. To make your life easier just run it before maki
 
 To run pylint use this command:
 ```bash
-pylint packet
+pylint --load-plugins  pylint_quotes packet/routes packet
 ```
 
 All python files should have a top-level docstring explaining the contents of the file and complex functions should 
