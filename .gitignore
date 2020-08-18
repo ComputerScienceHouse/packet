@@ -103,6 +103,9 @@ ENV/
 # JetBrains
 .idea/
 
+# vscode
+.vscode
+
 # Configurations
 config.py
 

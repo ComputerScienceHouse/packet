@@ -9,7 +9,7 @@ from flask import session, redirect
 
 from packet import auth, app
 from packet.models import Freshman
-from packet.ldap import ldap_get_member, ldap_is_intromember
+from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_rtp
 
 INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
 
@@ -64,6 +64,25 @@ def packet_auth(func):
             if ldap_is_intromember(ldap_get_member(username)):
                 app.logger.warn('Stopped intro member {} from accessing upperclassmen packet'.format(username))
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
+
+        return func(*args, **kwargs)
+
+    return wrapped_function
+
+
+def admin_auth(func):
+    """
+    Decorator for easily configuring oidc
+    """
+    @auth.oidc_auth('app')
+    @wraps(func)
+    def wrapped_function(*args, **kwargs):
+        if app.config['REALM'] == 'csh':
+            username = str(session['userinfo'].get('preferred_username', ''))
+            member = ldap_get_member(username)
+            if not ldap_is_evals(member) and not ldap_is_rtp(member):
+                app.logger.warn('Stopped member {} from accessing admin UI'.format(username))
+                return redirect(app.config['PROTOCOL'] + app.config['PACKET_UPPER'], code=301)
 
         return func(*args, **kwargs)
 

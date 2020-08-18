@@ -12,6 +12,7 @@ from packet.commands import packet_start_time, packet_end_time
 from packet.ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
     ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
     ldap_is_on_coop, _ldap_is_member_of_group, ldap_get_member
+from packet.log_utils import log_time
 from packet.mail import send_report_mail, send_start_packet_mail
 from packet.utils import before_request, packet_auth, notify_slack
 from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman, FreshSignature, UpperSignature
@@ -80,6 +81,7 @@ def sync_freshman():
 
 @app.route('/api/v1/packets', methods=['POST'])
 @packet_auth
+@log_time
 def create_packet():
     """
     Create a new packet.

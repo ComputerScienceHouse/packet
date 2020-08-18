@@ -80,6 +80,7 @@ from .routes import api, shared
 
 if app.config['REALM'] == 'csh':
     from .routes import upperclassmen
+    from .routes import admin
 else:
     from .routes import freshmen
 

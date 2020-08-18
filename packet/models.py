@@ -49,6 +49,13 @@ class Freshman(db.Model):
         """
         return cls.query.filter_by(rit_username=username).first()
 
+    @classmethod
+    def get_all(cls):
+        """
+        Helper method to get all freshmen easily
+        """
+        return cls.query.all()
+
 
 class Packet(db.Model):
     __tablename__ = 'packet'
