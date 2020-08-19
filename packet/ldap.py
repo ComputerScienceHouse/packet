@@ -149,8 +149,8 @@ def ldap_get_eboard_role(member):
 
     return return_val
 
-# Status checkers
 
+# Status checkers
 def ldap_is_eboard(member):
     """
     :param member: A CSHMember instance
