@@ -1,6 +1,7 @@
 """
 Routes available to CSH users only
 """
+import json
 
 from itertools import chain
 from operator import itemgetter
@@ -10,6 +11,7 @@ from packet import app
 from packet.models import Packet, MiscSignature
 from packet.utils import before_request, packet_auth
 from packet.log_utils import log_cache, log_time
+from packet.stats import packet_stats
 
 
 @app.route('/')
@@ -61,3 +63,44 @@ def upperclassmen_total(info=None):
 
     return render_template('upperclassmen_totals.html', info=info, num_open_packets=len(open_packets),
                            upperclassmen=sorted(upperclassmen.items(), key=itemgetter(1), reverse=True))
+
+
+@app.route('/stats/packet/<packet_id>')
+@packet_auth
+@before_request
+def packet_graphs(packet_id, info=None):
+    stats = packet_stats(packet_id)
+    fresh = []
+    misc = []
+    upper = []
+
+
+    # Make a rolling sum of signatures over time
+    agg = lambda l, attr, date: l.append((l[-1] if l else 0) + len(stats['dates'][date][attr]))
+    dates = list(stats['dates'].keys())
+    for date in dates:
+        agg(fresh, 'fresh', date)
+        agg(misc, 'misc', date)
+        agg(upper, 'upper', date)
+
+    # Stack misc and upper on top of fresh for a nice stacked line graph
+    for i in range(len(dates)):
+        misc[i] = misc[i] + fresh[i]
+        upper[i] = upper[i] + misc[i]
+
+    return render_template('packet_stats.html',
+        info=info,
+        data=json.dumps({
+            'dates':dates,
+            'accum': {
+                'fresh':fresh,
+                'misc':misc,
+                'upper':upper,
+                },
+            'daily': {
+
+                }
+        }),
+        fresh=stats['freshman'],
+        packet=Packet.by_id(packet_id),
+    )

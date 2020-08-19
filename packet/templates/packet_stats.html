@@ -1,0 +1,84 @@
+{% extends "extend/base.html" %}
+
+{% block head %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container main">
+    <div class="card">
+        <h5 class="card-header bg-primary text-white">Cumulative Signatures Over Time for 
+            <a class="text-white" href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
+                    <img class="eval-user-img"
+                         alt="{{ get_rit_name(packet.freshman_username) }}"
+                         src="{{ get_rit_image(packet.freshman_username) }}"
+                         width="25"
+                         height="25"/> {{ get_rit_name(packet.freshman_username) }}
+                </a>
+</h5>
+        <tr>
+            <td data-priority="1">
+            </td>
+        </tr>
+        <div class="card-body">
+            <canvas id="myChart" width="400" height="400"></canvas>
+            <script>
+var data = {{ data|safe }};
+// Stack the lines
+var ctx = document.getElementById('myChart');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: data.dates,
+        datasets: [
+            {
+                fill: 'origin',
+                label: 'Fresh Sigs',
+                data: data.accum.fresh,
+                backgroundColor: '#b0197e80',
+                borderColor: '#b0197e',
+                borderWidth: 1,
+                lineTension: 0
+            },
+            {
+                fill: '-1',
+                label: 'Misc Sigs',
+                data: data.accum.misc,
+                backgroundColor: '#0000ff80',
+                borderColor: 'blue',
+                borderWidth: 1,
+                lineTension: 0
+            },
+            {
+                fill: '-1',
+                label: 'Upper Sigs',
+                data: data.accum.upper,
+                backgroundColor: '#00ff0080',
+                borderColor: 'green',
+                borderWidth: 1,
+                lineTension: 0
+            }
+        ]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                type: 'time',
+                time: {
+                    unit: 'day',
+                },
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}
