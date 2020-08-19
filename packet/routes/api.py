@@ -8,7 +8,7 @@ from flask import session, request
 
 from packet import app, db
 from packet.context_processors import get_rit_name
-from packet.commands import packet_start_time, packet_end_time, CSVFreshman
+from packet.commands import packet_start_time, packet_end_time
 from packet.ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
     ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
     ldap_is_on_coop, _ldap_is_member_of_group, ldap_get_member
