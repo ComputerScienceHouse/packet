@@ -18,6 +18,18 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for("upperclassmen_total") }}">Signatures</a>
                     </li>
+                    {% if info.admin %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Admin
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" href="{{ url_for("admin_freshmen") }}">Freshmen</a>
+                                <a class="dropdown-item" href="{{ url_for("admin_packets") }}">Packets</a>
+                            </div>
+                        </li>
+                    {% endif %}
                 {% else %}
                     <li class="nav-item">
                         <button id="freshman-report" class="btn btn-sm btn-default report-button">Report</button>

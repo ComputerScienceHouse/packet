@@ -103,6 +103,9 @@ ENV/
 # JetBrains
 .idea/
 
+# vscode
+.vscode
+
 # Configurations
 config.py
 
@@ -128,3 +131,5 @@ packet/static/safari-pinned-tab.svg
 packet/static/site.webmanifest
 faviconData.json
 
+# csvs
+*.csv

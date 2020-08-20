@@ -149,13 +149,21 @@ def ldap_get_eboard_role(member):
 
     return return_val
 
-# Status checkers
 
+# Status checkers
 def ldap_is_eboard(member):
     """
     :param member: A CSHMember instance
     """
     return _ldap_is_member_of_group(member, 'eboard')
+
+
+def ldap_is_evals(member):
+    return _ldap_is_member_of_group(member, 'eboard-evaluations')
+
+
+def ldap_is_rtp(member):
+    return _ldap_is_member_of_group(member, 'rtp')
 
 
 def ldap_is_intromember(member):

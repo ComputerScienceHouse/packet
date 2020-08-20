@@ -13,7 +13,7 @@ from packet.log_utils import log_cache, log_time
 @app.route('/logout/')
 @auth.oidc_logout
 def logout():
-    return redirect('http://csh.rit.edu')
+    return redirect('https://csh.rit.edu')
 
 
 @app.route('/packet/<packet_id>/')

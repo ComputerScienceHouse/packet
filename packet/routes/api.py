@@ -12,12 +12,20 @@ from packet.commands import packet_start_time, packet_end_time
 from packet.ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
     ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
     ldap_is_on_coop, _ldap_is_member_of_group, ldap_get_member
+from packet.log_utils import log_time
 from packet.mail import send_report_mail, send_start_packet_mail
-from packet.utils import before_request, packet_auth, notify_slack
+from packet.utils import before_request, packet_auth, notify_slack, sync_freshman as sync_freshman_list
 from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman, FreshSignature, UpperSignature
 from packet.notifications import packet_signed_notification, packet_100_percent_notification, \
-        packet_starting_notification, packets_starting_notification
+    packet_starting_notification, packets_starting_notification
 import packet.stats as stats
+
+
+class POSTFreshman:
+    def __init__(self, freshman):
+        self.name = freshman['name'].strip()
+        self.rit_username = freshman['rit_username'].strip()
+        self.onfloor = freshman['onfloor'].strip() == 'TRUE'
 
 
 @app.route('/api/v1/freshmen', methods=['POST'])
@@ -40,47 +48,14 @@ def sync_freshman():
     if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
         return 'Forbidden: not Evaluations Director', 403
 
-    freshmen = request.json
-    results = list()
-
-    packets = Packet.query.filter(Packet.end > datetime.now()).all()
-
-    for freshman in freshmen:
-        rit_username = freshman['rit_username']
-        name = freshman['name']
-        onfloor = freshman['onfloor']
-
-        frosh = Freshman.query.filter_by(rit_username=rit_username).first()
-        if frosh:
-            if onfloor and not frosh.onfloor:
-                # Add new onfloor signature
-                for packet in packets:
-                    db.session.add(FreshSignature(packet=packet, freshman=frosh))
-            elif not onfloor and frosh.onfloor:
-                # Remove outdated onfloor signature
-                for packet in packets:
-                    FreshSignature.query.filter_by(packet_id=packet.id, freshman_username=frosh.rit_username).delete()
-
-            frosh.name = name
-            frosh.onfloor = onfloor
-
-            results.append(f"'{name} ({rit_username})' updated")
-        else:
-            frosh = Freshman(rit_username=rit_username, name=name, onfloor=onfloor)
-            db.session.add(frosh)
-            if onfloor:
-                # Add onfloor signature
-                for packet in packets:
-                    db.session.add(FreshSignature(packet=packet, freshman=frosh))
-
-            results.append(f"Freshman '{name} ({rit_username})' created")
-
-    db.session.commit()
-    return dumps(results), 200
+    freshmen_in_post = {freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json)}
+    sync_freshman_list(freshmen_in_post)
+    return dumps('Done'), 200
 
 
 @app.route('/api/v1/packets', methods=['POST'])
 @packet_auth
+@log_time
 def create_packet():
     """
     Create a new packet.
@@ -163,7 +138,7 @@ def get_packets_by_user(username: str) -> dict:
     return {packet.id: {
         'start': packet.start,
         'end': packet.end,
-        } for packet in frosh.packets}
+    } for packet in frosh.packets}
 
 
 @app.route('/api/v1/packets/<username>/newest', methods=['GET'])
@@ -177,13 +152,13 @@ def get_newest_packet_by_user(username: str) -> dict:
     packet = frosh.packets[-1]
 
     return {
-            packet.id: {
-                'start': packet.start,
-                'end': packet.end,
-                'required': vars(packet.signatures_required()),
-                'received': vars(packet.signatures_received()),
-                }
-            }
+        packet.id: {
+            'start': packet.start,
+            'end': packet.end,
+            'required': vars(packet.signatures_required()),
+            'received': vars(packet.signatures_received()),
+        }
+    }
 
 
 @app.route('/api/v1/packet/<packet_id>', methods=['GET'])
@@ -196,9 +171,10 @@ def get_packet_by_id(packet_id: int) -> dict:
     packet = Packet.by_id(packet_id)
 
     return {
-            'required': vars(packet.signatures_required()),
-            'received': vars(packet.signatures_received()),
-            }
+        'required': vars(packet.signatures_required()),
+        'received': vars(packet.signatures_received()),
+    }
+
 
 @app.route('/api/v1/sign/<packet_id>/', methods=['POST'])
 @packet_auth
@@ -263,6 +239,7 @@ def packet_stats(packet_id):
 @packet_auth
 def upperclassman_stats(uid):
     return stats.upperclassman_stats(uid)
+
 
 def commit_sig(packet, was_100, uid):
     packet_signed_notification(packet, uid)

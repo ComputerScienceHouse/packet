@@ -1,0 +1,33 @@
+<div id="eval-table">
+    <div class="card">
+        <div class="card-body table-fill">
+            <div class="table-responsive">
+                <table id="all_freshmen_table" class="table table-striped no-bottom-margin">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>On-Floor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for freshman in all_freshmen %}
+                        {% set freshman_name = freshman.name + ' (' + freshman.rit_username + ')' %}
+                        <tr>
+                            <td data-priority="1">
+                                <img class="eval-user-img"
+                                     alt="{{ freshman_name }}"
+                                     src="{{ get_rit_image(freshman.rit_username) }}"
+                                     width="25"
+                                     height="25"/> {{ freshman_name }}
+                            </td>
+                            <td data-priority="2">
+                               {{ freshman.onfloor }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
