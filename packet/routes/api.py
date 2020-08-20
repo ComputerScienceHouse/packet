@@ -238,7 +238,7 @@ def packet_stats(packet_id):
 @app.route('/api/v1/stats/upperclassman/<uid>')
 @packet_auth
 def upperclassman_stats(uid):
-        return stats.upperclassman_stats(uid)
+    return stats.upperclassman_stats(uid)
 
 
 def commit_sig(packet, was_100, uid):
