@@ -21,10 +21,11 @@
                         </button>
                     {% endif %}
                     {% if info.realm == "csh" %}
-                        <div class="col">
-                            <a class="btn btn-primary" style="float: right"
-                               href="{{ url_for('packet_graphs', packet_id=packet.id) }}">Graphs</a>
-                        </div>
+                        <a class="btn btn-primary"
+                           style="float: right; margin-right: 5px"
+                           href="{{ url_for('packet_graphs', packet_id=packet.id) }}">
+                            Graphs
+                        </a>
                     {% endif %}
                 </div>
             </div>
