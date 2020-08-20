@@ -1,15 +1,19 @@
 """
 General utilities and decorators for supporting the Python logic
 """
-from datetime import datetime
+from datetime import datetime, time, timedelta, date
 from functools import wraps, lru_cache
 
 import requests
 from flask import session, redirect
 
 from packet import auth, app, db
-from packet.models import Freshman, FreshSignature, Packet
-from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_rtp
+from packet.mail import send_start_packet_mail
+from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
+from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_rtp, ldap_is_on_coop, \
+    ldap_get_active_members, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_constitutional_maintainers, ldap_get_drink_admins, ldap_get_eboard_role
+from packet.notifications import packets_starting_notification, packet_starting_notification
 
 INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
 
@@ -110,7 +114,7 @@ def notify_slack(name: str):
     app.logger.info('Posted 100% notification to slack for ' + name)
 
 
-def sync_freshman(freshmen_list):
+def sync_freshman(freshmen_list: dict):
     freshmen_in_db = {freshman.rit_username: freshman for freshman in Freshman.query.all()}
 
     for list_freshman in freshmen_list.values():
@@ -144,5 +148,106 @@ def sync_freshman(freshmen_list):
                                                           list_freshman.rit_username != packet.freshman_username,
                                     freshmen_list.values()):
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[list_freshman.rit_username]))
+
+    db.session.commit()
+
+
+def create_new_packets(base_date: date, freshmen_list: dict):
+    packet_start_time = time(hour=19)
+    packet_end_time = time(hour=21)
+    start = datetime.combine(base_date, packet_start_time)
+    end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
+
+    print('Fetching data from LDAP...')
+    all_upper = list(filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members()))
+
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
+
+    # Packet starting notifications
+    packets_starting_notification(start)
+
+    # Create the new packets and the signatures for each freshman in the given CSV
+    print('Creating DB entries and sending emails...')
+    for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_list)).all():
+        packet = Packet(freshman=freshman, start=start, end=end)
+        db.session.add(packet)
+        send_start_packet_mail(packet)
+        packet_starting_notification(packet)
+
+        for member in all_upper:
+            sig = UpperSignature(packet=packet, member=member.uid)
+            sig.eboard = ldap_get_eboard_role(member)
+            sig.active_rtp = member.uid in rtp
+            sig.three_da = member.uid in three_da
+            sig.webmaster = member.uid in webmaster
+            sig.c_m = member.uid in c_m
+            sig.drink_admin = member.uid in drink
+            db.session.add(sig)
+
+        for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
+                                                                              freshman.rit_username).all():
+            db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
+
+    db.session.commit()
+
+
+def sync_with_ldap():
+    print('Fetching data from LDAP...')
+    all_upper = {member.uid: member for member in filter(
+        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
+
+    rtp = ldap_get_active_rtps()
+    three_da = ldap_get_3das()
+    webmaster = ldap_get_webmasters()
+    c_m = ldap_get_constitutional_maintainers()
+    drink = ldap_get_drink_admins()
+
+    print('Applying updates to the DB...')
+    for packet in Packet.query.filter(Packet.end > datetime.now()).all():
+        # Update the role state of all UpperSignatures
+        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
+
+        # Migrate UpperSignatures that are from accounts that are not active anymore
+        for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
+            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
+            if sig.signed:
+                sig = MiscSignature(packet=packet, member=sig.member)
+                db.session.add(sig)
+
+        # Migrate MiscSignatures that are from accounts that are now active members
+        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
+            MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
+            sig = UpperSignature(packet=packet, member=sig.member, signed=True)
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
+            db.session.add(sig)
+
+        # Create UpperSignatures for any new active members
+        # pylint: disable=cell-var-from-loop
+        upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
+        for member in filter(lambda member: member not in upper_sigs, all_upper):
+            sig = UpperSignature(packet=packet, member=member)
+            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.active_rtp = sig.member in rtp
+            sig.three_da = sig.member in three_da
+            sig.webmaster = sig.member in webmaster
+            sig.c_m = sig.member in c_m
+            sig.drink_admin = sig.member in drink
+            db.session.add(sig)
 
     db.session.commit()
