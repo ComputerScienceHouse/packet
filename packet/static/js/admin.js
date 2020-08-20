@@ -38,6 +38,10 @@ $(document).ready(function () {
         syncFreshmen();
     })
 
+    $("#sync-ldap").click(() => {
+        syncLdap();
+    })
+
 });
 
 // Is this gross, yes. Do I feel like cleaning it up yet, no.
@@ -54,7 +58,11 @@ let makePackets = () => {
                 for (let i = 0; i < rows.length; i++) {
                     let cells = rows[i].split(",");
                     if (cells.length > 1) {
-                        freshmen.push(cells[3]);
+                        freshmen.push({
+                            rit_username: cells[3],
+                            name: cells[0],
+                            onfloor: cells[1]
+                        });
                     }
                 }
                 const payload = {start_date: $('#packet-start-date').val(), freshmen: freshmen}
@@ -120,7 +128,7 @@ let syncFreshmen = () => {
                             $('#sync-freshmen-modal').modal('hide');
                             location.reload();
                         } else {
-                            alert("There was an syncing freshmen")
+                            alert("There was an error syncing freshmen")
                         }
                     })
                 }
@@ -128,4 +136,23 @@ let syncFreshmen = () => {
             reader.readAsText(fileUpload.files[0]);
         }
     }
+}
+
+let syncLdap = () => {
+    $("#sync-ldap").append("&nbsp;<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span>");
+    $("#sync-ldap").attr('disabled', true);
+    fetch('/api/v1/sync',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    ).then(response => {
+        if (response.status < 300) {
+            location.reload();
+        } else {
+            alert("There was an error syncing with ldap")
+        }
+    })
 }
