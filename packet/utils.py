@@ -39,7 +39,7 @@ def before_request(func):
             info = {
                 'realm': 'csh',
                 'uid': uid,
-                'admin': ldap_is_evals(member) or ldap_is_rtp(member)
+                'admin': ldap_is_evals(member)
             }
 
         kwargs['info'] = info
@@ -90,7 +90,7 @@ def admin_auth(func):
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
             member = ldap_get_member(username)
-            if not ldap_is_evals(member) and not ldap_is_rtp(member):
+            if not ldap_is_evals(member):
                 app.logger.warn('Stopped member {} from accessing admin UI'.format(username))
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_UPPER'], code=301)
         else:
