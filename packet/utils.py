@@ -10,7 +10,7 @@ from flask import session, redirect
 from packet import auth, app, db
 from packet.mail import send_start_packet_mail
 from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
-from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_rtp, ldap_is_on_coop, \
+from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_on_coop, \
     ldap_get_active_members, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
     ldap_get_constitutional_maintainers, ldap_get_drink_admins, ldap_get_eboard_role
 from packet.notifications import packets_starting_notification, packet_starting_notification
