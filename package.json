@@ -1,7 +1,7 @@
 {
   "title": "CSH Packet",
   "name": "csh-packet",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "A web app implementation of the CSH introductory packet.",
   "bugs": {
     "url": "https://github.com/ComputerScienceHouse/packet/issues",
@@ -20,10 +20,10 @@
   "devDependencies": {
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.2.0",
+    "gulp-minify": "^3.1.0",
     "gulp-real-favicon": "^0.3.2",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.2",
-    "gulp-minify": "^3.1.0",
     "require-dir": "^1.2.0"
   }
 }

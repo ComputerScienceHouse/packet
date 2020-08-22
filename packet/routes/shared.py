@@ -13,7 +13,7 @@ from packet.log_utils import log_cache, log_time
 @app.route('/logout/')
 @auth.oidc_logout
 def logout():
-    return redirect('http://csh.rit.edu')
+    return redirect('https://csh.rit.edu')
 
 
 @app.route('/packet/<packet_id>/')
@@ -80,3 +80,17 @@ def service_worker():
 @app.route('/OneSignalSDKUpdaterWorker.js', methods=['GET'])
 def update_service_worker():
     return app.send_static_file('js/update-sw.js')
+
+
+@app.errorhandler(404)
+@packet_auth
+@before_request
+def not_found(e, info=None):
+    return render_template('not_found.html', e=e, info=info), 404
+
+
+@app.errorhandler(500)
+@packet_auth
+@before_request
+def error(e, info=None):
+    return render_template('error.html', e=e, info=info), 500

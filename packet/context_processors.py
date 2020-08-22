@@ -43,7 +43,7 @@ def get_roles(sig):
 
 
 # pylint: disable=bare-except
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=256)
 def get_rit_name(username):
     try:
         freshman = Freshman.query.filter_by(rit_username=username).first()
@@ -53,7 +53,7 @@ def get_rit_name(username):
 
 
 # pylint: disable=bare-except
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=256)
 def get_rit_image(username):
     if username:
         addresses = [username + '@rit.edu', username + '@g.rit.edu']

@@ -5,17 +5,13 @@ Defines command-line utilities for use with packet
 import sys
 
 from secrets import token_hex
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 import csv
 import click
 
-from packet.mail import send_start_packet_mail
-from packet.notifications import packet_starting_notification, packets_starting_notification
 from . import app, db
-from .models import Freshman, Packet, FreshSignature, UpperSignature, MiscSignature
-from .ldap import ldap_get_eboard_role, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
-    ldap_get_drink_admins, ldap_get_constitutional_maintainers, ldap_is_intromember, ldap_get_active_members, \
-    ldap_is_on_coop
+from .models import Packet, FreshSignature, UpperSignature, MiscSignature
+from .utils import sync_freshman, create_new_packets, sync_with_ldap
 
 
 @app.cli.command('create-secret')
@@ -66,40 +62,7 @@ def sync_freshmen(freshmen_csv):
     freshmen_in_csv = parse_csv(freshmen_csv)
 
     print('Syncing contents with the DB...')
-    freshmen_in_db = {freshman.rit_username: freshman for freshman in Freshman.query.all()}
-
-    for csv_freshman in freshmen_in_csv.values():
-        if csv_freshman.rit_username not in freshmen_in_db:
-            # This is a new freshman so add them to the DB
-            freshmen_in_db[csv_freshman.rit_username] = Freshman(rit_username=csv_freshman.rit_username,
-                                                                 name=csv_freshman.name, onfloor=csv_freshman.onfloor)
-            db.session.add(freshmen_in_db[csv_freshman.rit_username])
-        else:
-            # This freshman is already in the DB so just update them
-            freshmen_in_db[csv_freshman.rit_username].onfloor = csv_freshman.onfloor
-            freshmen_in_db[csv_freshman.rit_username].name = csv_freshman.name
-
-    # Update all freshmen entries that represent people who are no longer freshmen
-    for freshman in filter(lambda freshman: freshman.rit_username not in freshmen_in_csv, freshmen_in_db.values()):
-        freshman.onfloor = False
-
-    # Update the freshmen signatures of each open or future packet
-    for packet in Packet.query.filter(Packet.end > datetime.now()).all():
-        # Handle the freshmen that are no longer onfloor
-        for fresh_sig in filter(lambda fresh_sig: not fresh_sig.freshman.onfloor, packet.fresh_signatures):
-            FreshSignature.query.filter_by(packet_id=fresh_sig.packet_id,
-                                           freshman_username=fresh_sig.freshman_username).delete()
-
-        # Add any new onfloor freshmen
-        # pylint: disable=cell-var-from-loop
-        current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
-        for csv_freshman in filter(lambda csv_freshman: csv_freshman.rit_username not in current_fresh_sigs and
-                                                        csv_freshman.onfloor and
-                                                        csv_freshman.rit_username != packet.freshman_username,
-                                   freshmen_in_csv.values()):
-            db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[csv_freshman.rit_username]))
-
-    db.session.commit()
+    sync_freshman(freshmen_in_csv)
     print('Done!')
 
 
@@ -115,46 +78,8 @@ def create_packets(freshmen_csv):
 
     # Collect the necessary data
     base_date = input_date('Input the first day of packet season')
-    start = datetime.combine(base_date, packet_start_time)
-    end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
-
-    print('Fetching data from LDAP...')
-    all_upper = list(filter(
-        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members()))
-
-    rtp = ldap_get_active_rtps()
-    three_da = ldap_get_3das()
-    webmaster = ldap_get_webmasters()
-    c_m = ldap_get_constitutional_maintainers()
-    drink = ldap_get_drink_admins()
-
-    # Packet starting notifications
-    packets_starting_notification(start)
-
-    # Create the new packets and the signatures for each freshman in the given CSV
     freshmen_in_csv = parse_csv(freshmen_csv)
-    print('Creating DB entries and sending emails...')
-    for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_in_csv)).all():
-        packet = Packet(freshman=freshman, start=start, end=end)
-        db.session.add(packet)
-        send_start_packet_mail(packet)
-        packet_starting_notification(packet)
-
-        for member in all_upper:
-            sig = UpperSignature(packet=packet, member=member.uid)
-            sig.eboard = ldap_get_eboard_role(member)
-            sig.active_rtp = member.uid in rtp
-            sig.three_da = member.uid in three_da
-            sig.webmaster = member.uid in webmaster
-            sig.c_m = member.uid in c_m
-            sig.drink_admin = member.uid in drink
-            db.session.add(sig)
-
-        for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
-                                                                              freshman.rit_username).all():
-            db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
-
-    db.session.commit()
+    create_new_packets(base_date, freshmen_in_csv)
     print('Done!')
 
 
@@ -163,60 +88,7 @@ def ldap_sync():
     """
     Updates the upper and misc sigs in the DB to match ldap.
     """
-    print('Fetching data from LDAP...')
-    all_upper = {member.uid: member for member in filter(
-        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
-
-    rtp = ldap_get_active_rtps()
-    three_da = ldap_get_3das()
-    webmaster = ldap_get_webmasters()
-    c_m = ldap_get_constitutional_maintainers()
-    drink = ldap_get_drink_admins()
-
-    print('Applying updates to the DB...')
-    for packet in Packet.query.filter(Packet.end > datetime.now()).all():
-        # Update the role state of all UpperSignatures
-        for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = sig.member in rtp
-            sig.three_da = sig.member in three_da
-            sig.webmaster = sig.member in webmaster
-            sig.c_m = sig.member in c_m
-            sig.drink_admin = sig.member in drink
-
-        # Migrate UpperSignatures that are from accounts that are not active anymore
-        for sig in filter(lambda sig: sig.member not in all_upper, packet.upper_signatures):
-            UpperSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            if sig.signed:
-                sig = MiscSignature(packet=packet, member=sig.member)
-                db.session.add(sig)
-
-        # Migrate MiscSignatures that are from accounts that are now active members
-        for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
-            MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
-            sig = UpperSignature(packet=packet, member=sig.member, signed=True)
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = sig.member in rtp
-            sig.three_da = sig.member in three_da
-            sig.webmaster = sig.member in webmaster
-            sig.c_m = sig.member in c_m
-            sig.drink_admin = sig.member in drink
-            db.session.add(sig)
-
-        # Create UpperSignatures for any new active members
-        # pylint: disable=cell-var-from-loop
-        upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
-        for member in filter(lambda member: member not in upper_sigs, all_upper):
-            sig = UpperSignature(packet=packet, member=member)
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
-            sig.active_rtp = sig.member in rtp
-            sig.three_da = sig.member in three_da
-            sig.webmaster = sig.member in webmaster
-            sig.c_m = sig.member in c_m
-            sig.drink_admin = sig.member in drink
-            db.session.add(sig)
-
-    db.session.commit()
+    sync_with_ldap()
     print('Done!')
 
 

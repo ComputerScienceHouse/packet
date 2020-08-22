@@ -20,11 +20,19 @@
                                 class="fa fa-check"></i>&nbsp;Signed
                         </button>
                     {% endif %}
+                    {% if info.realm == "csh" %}
+                        <a class="btn btn-primary"
+                           style="float: right; margin-right: 5px"
+                           href="{{ url_for('packet_graphs', packet_id=packet.id) }}">
+                            Graphs
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">
                 <div class="col ml-1 mb-1">
-                    <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span></h6>
+                    <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span>
+                    </h6>
                 </div>
                 <div class="col mr-1 mb-1">
                     <h6 class="right-align">Ends: <span class="badge badge-secondary">{{ packet_end }}</span></h6>

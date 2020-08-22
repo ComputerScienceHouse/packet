@@ -104,3 +104,7 @@ tr {
 .eval-user-img {
   border-radius: 50%;
 }
+
+select.form-control:not([size]):not([multiple]) {
+  height: calc(3rem + 2px);
+}
