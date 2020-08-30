@@ -31,6 +31,19 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # LDAP config
 LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
+LDAP_MOCK_MEMBERS = [
+        {'uid':'evals', 'groups': ['eboard', 'eboard-evaluations', 'active']},
+        {'uid':'imps-3da', 'groups': ['eboard', 'eboard-imps', '3da', 'active']},
+        {
+            'uid':'rtp-cm-webs-onfloor',
+            'groups': ['active-rtp', 'rtp', 'constitutional_maintainers', 'webmaster', 'active', 'onfloor'],
+            'room_number': 1024
+        },
+        {'uid':'misc-rtp', 'groups': ['rtp']},
+        {'uid':'onfloor', 'groups': ['active', 'onfloor'], 'room_number': 1024},
+        {'uid':'active-offfloor', 'groups': ['active']},
+        {'uid':'alum', 'groups': ['member']},
+    ]
 
 # Mail Config
 MAIL_PROD = strtobool(environ.get("PACKET_MAIL_PROD", "False"))

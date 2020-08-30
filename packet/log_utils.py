@@ -5,9 +5,8 @@ General utilities for logging metadata
 from functools import wraps
 from datetime import datetime
 
-from packet import app
+from packet import app, ldap
 from packet.context_processors import get_rit_name
-from packet.ldap import ldap_get_member
 from packet.utils import is_freshman_on_floor
 
 
@@ -39,7 +38,7 @@ def _format_cache(func):
 
 
 # Tuple of lru_cache functions to log stats from
-_caches = (get_rit_name, ldap_get_member, is_freshman_on_floor)
+_caches = (get_rit_name, ldap.get_member, is_freshman_on_floor)
 
 
 def log_cache(func):

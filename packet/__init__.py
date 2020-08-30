@@ -61,9 +61,6 @@ intro_onesignal_client = onesignal.Client(user_auth_key=app.config['ONESIGNAL_US
 # OIDC Auth
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
 
-# LDAP
-_ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
-
 # Sentry
 sentry_sdk.init(
     dsn=app.config['SENTRY_DSN'],
@@ -73,6 +70,7 @@ sentry_sdk.init(
 app.logger.info('OIDCAuth and LDAP configured')
 
 # pylint: disable=wrong-import-position
+from .ldap import ldap
 from . import models
 from . import context_processors
 from . import commands
