@@ -11,7 +11,7 @@ from packet import auth, app, db
 from packet.mail import send_start_packet_mail
 from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
 from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_on_coop, \
-    ldap_get_active_members, ldap_get_active_rtps, ldap_get_3das, ldap_get_webmasters, \
+    ldap_get_active_members, ldap_get_active_rtps, ldap_get_3das, ldap_get_wiki_maintainers, ldap_get_webmasters, \
     ldap_get_constitutional_maintainers, ldap_get_drink_admins, ldap_get_eboard_role
 from packet.notifications import packets_starting_notification, packet_starting_notification
 
@@ -166,6 +166,7 @@ def create_new_packets(base_date: date, freshmen_list: dict):
     three_da = ldap_get_3das()
     webmaster = ldap_get_webmasters()
     c_m = ldap_get_constitutional_maintainers()
+    w_m = ldap_get_wiki_maintainers()
     drink = ldap_get_drink_admins()
 
     # Packet starting notifications
@@ -186,6 +187,7 @@ def create_new_packets(base_date: date, freshmen_list: dict):
             sig.three_da = member.uid in three_da
             sig.webmaster = member.uid in webmaster
             sig.c_m = member.uid in c_m
+            sig.w_m = member.uid in w_m
             sig.drink_admin = member.uid in drink
             db.session.add(sig)
 
@@ -205,6 +207,7 @@ def sync_with_ldap():
     three_da = ldap_get_3das()
     webmaster = ldap_get_webmasters()
     c_m = ldap_get_constitutional_maintainers()
+    w_m = ldap_get_wiki_maintainers()
     drink = ldap_get_drink_admins()
 
     print('Applying updates to the DB...')
@@ -216,6 +219,7 @@ def sync_with_ldap():
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
             sig.c_m = sig.member in c_m
+            sig.w_m = sig.member in w_m
             sig.drink_admin = sig.member in drink
 
         # Migrate UpperSignatures that are from accounts that are not active anymore
@@ -234,6 +238,7 @@ def sync_with_ldap():
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
             sig.c_m = sig.member in c_m
+            sig.w_m = sig.member in w_m
             sig.drink_admin = sig.member in drink
             db.session.add(sig)
 
@@ -247,6 +252,7 @@ def sync_with_ldap():
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
             sig.c_m = sig.member in c_m
+            sig.w_m = sig.member in w_m
             sig.drink_admin = sig.member in drink
             db.session.add(sig)
 
