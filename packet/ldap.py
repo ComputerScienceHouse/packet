@@ -112,6 +112,14 @@ def ldap_get_constitutional_maintainers():
     return [member.uid for member in _ldap_get_group_members('constitutional_maintainers')]
 
 
+def ldap_get_wiki_maintainers():
+    """
+    All wiki maintainers
+    :return: A list of CSHMember instances
+    """
+    return [member.uid for member in _ldap_get_group_members('wiki_maintainers')]
+
+
 def ldap_get_drink_admins():
     """
     All drink admins

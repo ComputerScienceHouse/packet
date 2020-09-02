@@ -33,6 +33,8 @@ def get_roles(sig):
         out['rtp'] = 'RTP'
     if sig.three_da:
         out['three_da'] = '3DA'
+    if sig.w_m:
+        out['wm'] = 'Wiki Maintainer'
     if sig.webmaster:
         out['webmaster'] = 'Webmaster'
     if sig.c_m:
