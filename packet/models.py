@@ -144,6 +144,7 @@ class UpperSignature(db.Model):
     three_da = Column(Boolean, default=False, nullable=False)
     webmaster = Column(Boolean, default=False, nullable=False)
     c_m = Column(Boolean, default=False, nullable=False)
+    w_m = Column(Boolean, default=False, nullable=False)
     drink_admin = Column(Boolean, default=False, nullable=False)
     updated = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
