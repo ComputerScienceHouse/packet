@@ -70,13 +70,12 @@ var myChart = new Chart(ctx, {
                     unit: 'day',
                 },
                 ticks: {
-                    max: moment()
                 }
             }],
             yAxes: [{
                 stacked: true,
                 ticks: {
-                    suggestedMax: {{ packet.signatures_required().total }},
+                    max: Math.max({{ packet.signatures_required().total }}, {{packet.signatures_received().total}}),
                     beginAtZero: true
                 }
             }]
