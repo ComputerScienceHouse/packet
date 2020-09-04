@@ -35,7 +35,7 @@ var myChart = new Chart(ctx, {
         datasets: [
             {
                 fill: 'origin',
-                label: 'Fresh Sigs',
+                label: 'Freshmen',
                 data: data.accum.fresh,
                 backgroundColor: '#b0197e80',
                 borderColor: '#b0197e',
@@ -44,7 +44,7 @@ var myChart = new Chart(ctx, {
             },
             {
                 fill: '-1',
-                label: 'Misc Sigs',
+                label: 'Alumni',
                 data: data.accum.misc,
                 backgroundColor: '#0000ff80',
                 borderColor: 'blue',
@@ -53,7 +53,7 @@ var myChart = new Chart(ctx, {
             },
             {
                 fill: '-1',
-                label: 'Upper Sigs',
+                label: 'Upperclassmen',
                 data: data.accum.upper,
                 backgroundColor: '#00ff0080',
                 borderColor: 'green',
@@ -76,6 +76,7 @@ var myChart = new Chart(ctx, {
             yAxes: [{
                 stacked: true,
                 ticks: {
+                    suggestedMax: {{ packet.signatures_required().total }},
                     beginAtZero: true
                 }
             }]
