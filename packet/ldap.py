@@ -137,7 +137,7 @@ def ldap_get_eboard_role(member):
     return_val = None
 
     if _ldap_is_member_of_group(member, 'eboard-chairman'):
-        return_val = 'Chairman'
+        return_val = 'Chairperson'
     elif _ldap_is_member_of_group(member, 'eboard-evaluations'):
         return_val = 'Evals'
     elif _ldap_is_member_of_group(member, 'eboard-financial'):
