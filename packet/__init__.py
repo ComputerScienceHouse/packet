@@ -50,13 +50,25 @@ APP_CONFIG = ProviderConfiguration(issuer=app.config['OIDC_ISSUER'],
                                                             app.config['OIDC_CLIENT_SECRET']))
 
 # Initialize Onesignal Notification apps
-csh_onesignal_client = onesignal.Client(user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-                                    app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
-                                    app_id=app.config['ONESIGNAL_CSH_APP_ID'])
+csh_onesignal_client = None
+if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
+   app.config['ONESIGNAL_CSH_APP_AUTH_KEY'] and \
+   app.config['ONESIGNAL_CSH_APP_ID']:
+    csh_onesignal_client = onesignal.Client(
+        user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
+        app_id=app.config['ONESIGNAL_CSH_APP_ID']
+    )
 
-intro_onesignal_client = onesignal.Client(user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-                                    app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
-                                    app_id=app.config['ONESIGNAL_INTRO_APP_ID'])
+intro_onesignal_client = None
+if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
+   app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'] and \
+   app.config['ONESIGNAL_INTRO_APP_ID']:
+    intro_onesignal_client = onesignal.Client(
+        user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
+        app_id=app.config['ONESIGNAL_INTRO_APP_ID']
+    )
 
 # OIDC Auth
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
