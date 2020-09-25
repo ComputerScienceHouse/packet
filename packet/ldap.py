@@ -39,6 +39,10 @@ class LDAPWrapper:
     def __init__(self, cshldap=None, mock_members=None):
         self.ldap = cshldap
         self.mock_members = mock_members
+        if self.ldap:
+            app.logger.info('LDAP configured with CSH LDAP')
+        else:
+            app.logger.info('LDAP configured with local mock')
 
 
     def _get_group_members(self, group):

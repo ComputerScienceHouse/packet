@@ -59,6 +59,7 @@ if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
         app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
         app_id=app.config['ONESIGNAL_CSH_APP_ID']
     )
+    app.logger.info('CSH Onesignal configured and notifications enabled')
 
 intro_onesignal_client = None
 if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
@@ -69,9 +70,11 @@ if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
         app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
         app_id=app.config['ONESIGNAL_INTRO_APP_ID']
     )
+    app.logger.info('Intro Onesignal configured and notifications enabled')
 
 # OIDC Auth
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
+app.logger.info('OIDCAuth configured')
 
 # Sentry
 sentry_sdk.init(
@@ -79,7 +82,6 @@ sentry_sdk.init(
     integrations=[FlaskIntegration(), SqlalchemyIntegration()]
 )
 
-app.logger.info('OIDCAuth and LDAP configured')
 
 # pylint: disable=wrong-import-position
 from .ldap import ldap
