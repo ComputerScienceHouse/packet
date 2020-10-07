@@ -47,6 +47,20 @@ If it doesn't work for some reason, you may have to globally install gulp throug
 npm install -g gulp
 ```
 
+### Local Development
+* PostgreSQL
+You'll need a postgres instance to use as a development DB.
+You can use an existing database, like the instance used for the dev branch, use a database on another server, or spin up a container using docker or podman. 
+To get setup using docker, run
+```bash
+docker run --name packet-postgres -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres
+```
+After the container starts up, you should be able to connect with the connection string `postgresql://postgres:mysecretpassword@localhost:5432/postgres`, which is the default connection string in `config.env.py`.
+Once the container is up, run the following to set up the database tables.
+```bash
+flask db upgrade
+```
+
 ### Secrets and configuration
 Packet supports 2 primary configuration methods:
 1. Environment variables - See `config.env.py` for the expected names and default values.

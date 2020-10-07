@@ -11,6 +11,20 @@ post_body = {
     'url': app.config['PROTOCOL'] + app.config['SERVER_NAME']
 }
 
+def require_onesignal_intro(func):
+    def require_onesignal_intro_wrapper(*args, **kwargs):
+        if intro_onesignal_client:
+            return func(*args, **kwargs)
+        return None
+    return require_onesignal_intro_wrapper
+
+def require_onesignal_csh(func):
+    def require_onesignal_csh_wrapper(*args, **kwargs):
+        if csh_onesignal_client:
+            return func(*args, **kwargs)
+        return None
+    return require_onesignal_csh_wrapper
+
 
 def send_notification(notification_body, subscriptions, client):
     tokens = list(map(lambda subscription: subscription.token, subscriptions))
@@ -24,6 +38,7 @@ def send_notification(notification_body, subscriptions, client):
             app.logger.warn('The notification ({}) was unsuccessful'.format(notification.post_body))
 
 
+@require_onesignal_intro
 def packet_signed_notification(packet, signer):
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
@@ -36,6 +51,8 @@ def packet_signed_notification(packet, signer):
         send_notification(notification_body, subscriptions, intro_onesignal_client)
 
 
+@require_onesignal_csh
+@require_onesignal_intro
 def packet_100_percent_notification(packet):
     member_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.member.isnot(None))
     intro_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.freshman_username.isnot(None))
@@ -50,6 +67,7 @@ def packet_100_percent_notification(packet):
         send_notification(notification_body, intro_subscriptions, intro_onesignal_client)
 
 
+@require_onesignal_intro
 def packet_starting_notification(packet):
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
@@ -62,6 +80,7 @@ def packet_starting_notification(packet):
         send_notification(notification_body, subscriptions, intro_onesignal_client)
 
 
+@require_onesignal_csh
 def packets_starting_notification(start_date):
     member_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.member.isnot(None))
     if member_subscriptions:

@@ -6,9 +6,8 @@ from json import dumps
 
 from flask import session, request
 
-from packet import app, db
+from packet import app, db, ldap
 from packet.context_processors import get_rit_name
-from packet.ldap import _ldap_is_member_of_group, ldap_get_member
 from packet.log_utils import log_time
 from packet.mail import send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack, sync_freshman as sync_freshman_list, \
@@ -42,7 +41,7 @@ def sync_freshman():
 
     # Only allow evals to create new frosh
     username = str(session['userinfo'].get('preferred_username', ''))
-    if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
+    if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
 
     freshmen_in_post = {freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json)}
@@ -71,7 +70,7 @@ def create_packet():
 
     # Only allow evals to create new packets
     username = str(session['userinfo'].get('preferred_username', ''))
-    if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
+    if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
 
     base_date = datetime.strptime(request.json['start_date'], '%m/%d/%Y').date()
@@ -89,7 +88,7 @@ def create_packet():
 def sync_ldap():
     # Only allow evals to sync ldap
     username = str(session['userinfo'].get('preferred_username', ''))
-    if not _ldap_is_member_of_group(ldap_get_member(username), 'eboard-evaluations'):
+    if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
     sync_with_ldap()
     return dumps('Done'), 201

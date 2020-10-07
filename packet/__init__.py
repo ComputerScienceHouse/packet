@@ -50,19 +50,31 @@ APP_CONFIG = ProviderConfiguration(issuer=app.config['OIDC_ISSUER'],
                                                             app.config['OIDC_CLIENT_SECRET']))
 
 # Initialize Onesignal Notification apps
-csh_onesignal_client = onesignal.Client(user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-                                    app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
-                                    app_id=app.config['ONESIGNAL_CSH_APP_ID'])
+csh_onesignal_client = None
+if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
+   app.config['ONESIGNAL_CSH_APP_AUTH_KEY'] and \
+   app.config['ONESIGNAL_CSH_APP_ID']:
+    csh_onesignal_client = onesignal.Client(
+        user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
+        app_id=app.config['ONESIGNAL_CSH_APP_ID']
+    )
+    app.logger.info('CSH Onesignal configured and notifications enabled')
 
-intro_onesignal_client = onesignal.Client(user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-                                    app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
-                                    app_id=app.config['ONESIGNAL_INTRO_APP_ID'])
+intro_onesignal_client = None
+if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
+   app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'] and \
+   app.config['ONESIGNAL_INTRO_APP_ID']:
+    intro_onesignal_client = onesignal.Client(
+        user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
+        app_id=app.config['ONESIGNAL_INTRO_APP_ID']
+    )
+    app.logger.info('Intro Onesignal configured and notifications enabled')
 
 # OIDC Auth
 auth = OIDCAuthentication({'app': APP_CONFIG}, app)
-
-# LDAP
-_ldap = csh_ldap.CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS'])
+app.logger.info('OIDCAuth configured')
 
 # Sentry
 sentry_sdk.init(
@@ -70,9 +82,9 @@ sentry_sdk.init(
     integrations=[FlaskIntegration(), SqlalchemyIntegration()]
 )
 
-app.logger.info('OIDCAuth and LDAP configured')
 
 # pylint: disable=wrong-import-position
+from .ldap import ldap
 from . import models
 from . import context_processors
 from . import commands

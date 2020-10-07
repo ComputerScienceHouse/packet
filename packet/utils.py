@@ -7,12 +7,9 @@ from functools import wraps, lru_cache
 import requests
 from flask import session, redirect
 
-from packet import auth, app, db
+from packet import auth, app, db, ldap
 from packet.mail import send_start_packet_mail
 from packet.models import Freshman, FreshSignature, Packet, UpperSignature, MiscSignature
-from packet.ldap import ldap_get_member, ldap_is_intromember, ldap_is_evals, ldap_is_on_coop, \
-    ldap_get_active_members, ldap_get_active_rtps, ldap_get_3das, ldap_get_wiki_maintainers, ldap_get_webmasters, \
-    ldap_get_constitutional_maintainers, ldap_get_drink_admins, ldap_get_eboard_role
 from packet.notifications import packets_starting_notification, packet_starting_notification
 
 INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
@@ -35,11 +32,11 @@ def before_request(func):
                 'admin': False  # It's always false if frosh
             }
         else:
-            member = ldap_get_member(uid)
+            member = ldap.get_member(uid)
             info = {
                 'realm': 'csh',
                 'uid': uid,
-                'admin': ldap_is_evals(member)
+                'admin': ldap.is_evals(member)
             }
 
         kwargs['info'] = info
@@ -70,7 +67,7 @@ def packet_auth(func):
     def wrapped_function(*args, **kwargs):
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
-            if ldap_is_intromember(ldap_get_member(username)):
+            if ldap.is_intromember(ldap.get_member(username)):
                 app.logger.warn('Stopped intro member {} from accessing upperclassmen packet'.format(username))
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
 
@@ -89,8 +86,8 @@ def admin_auth(func):
     def wrapped_function(*args, **kwargs):
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
-            member = ldap_get_member(username)
-            if not ldap_is_evals(member):
+            member = ldap.get_member(username)
+            if not ldap.is_evals(member):
                 app.logger.warn('Stopped member {} from accessing admin UI'.format(username))
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_UPPER'], code=301)
         else:
@@ -160,14 +157,15 @@ def create_new_packets(base_date: date, freshmen_list: dict):
 
     print('Fetching data from LDAP...')
     all_upper = list(filter(
-        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members()))
+        lambda member: not ldap.is_intromember(member) and not ldap.is_on_coop(member), ldap.get_active_members()))
 
-    rtp = ldap_get_active_rtps()
-    three_da = ldap_get_3das()
-    webmaster = ldap_get_webmasters()
-    c_m = ldap_get_constitutional_maintainers()
-    w_m = ldap_get_wiki_maintainers()
-    drink = ldap_get_drink_admins()
+
+    rtp = ldap.get_active_rtps()
+    three_da = ldap.get_3das()
+    webmaster = ldap.get_webmasters()
+    c_m = ldap.get_constitutional_maintainers()
+    w_m = ldap.get_wiki_maintainers()
+    drink = ldap.get_drink_admins()
 
     # Packet starting notifications
     packets_starting_notification(start)
@@ -182,7 +180,7 @@ def create_new_packets(base_date: date, freshmen_list: dict):
 
         for member in all_upper:
             sig = UpperSignature(packet=packet, member=member.uid)
-            sig.eboard = ldap_get_eboard_role(member)
+            sig.eboard = ldap.get_eboard_role(member)
             sig.active_rtp = member.uid in rtp
             sig.three_da = member.uid in three_da
             sig.webmaster = member.uid in webmaster
@@ -201,20 +199,20 @@ def create_new_packets(base_date: date, freshmen_list: dict):
 def sync_with_ldap():
     print('Fetching data from LDAP...')
     all_upper = {member.uid: member for member in filter(
-        lambda member: not ldap_is_intromember(member) and not ldap_is_on_coop(member), ldap_get_active_members())}
+        lambda member: not ldap.is_intromember(member) and not ldap.is_on_coop(member), ldap.get_active_members())}
 
-    rtp = ldap_get_active_rtps()
-    three_da = ldap_get_3das()
-    webmaster = ldap_get_webmasters()
-    c_m = ldap_get_constitutional_maintainers()
-    w_m = ldap_get_wiki_maintainers()
-    drink = ldap_get_drink_admins()
+    rtp = ldap.get_active_rtps()
+    three_da = ldap.get_3das()
+    webmaster = ldap.get_webmasters()
+    c_m = ldap.get_constitutional_maintainers()
+    w_m = ldap.get_wiki_maintainers()
+    drink = ldap.get_drink_admins()
 
     print('Applying updates to the DB...')
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the role state of all UpperSignatures
         for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.eboard = ldap.get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
@@ -233,7 +231,7 @@ def sync_with_ldap():
         for sig in filter(lambda sig: sig.member in all_upper, packet.misc_signatures):
             MiscSignature.query.filter_by(packet_id=packet.id, member=sig.member).delete()
             sig = UpperSignature(packet=packet, member=sig.member, signed=True)
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.eboard = ldap.get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
@@ -247,7 +245,7 @@ def sync_with_ldap():
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
             sig = UpperSignature(packet=packet, member=member)
-            sig.eboard = ldap_get_eboard_role(all_upper[sig.member])
+            sig.eboard = ldap.get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
             sig.three_da = sig.member in three_da
             sig.webmaster = sig.member in webmaster
