@@ -10,4 +10,4 @@ gunicorn~=19.7.1
 csh_ldap~=2.1.0
 onesignal-sdk~=1.0.0
 pylint-quotes~=0.2.1
-sentry-sdk~=0.14.2
+sentry-sdk~=0.19.1
