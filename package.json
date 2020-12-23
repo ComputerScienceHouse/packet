@@ -13,6 +13,10 @@
     "Joel Eager (https://github.com/JoelEager)",
     "Max Meinhold (https://github.com/mxmeinhold)"
   ],
+  "scripts": {
+    "prod": "gulp production",
+    "lint": "gulp lint"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ComputerScienceHouse/packet.git"
