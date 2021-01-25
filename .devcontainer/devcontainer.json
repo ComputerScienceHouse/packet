@@ -3,7 +3,6 @@
 	"name": "Packet Codespace (python and postgres)",
 	"dockerComposeFile": "docker-compose.yaml",
 	"service": "app",
-  "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind" ],
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
