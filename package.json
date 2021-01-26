@@ -1,7 +1,7 @@
 {
   "title": "CSH Packet",
   "name": "csh-packet",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "description": "A web app implementation of the CSH introductory packet.",
   "bugs": {
     "url": "https://github.com/ComputerScienceHouse/packet/issues",
