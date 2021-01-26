@@ -2,7 +2,7 @@ FROM python:3.7-slim-buster
 MAINTAINER Devin Matte <matted@csh.rit.edu>
 
 RUN apt-get -yq update && \
-    apt-get -yq --no-install-recommends install gcc curl libsasl2-dev libldap2-dev libssl-dev && \
+    apt-get -yq --no-install-recommends install gcc curl libsasl2-dev libldap2-dev libssl-dev gnupg2 && \
     apt-get -yq clean all
 
 RUN mkdir /opt/packet

@@ -3,7 +3,7 @@ Default configuration settings and environment variable based configuration logi
     See the readme for more information
 """
 from distutils.util import strtobool
-from os import environ
+from os import environ, path, getcwd
 
 # Flask config
 DEBUG = False
@@ -25,12 +25,25 @@ OIDC_CLIENT_ID = environ.get("PACKET_OIDC_CLIENT_ID", "packet")
 OIDC_CLIENT_SECRET = environ.get("PACKET_OIDC_CLIENT_SECRET", "PLEASE_REPLACE_ME")
 
 # SQLAlchemy config
-SQLALCHEMY_DATABASE_URI = environ.get("PACKET_DATABASE_URI", None)
+SQLALCHEMY_DATABASE_URI = environ.get("PACKET_DATABASE_URI", "postgresql://postgres:mysecretpassword@localhost:5432/postgres")
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # LDAP config
 LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
+LDAP_MOCK_MEMBERS = [
+        {'uid':'evals', 'groups': ['eboard', 'eboard-evaluations', 'active']},
+        {'uid':'imps-3da', 'groups': ['eboard', 'eboard-imps', '3da', 'active']},
+        {
+            'uid':'rtp-cm-webs-onfloor',
+            'groups': ['active-rtp', 'rtp', 'constitutional_maintainers', 'webmaster', 'active', 'onfloor'],
+            'room_number': 1024
+        },
+        {'uid':'misc-rtp', 'groups': ['rtp']},
+        {'uid':'onfloor', 'groups': ['active', 'onfloor'], 'room_number': 1024},
+        {'uid':'active-offfloor', 'groups': ['active']},
+        {'uid':'alum', 'groups': ['member']},
+    ]
 
 # Mail Config
 MAIL_PROD = strtobool(environ.get("PACKET_MAIL_PROD", "False"))

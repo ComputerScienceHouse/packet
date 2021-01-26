@@ -6,16 +6,15 @@ import urllib
 from functools import lru_cache
 from datetime import datetime
 
-from packet.ldap import ldap_get_member
 from packet.models import Freshman
-from packet import app
+from packet import app, ldap
 
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=128)
 def get_csh_name(username):
     try:
-        member = ldap_get_member(username)
+        member = ldap.get_member(username)
         return member.cn + ' (' + member.uid + ')'
     except:
         return username
