@@ -3,7 +3,7 @@ ddtrace
 Flask~=1.1.2
 Flask-Gzip~=0.2
 Flask-Mail~=0.9.1
-Flask-Migrate~=2.5.3
+Flask-Migrate~=2.7.0
 Flask-pyoidc~=3.7.0
 flask_sqlalchemy~=2.4.4
 gunicorn~=20.0.4
