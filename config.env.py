@@ -68,3 +68,8 @@ SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)
 # Packet Config
 PACKET_UPPER = environ.get("PACKET_UPPER", "packet.csh.rit.edu")
 PACKET_INTRO = environ.get("PACKET_INTRO", "freshmen-packet.csh.rit.edu")
+
+# RUM
+RUM_APP_ID = environ.get("PACKET_RUM_APP_ID", "")
+RUM_CLIENT_TOKEN = environ.get("PACKET_RUM_CLIENT_TOKEN","")
+DD_ENV = environ.get("DD_ENV", "local-dev")
