@@ -6,7 +6,6 @@ from distutils.util import strtobool
 from os import environ, path, getcwd
 
 # Flask config
-DEBUG = False
 IP = environ.get("PACKET_IP", "localhost")
 PORT = environ.get("PACKET_PORT", "8000")
 PROTOCOL = environ.get("PACKET_PROTOCOL", "https://")
