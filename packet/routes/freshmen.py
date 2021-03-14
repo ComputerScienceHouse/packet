@@ -6,11 +6,10 @@ from flask import redirect, url_for
 
 from packet import app
 from packet.models import Packet
-from packet.utils import before_request, packet_auth
+from packet.utils import before_request
 
 
 @app.route('/')
-@packet_auth
 @before_request
 def index(info=None):
     most_recent_packet = Packet.query.filter_by(freshman_username=info['uid']).order_by(Packet.id.desc()).first()

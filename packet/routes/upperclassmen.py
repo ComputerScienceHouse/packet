@@ -8,20 +8,19 @@ from flask import redirect, render_template, url_for
 
 from packet import app
 from packet.models import Packet
-from packet.utils import before_request, packet_auth
+from packet.utils import before_request, upper_auth, is_frosh
 from packet.log_utils import log_cache, log_time
 from packet.stats import packet_stats
 
 
 @app.route('/')
-@packet_auth
 def index():
     return redirect(url_for('packets'), 302)
 
 
 @app.route('/member/<uid>/')
 @log_cache
-@packet_auth
+@upper_auth
 @before_request
 @log_time
 def upperclassman(uid, info=None):
@@ -29,7 +28,7 @@ def upperclassman(uid, info=None):
 
     # Pre-calculate and store the return value of did_sign()
     for packet in open_packets:
-        packet.did_sign_result = packet.did_sign(uid, True)
+        packet.did_sign_result = packet.did_sign(uid, True, is_frosh())
 
     signatures = sum(map(lambda packet: 1 if packet.did_sign_result else 0, open_packets))
 
@@ -42,7 +41,7 @@ def upperclassman(uid, info=None):
 
 @app.route('/upperclassmen/')
 @log_cache
-@packet_auth
+@upper_auth
 @before_request
 @log_time
 def upperclassmen_total(info=None):
@@ -67,7 +66,7 @@ def upperclassmen_total(info=None):
 
 
 @app.route('/stats/packet/<packet_id>')
-@packet_auth
+@upper_auth
 @before_request
 def packet_graphs(packet_id, info=None):
     stats = packet_stats(packet_id)

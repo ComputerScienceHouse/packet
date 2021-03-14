@@ -5,7 +5,7 @@ Routes available to both freshmen and CSH users
 from flask import render_template, redirect
 
 from packet import auth, app
-from packet.utils import before_request, packet_auth
+from packet.utils import before_request, is_frosh
 from packet.models import Packet
 from packet.log_utils import log_cache, log_time
 
@@ -18,7 +18,6 @@ def logout():
 
 @app.route('/packet/<packet_id>/')
 @log_cache
-@packet_auth
 @before_request
 @log_time
 def freshman_packet(packet_id, info=None):
@@ -30,15 +29,15 @@ def freshman_packet(packet_id, info=None):
         can_sign = packet.is_open()
 
         # If the packet is open and the user is an off-floor freshman set can_sign to False
-        if packet.is_open() and app.config['REALM'] != 'csh':
-            if info['uid'] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
+        if packet.is_open() and is_frosh():
+            if info['ritdn'] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
                 can_sign = False
 
         return render_template('packet.html',
                                info=info,
                                packet=packet,
                                can_sign=can_sign,
-                               did_sign=packet.did_sign(info['uid'], app.config['REALM'] == 'csh'),
+                               did_sign=packet.did_sign(info['uid'], app.config['REALM'] == 'csh', is_frosh()),
                                required=packet.signatures_required(),
                                received=packet.signatures_received(),
                                upper=packet.upper_signatures)
@@ -53,7 +52,6 @@ def packet_sort_key(packet):
 
 @app.route('/packets/')
 @log_cache
-@packet_auth
 @before_request
 @log_time
 def packets(info=None):
@@ -61,7 +59,7 @@ def packets(info=None):
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
     for packet in open_packets:
-        packet.did_sign_result = packet.did_sign(info['uid'], app.config['REALM'] == 'csh')
+        packet.did_sign_result = packet.did_sign(info['uid'], app.config['REALM'] == 'csh', is_frosh())
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
@@ -83,14 +81,12 @@ def update_service_worker():
 
 
 @app.errorhandler(404)
-@packet_auth
 @before_request
 def not_found(e, info=None):
     return render_template('not_found.html', e=e, info=info), 404
 
 
 @app.errorhandler(500)
-@packet_auth
 @before_request
 def error(e, info=None):
     return render_template('error.html', e=e, info=info), 500

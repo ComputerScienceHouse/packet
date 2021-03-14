@@ -6,7 +6,7 @@ from functools import wraps, lru_cache
 from typing import Any, Callable, TypeVar, cast
 
 import requests
-from flask import session, redirect
+from flask import session, redirect, abort
 
 from packet import auth, app, db, ldap
 from packet.mail import send_start_packet_mail
@@ -31,7 +31,9 @@ def before_request(func: WrappedFunc) -> WrappedFunc:
                 'realm': 'intro',
                 'uid': uid,
                 'onfloor': is_freshman_on_floor(uid),
-                'admin': False  # It's always false if frosh
+                'admin': False,  # It's always false if frosh
+                'ritdn': uid,
+                'is_upper': False,
             }
         else:
             member = ldap.get_member(uid)
@@ -40,6 +42,8 @@ def before_request(func: WrappedFunc) -> WrappedFunc:
                 'uid': uid,
                 'admin': ldap.is_evals(member),
                 'groups': ldap.get_groups(member),
+                'ritdn': member.ritdn,
+                'is_upper': not is_frosh(),
             }
 
         kwargs['info'] = info
@@ -60,9 +64,9 @@ def is_freshman_on_floor(rit_username: str) -> bool:
         return False
 
 
-def packet_auth(func: WrappedFunc) -> WrappedFunc:
+def upper_auth(func: WrappedFunc) -> WrappedFunc:
     """
-    Decorator for easily configuring oidc
+    Decorator for denying access to intromembers on priviledged routes
     """
 
     @auth.oidc_auth('app')
@@ -72,7 +76,11 @@ def packet_auth(func: WrappedFunc) -> WrappedFunc:
             username = str(session['userinfo'].get('preferred_username', ''))
             if ldap.is_intromember(ldap.get_member(username)):
                 app.logger.warn('Stopped intro member {} from accessing upperclassmen packet'.format(username))
-                return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
+                # TODO we should display a notice to the user that we reidrected them
+                return redirect(app.config['PROTOCOL'] + app.config['PACKET_UPPER'], code=301)
+        else:
+            # If we're not in the csh realm, priviledged routes shouldn't be served
+            abort(404)
 
         return func(*args, **kwargs)
 
@@ -258,3 +266,15 @@ def sync_with_ldap() -> None:
             db.session.add(sig)
 
     db.session.commit()
+
+
+@auth.oidc_auth('app')
+def is_frosh() -> bool:
+    """
+    Check if the current user is a freshman.
+    """
+    if app.config['REALM'] == 'csh':
+        username = str(session['userinfo'].get('preferred_username', ''))
+        return ldap.is_intromember(ldap.get_member(username))
+    # Always true for the intro realm
+    return True
