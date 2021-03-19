@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.9-slim-buster
 MAINTAINER Devin Matte <matted@csh.rit.edu>
 
 ENV DD_LOGS_INJECTION=true
