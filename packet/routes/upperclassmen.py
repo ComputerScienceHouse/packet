@@ -3,12 +3,11 @@ Routes available to CSH users only
 """
 import json
 
-from itertools import chain
 from operator import itemgetter
 from flask import redirect, render_template, url_for
 
 from packet import app
-from packet.models import Packet, MiscSignature
+from packet.models import Packet
 from packet.utils import before_request, packet_auth
 from packet.log_utils import log_cache, log_time
 from packet.stats import packet_stats
@@ -51,18 +50,20 @@ def upperclassmen_total(info=None):
 
     # Sum up the signed packets per upperclassman
     upperclassmen = dict()
+    misc = dict()
     for packet in open_packets:
-        for sig in chain(packet.upper_signatures, packet.misc_signatures):
+        for sig in packet.upper_signatures:
             if sig.member not in upperclassmen:
                 upperclassmen[sig.member] = 0
 
-            if isinstance(sig, MiscSignature):
-                upperclassmen[sig.member] += 1
-            elif sig.signed:
-                upperclassmen[sig.member] += 1
+                if sig.signed:
+                    upperclassmen[sig.member] += 1
+        for sig in packet.misc_signatures:
+            misc[sig.member] = 1 + misc.get(sig.member, 0)
 
     return render_template('upperclassmen_totals.html', info=info, num_open_packets=len(open_packets),
-                           upperclassmen=sorted(upperclassmen.items(), key=itemgetter(1), reverse=True))
+                           upperclassmen=sorted(upperclassmen.items(), key=itemgetter(1), reverse=True),
+                           misc=sorted(misc.items(), key=itemgetter(1), reverse=True))
 
 
 @app.route('/stats/packet/<packet_id>')
