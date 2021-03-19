@@ -34,6 +34,35 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/packet.min.css') }}">
 
+    <!-- RUM -->
+    <script
+        src="https://www.datadoghq-browser-agent.com/datadog-rum.js"
+        type="text/javascript">
+    </script>
+    <script>
+        window.DD_RUM && window.DD_RUM.init({
+            applicationId: '{{ config["RUM_APP_ID"] }}',
+            clientToken: '{{ config["RUM_CLIENT_TOKEN"] }}',
+            site: 'datadoghq.com',
+            service: 'Packet',
+            env: '{{ config["DD_ENV"] }}',
+            version: '{{ config["VERSION"] }}',
+            sampleRate: 100,
+            trackInteractions: true
+        });
+
+        window.DD_RUM && window.DD_RUM.setUser({
+            id: '{{ info.uid }}',
+            realm: '{{ info.realm }}',
+        });
+
+        // Add groups to global context so they get interpreted as a list
+        window.DD_RUM && window.DD_RUM.addRumGlobalContext('usr', {
+            groups: {{ info.groups|safe }},
+        });
+    </script>
+
+
     <!-- Push Notifications -->
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
@@ -65,15 +94,5 @@
                 });
             });
         });
-    </script>
-
-    <!-- Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config['ANALYTICS_ID'] }}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('set', {'user_id': '{{ info.uid }}' });
-        gtag('config', '{{ config['ANALYTICS_ID'] }}');
     </script>
 </head>
