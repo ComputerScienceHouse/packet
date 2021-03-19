@@ -19,6 +19,8 @@ import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
+from .git import get_version
+
 app = Flask(__name__)
 gzip = Gzip(app)
 
@@ -31,9 +33,8 @@ _pyfile_config = os.path.join(_root_dir, 'config.py')
 if os.path.exists(_pyfile_config):
     app.config.from_pyfile(_pyfile_config)
 
-# Fetch the version number from the npm package file
-with open(os.path.join(_root_dir, 'package.json')) as package_file:
-    app.config['VERSION'] = json.load(package_file)['version']
+# Fetch the version number
+app.config['VERSION'] = get_version()
 
 # Logger configuration
 logging.getLogger().setLevel(app.config['LOG_LEVEL'])
