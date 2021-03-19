@@ -13,7 +13,7 @@ COPY requirements.txt /opt/packet
 
 RUN pip install -r requirements.txt
 
-COPY . /opt/packet
+COPY frontend gulpfile.js yarn.lock package.json /opt/packet/
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
@@ -29,5 +29,9 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -yq clean all
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+
+COPY wsgi.py migrations config.env.py /opt/packet/
+
+COPY packet /opt/packet/
 
 CMD ["ddtrace-run", "gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-", "--timeout=600"]
