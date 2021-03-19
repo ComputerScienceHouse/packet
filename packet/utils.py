@@ -23,6 +23,7 @@ def before_request(func: WrappedFunc) -> WrappedFunc:
     https://github.com/liam-middlebrook/gallery
     """
 
+    @auth.oidc_auth('app')
     @wraps(func)
     def wrapped_function(*args: list, **kwargs: dict) -> Any:
         uid = str(session['userinfo'].get('preferred_username', ''))
