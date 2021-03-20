@@ -67,6 +67,24 @@ class LDAPWrapper:
         else:
             return group in member.groups
 
+    def get_groups(self, member):
+        if self.ldap:
+            return list(
+                    map(
+                        lambda g: g[0][3:],
+                        filter(
+                            lambda d: d[1] == 'cn=groups',
+                            map(
+                                lambda group_dn: group_dn.split(','),
+                                member.get('memberOf')
+                                )
+                            )
+                        )
+                    )
+        else:
+            return member.groups
+
+
 
     # Getters
 

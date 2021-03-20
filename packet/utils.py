@@ -36,7 +36,8 @@ def before_request(func):
             info = {
                 'realm': 'csh',
                 'uid': uid,
-                'admin': ldap.is_evals(member)
+                'admin': ldap.is_evals(member),
+                'groups': ldap.get_groups(member),
             }
 
         kwargs['info'] = info

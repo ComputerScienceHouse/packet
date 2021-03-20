@@ -15,7 +15,6 @@ SECRET_KEY = environ.get("PACKET_SECRET_KEY", "PLEASE_REPLACE_ME")
 
 # Logging config
 LOG_LEVEL = environ.get("PACKET_LOG_LEVEL", "INFO")
-ANALYTICS_ID = environ.get("ANALYTICS_ID", "UA-420696-9")
 
 # OpenID Connect SSO config
 REALM = environ.get("PACKET_REALM", "csh")
@@ -68,3 +67,8 @@ SLACK_WEBHOOK_URL = environ.get("PACKET_SLACK_URL", None)
 # Packet Config
 PACKET_UPPER = environ.get("PACKET_UPPER", "packet.csh.rit.edu")
 PACKET_INTRO = environ.get("PACKET_INTRO", "freshmen-packet.csh.rit.edu")
+
+# RUM
+RUM_APP_ID = environ.get("PACKET_RUM_APP_ID", "")
+RUM_CLIENT_TOKEN = environ.get("PACKET_RUM_CLIENT_TOKEN","")
+DD_ENV = environ.get("DD_ENV", "local-dev")

@@ -1,6 +1,6 @@
 # CSH Web Packet
 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Build Status](https://travis-ci.com/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.com/ComputerScienceHouse/packet)
 
 Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
@@ -8,7 +8,7 @@ the second major iteration of packet on the web. The first version was
 [Tal packet](https://github.com/TalCohen/CSHWebPacket).
 
 ## Setup
-**Requires Python 3.7 or newer.**
+**Requires Python 3.9 or newer.**
 
 To get the server working you'll just need the Python dependencies and some secrets. There will be some UI issues due 
 to missing assets though. To solve that you'll want to set up the front end dependencies or download a copy of the 
@@ -115,12 +115,12 @@ All DB commands are from the `Flask-Migrate` library and are used to configure D
 docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
 ## Code standards
-This project is configured to use Pylint. Commits will be pylinted by Travis CI and if the score drops your build will 
+This project is configured to use Pylint. Commits will be pylinted by GitHub actions and if the score drops your build will 
 fail blocking you from merging. To make your life easier just run it before making a PR.
 
 To run pylint use this command:
 ```bash
-pylint --load-plugins  pylint_quotes packet/routes packet
+pylint packet/routes packet
 ```
 
 All python files should have a top-level docstring explaining the contents of the file and complex functions should 

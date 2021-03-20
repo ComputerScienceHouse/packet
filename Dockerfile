@@ -1,8 +1,10 @@
-FROM python:3.7-slim-buster
+FROM python:3.9-slim-buster
 MAINTAINER Devin Matte <matted@csh.rit.edu>
 
+ENV DD_LOGS_INJECTION=true
+
 RUN apt-get -yq update && \
-    apt-get -yq --no-install-recommends install gcc curl libsasl2-dev libldap2-dev libssl-dev gnupg2 && \
+    apt-get -yq --no-install-recommends install gcc curl libsasl2-dev libldap2-dev libssl-dev gnupg2 git && \
     apt-get -yq clean all
 
 RUN mkdir /opt/packet
@@ -30,4 +32,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
-CMD ["gunicorn", "packet:app", "--bind=0.0.0.0:8080", "--access-logfile=-", "--timeout=600"]
+# Set version for apm
+RUN echo "export DD_VERSION=$(python3 packet/git.py)" >> /tmp/version
+
+CMD ["/bin/bash", "-c", "source /tmp/version && ddtrace-run gunicorn packet:app --bind=0.0.0.0:8080 --access-logfile=- --timeout=600"]
