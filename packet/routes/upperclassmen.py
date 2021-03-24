@@ -56,8 +56,8 @@ def upperclassmen_total(info=None):
             if sig.member not in upperclassmen:
                 upperclassmen[sig.member] = 0
 
-                if sig.signed:
-                    upperclassmen[sig.member] += 1
+            if sig.signed:
+                upperclassmen[sig.member] += 1
         for sig in packet.misc_signatures:
             misc[sig.member] = 1 + misc.get(sig.member, 0)
 
