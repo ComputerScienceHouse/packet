@@ -38,7 +38,7 @@ app.config['VERSION'] = get_version()
 
 # Logger configuration
 logging.getLogger().setLevel(app.config['LOG_LEVEL'])
-app.logger.info('Launching packet v' + app.config['VERSION'])
+app.logger.info('Launching packet ' + app.config['VERSION'])
 app.logger.info('Using the {} realm'.format(app.config['REALM']))
 
 # Initialize the extensions
