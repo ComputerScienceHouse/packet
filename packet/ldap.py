@@ -4,8 +4,9 @@ Helper functions for working with the csh_ldap library
 
 from functools import lru_cache
 from datetime import date
+from typing import Optional, cast, Any
 
-from csh_ldap import CSHLDAP
+from csh_ldap import CSHLDAP, CSHMember
 
 from packet import app
 
@@ -20,32 +21,32 @@ class MockMember:
         self.cn = cn if cn else uid.title() # pylint: disable=invalid-name
 
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if type(other) is type(self):
             return self.uid == other.uid
         return False
 
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.uid)
 
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'MockMember(uid: {self.uid}, groups: {self.groups})'
 
 
 class LDAPWrapper:
 
-    def __init__(self, cshldap=None, mock_members=None):
+    def __init__(self, cshldap: CSHLDAP = None, mock_members: list[MockMember] = None):
         self.ldap = cshldap
-        self.mock_members = mock_members
+        self.mock_members = cast(list[MockMember], mock_members)
         if self.ldap:
             app.logger.info('LDAP configured with CSH LDAP')
         else:
             app.logger.info('LDAP configured with local mock')
 
 
-    def _get_group_members(self, group):
+    def _get_group_members(self, group: str) -> list[CSHMember]:
         """
         :return: A list of CSHMember instances
         """
@@ -55,7 +56,7 @@ class LDAPWrapper:
             return list(filter(lambda member: group in member.groups, self.mock_members))
 
 
-    def _is_member_of_group(self, member, group):
+    def _is_member_of_group(self, member: CSHMember, group: str) -> bool:
         """
         :param member: A CSHMember instance
         """
@@ -67,7 +68,7 @@ class LDAPWrapper:
         else:
             return group in member.groups
 
-    def get_groups(self, member):
+    def get_groups(self, member: CSHMember) -> list[str]:
         if self.ldap:
             return list(
                     map(
@@ -89,7 +90,7 @@ class LDAPWrapper:
     # Getters
 
     @lru_cache(maxsize=256)
-    def get_member(self, username):
+    def get_member(self, username: str) -> CSHMember:
         """
         :return: A CSHMember instance
         """
@@ -102,7 +103,7 @@ class LDAPWrapper:
             raise KeyError('Invalid Search Name')
 
 
-    def get_active_members(self):
+    def get_active_members(self) -> list[CSHMember]:
         """
         Gets all current, dues-paying members
         :return: A list of CSHMember instances
@@ -110,7 +111,7 @@ class LDAPWrapper:
         return self._get_group_members('active')
 
 
-    def get_intro_members(self):
+    def get_intro_members(self) -> list[CSHMember]:
         """
         Gets all freshmen members
         :return: A list of CSHMember instances
@@ -118,7 +119,7 @@ class LDAPWrapper:
         return self._get_group_members('intromembers')
 
 
-    def get_eboard(self):
+    def get_eboard(self) -> list[CSHMember]:
         """
         Gets all voting members of eboard
         :return: A list of CSHMember instances
@@ -132,7 +133,7 @@ class LDAPWrapper:
         return members
 
 
-    def get_live_onfloor(self):
+    def get_live_onfloor(self) -> list[CSHMember]:
         """
         All upperclassmen who live on floor and are not eboard
         :return: A list of CSHMember instances
@@ -146,7 +147,7 @@ class LDAPWrapper:
         return members
 
 
-    def get_active_rtps(self):
+    def get_active_rtps(self) -> list[CSHMember]:
         """
         All active RTPs
         :return: A list of CSHMember instances
@@ -154,7 +155,7 @@ class LDAPWrapper:
         return [member.uid for member in self._get_group_members('active_rtp')]
 
 
-    def get_3das(self):
+    def get_3das(self) -> list[CSHMember]:
         """
         All 3das
         :return: A list of CSHMember instances
@@ -162,7 +163,7 @@ class LDAPWrapper:
         return [member.uid for member in self._get_group_members('3da')]
 
 
-    def get_webmasters(self):
+    def get_webmasters(self) -> list[CSHMember]:
         """
         All webmasters
         :return: A list of CSHMember instances
@@ -170,14 +171,14 @@ class LDAPWrapper:
         return [member.uid for member in self._get_group_members('webmaster')]
 
 
-    def get_constitutional_maintainers(self):
+    def get_constitutional_maintainers(self) -> list[CSHMember]:
         """
         All constitutional maintainers
         :return: A list of CSHMember instances
         """
         return [member.uid for member in self._get_group_members('constitutional_maintainers')]
 
-    def get_wiki_maintainers(self):
+    def get_wiki_maintainers(self) -> list[CSHMember]:
         """
         All wiki maintainers
         :return: A list of CSHMember instances
@@ -185,7 +186,7 @@ class LDAPWrapper:
         return [member.uid for member in self._get_group_members('wiki_maintainers')]
 
 
-    def get_drink_admins(self):
+    def get_drink_admins(self) -> list[CSHMember]:
         """
         All drink admins
         :return: A list of CSHMember instances
@@ -193,7 +194,7 @@ class LDAPWrapper:
         return [member.uid for member in self._get_group_members('drink')]
 
 
-    def get_eboard_role(self, member):
+    def get_eboard_role(self, member: CSHMember) -> Optional[str]:
         """
         :param member: A CSHMember instance
         :return: A String or None
@@ -224,29 +225,29 @@ class LDAPWrapper:
 
 
     # Status checkers
-    def is_eboard(self, member):
+    def is_eboard(self, member: CSHMember) -> bool:
         """
         :param member: A CSHMember instance
         """
         return self._is_member_of_group(member, 'eboard')
 
 
-    def is_evals(self, member):
+    def is_evals(self, member: CSHMember) -> bool:
         return self._is_member_of_group(member, 'eboard-evaluations')
 
 
-    def is_rtp(self, member):
+    def is_rtp(self, member: CSHMember) -> bool:
         return self._is_member_of_group(member, 'rtp')
 
 
-    def is_intromember(self, member):
+    def is_intromember(self, member: CSHMember) -> bool:
         """
         :param member: A CSHMember instance
         """
         return self._is_member_of_group(member, 'intromembers')
 
 
-    def is_on_coop(self, member):
+    def is_on_coop(self, member: CSHMember) -> bool:
         """
         :param member: A CSHMember instance
         """
@@ -256,7 +257,7 @@ class LDAPWrapper:
             return self._is_member_of_group(member, 'spring_coop')
 
 
-    def get_roomnumber(self, member): # pylint: disable=no-self-use
+    def get_roomnumber(self, member: CSHMember) -> Optional[int]: # pylint: disable=no-self-use
         """
         :param member: A CSHMember instance
         """

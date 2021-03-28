@@ -21,7 +21,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from .git import get_version
 
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 gzip = Gzip(app)
 
 # Load default configuration and any environment variable overrides
