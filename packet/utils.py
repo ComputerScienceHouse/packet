@@ -3,7 +3,7 @@ General utilities and decorators for supporting the Python logic
 """
 from datetime import datetime, time, timedelta, date
 from functools import wraps, lru_cache
-from typing import Any, Callable, TypeVar, cast, Union, Literal, TypedDict
+from typing import Any, Callable, TypeVar, cast
 
 import requests
 from flask import session, redirect
@@ -15,9 +15,9 @@ from packet.notifications import packets_starting_notification, packet_starting_
 
 INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
 
-F = TypeVar('F', bound=Callable)
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
-def before_request(func: F) -> F:
+def before_request(func: WrappedFunc) -> WrappedFunc:
     """
     Credit to Liam Middlebrook and Ram Zallan
     https://github.com/liam-middlebrook/gallery
@@ -45,7 +45,7 @@ def before_request(func: F) -> F:
         kwargs['info'] = info
         return func(*args, **kwargs)
 
-    return cast(F, wrapped_function)
+    return cast(WrappedFunc, wrapped_function)
 
 
 @lru_cache(maxsize=128)
@@ -60,7 +60,7 @@ def is_freshman_on_floor(rit_username: str) -> bool:
         return False
 
 
-def packet_auth(func: F) -> F:
+def packet_auth(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for easily configuring oidc
     """
@@ -76,10 +76,10 @@ def packet_auth(func: F) -> F:
 
         return func(*args, **kwargs)
 
-    return cast(F, wrapped_function)
+    return cast(WrappedFunc, wrapped_function)
 
 
-def admin_auth(func: F) -> F:
+def admin_auth(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for easily configuring oidc
     """
@@ -98,7 +98,7 @@ def admin_auth(func: F) -> F:
 
         return func(*args, **kwargs)
 
-    return cast(F, wrapped_function)
+    return cast(WrappedFunc, wrapped_function)
 
 
 def notify_slack(name: str) -> None:

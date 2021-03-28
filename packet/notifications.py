@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Callable, TypeVar, cast
 
-import onesignal
+import onesignal_sdk as onesignal
 
 from packet import app, intro_onesignal_client, csh_onesignal_client
 from packet.models import NotificationSubscription, Packet
@@ -14,21 +14,21 @@ post_body = {
     'url': app.config['PROTOCOL'] + app.config['SERVER_NAME']
 }
 
-F = TypeVar('F', bound=Callable)
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
-def require_onesignal_intro(func: F) -> F:
+def require_onesignal_intro(func: WrappedFunc) -> WrappedFunc:
     def require_onesignal_intro_wrapper(*args: list, **kwargs: dict) -> Any:
         if intro_onesignal_client:
             return func(*args, **kwargs)
         return None
-    return cast(F, require_onesignal_intro_wrapper)
+    return cast(WrappedFunc, require_onesignal_intro_wrapper)
 
-def require_onesignal_csh(func: F) -> F:
+def require_onesignal_csh(func: WrappedFunc) -> WrappedFunc:
     def require_onesignal_csh_wrapper(*args: list, **kwargs: dict) -> Any:
         if csh_onesignal_client:
             return func(*args, **kwargs)
         return None
-    return cast(F, require_onesignal_csh_wrapper)
+    return cast(WrappedFunc, require_onesignal_csh_wrapper)
 
 
 def send_notification(notification_body: dict, subscriptions: list, client: onesignal.Client) -> None:
@@ -60,7 +60,8 @@ def packet_signed_notification(packet: Packet, signer: str) -> None:
 @require_onesignal_intro
 def packet_100_percent_notification(packet: Packet) -> None:
     member_subscriptions = NotificationSubscription.query.filter(cast(Any, NotificationSubscription.member).isnot(None))
-    intro_subscriptions = NotificationSubscription.query.filter(cast(Any, NotificationSubscription.freshman_username).isnot(None))
+    intro_subscriptions = NotificationSubscription.query.filter(
+            cast(Any, NotificationSubscription.freshman_username).isnot(None))
     if member_subscriptions or intro_subscriptions:
         notification_body = post_body
         notification_body['contents']['en'] = packet.freshman.name + ' got 💯 on packet!'

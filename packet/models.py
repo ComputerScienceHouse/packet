@@ -38,13 +38,13 @@ class Freshman(db.Model):
     rit_username = cast(str, Column(String(10), primary_key=True))
     name = cast(str, Column(String(64), nullable=False))
     onfloor = cast(bool, Column(Boolean, nullable=False))
-    fresh_signatures = cast(FreshSignature, relationship('FreshSignature'))
+    fresh_signatures = cast('FreshSignature', relationship('FreshSignature'))
 
     # One freshman can have multiple packets if they repeat the intro process
-    packets = cast(Packet, relationship('Packet', order_by='desc(Packet.id)'))
+    packets = cast('Packet', relationship('Packet', order_by='desc(Packet.id)'))
 
     @classmethod
-    def by_username(cls, username: str) -> Packet:
+    def by_username(cls, username: str) -> 'Packet':
         """
         Helper method to retrieve a freshman by their RIT username
         """
@@ -69,11 +69,12 @@ class Packet(db.Model):
 
     # The `lazy='subquery'` kwarg enables eager loading for signatures which makes signature calculations much faster
     # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
-    upper_signatures = cast(UpperSignature, relationship('UpperSignature', lazy='subquery',
+    upper_signatures = cast('UpperSignature', relationship('UpperSignature', lazy='subquery',
                                     order_by='UpperSignature.signed.desc(), UpperSignature.updated'))
-    fresh_signatures = cast(FreshSignature, relationship('FreshSignature', lazy='subquery',
+    fresh_signatures = cast('FreshSignature', relationship('FreshSignature', lazy='subquery',
                                     order_by='FreshSignature.signed.desc(), FreshSignature.updated'))
-    misc_signatures = cast(MiscSignature, relationship('MiscSignature', lazy='subquery', order_by='MiscSignature.updated'))
+    misc_signatures = cast('MiscSignature',
+            relationship('MiscSignature', lazy='subquery', order_by='MiscSignature.updated'))
 
     def is_open(self) -> bool:
         return self.start < datetime.now() < self.end

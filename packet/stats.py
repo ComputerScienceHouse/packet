@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date as dateType, timedelta
 from typing import TypedDict, Union, cast, Callable
 
 from packet.models import Packet, MiscSignature, UpperSignature
@@ -23,10 +23,10 @@ class SimplePacket(TypedDict):
     freshman_username: str
 
 class SigDict(TypedDict):
-    date: date
+    date: dateType
     packet: SimplePacket
 
-Stats = dict[date, list[str]]
+Stats = dict[dateType, list[str]]
 
 
 def packet_stats(packet_id: int) -> PacketStats:

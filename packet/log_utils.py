@@ -10,9 +10,9 @@ from packet import app, ldap
 from packet.context_processors import get_rit_name
 from packet.utils import is_freshman_on_floor
 
-F = TypeVar('F', bound=Callable)
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
-def log_time(func: F) -> F:
+def log_time(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for logging the execution time of a function
     """
@@ -27,7 +27,7 @@ def log_time(func: F) -> F:
 
         return result
 
-    return cast(F, wrapped_function)
+    return cast(WrappedFunc, wrapped_function)
 
 
 def _format_cache(func: Any) -> str:
@@ -43,7 +43,7 @@ def _format_cache(func: Any) -> str:
 _caches = (get_rit_name, ldap.get_member, is_freshman_on_floor)
 
 
-def log_cache(func: F) -> F:
+def log_cache(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for logging cache info
     """
@@ -56,4 +56,4 @@ def log_cache(func: F) -> F:
 
         return result
 
-    return cast(F, wrapped_function)
+    return cast(WrappedFunc, wrapped_function)
