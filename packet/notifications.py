@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Callable, TypeVar, cast
 
-import onesignal_sdk as onesignal
+import onesignal_sdk.client as onesignal
 
 from packet import app, intro_onesignal_client, csh_onesignal_client
 from packet.models import NotificationSubscription, Packet

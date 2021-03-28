@@ -51,7 +51,7 @@ class Freshman(db.Model):
         return cls.query.filter_by(rit_username=username).first()
 
     @classmethod
-    def get_all(cls) -> list[Packet]:
+    def get_all(cls) -> list['Packet']:
         """
         Helper method to get all freshmen easily
         """
@@ -123,14 +123,14 @@ class Packet(db.Model):
         return self.signatures_required().total == self.signatures_received().total
 
     @classmethod
-    def open_packets(cls) -> list[Packet]:
+    def open_packets(cls) -> list['Packet']:
         """
         Helper method for fetching all currently open packets
         """
         return cls.query.filter(cls.start < datetime.now(), cls.end > datetime.now()).all()
 
     @classmethod
-    def by_id(cls, packet_id: int) -> Packet:
+    def by_id(cls, packet_id: int) -> 'Packet':
         """
         Helper method for fetching 1 packet by its id
         """
