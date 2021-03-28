@@ -1,12 +1,19 @@
+from typing import TypedDict
+
 from flask import render_template
 from flask_mail import Mail, Message
 
 from packet import app
+from packet.models import Packet
 
 mail = Mail(app)
 
 
-def send_start_packet_mail(packet):
+class ReportForm(TypedDict):
+    person: str
+    report: str
+
+def send_start_packet_mail(packet: Packet) -> None:
     if app.config['MAIL_PROD']:
         recipients = ['<' + packet.freshman.rit_username + '@rit.edu>']
         msg = Message(subject='CSH Packet Starts ' + packet.start.strftime('%A, %B %-d'),
@@ -19,8 +26,7 @@ def send_start_packet_mail(packet):
         app.logger.info('Sending mail to ' + recipients[0])
         mail.send(msg)
 
-
-def send_report_mail(form_results, reporter):
+def send_report_mail(form_results: ReportForm, reporter: str) -> None:
     if app.config['MAIL_PROD']:
         recipients = ['<evals@csh.rit.edu>']
         msg = Message(subject='Packet Report',

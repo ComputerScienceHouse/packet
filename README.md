@@ -115,13 +115,14 @@ All DB commands are from the `Flask-Migrate` library and are used to configure D
 docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
 ## Code standards
-This project is configured to use Pylint. Commits will be pylinted by GitHub actions and if the score drops your build will 
-fail blocking you from merging. To make your life easier just run it before making a PR.
+This project is configured to use Pylint and mypy. Commits will be pylinted and typechecked by GitHub actions and if the
+score drops your build will fail blocking you from merging. To make your life easier just run it before making a PR.
 
-To run pylint use this command:
+To run pylint and mypy use these commands:
 ```bash
 pylint packet/routes packet
+mypy --disable-error-code import --disable-error-code name-defined --disallow-untyped-defs --exclude routes packet
 ```
 
 All python files should have a top-level docstring explaining the contents of the file and complex functions should 
-have docstrings explaining any non-obvious portions.
+have docstrings explaining any non-obvious portions. Functions should have type annotations.

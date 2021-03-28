@@ -3,6 +3,7 @@ General utilities and decorators for supporting the Python logic
 """
 from datetime import datetime, time, timedelta, date
 from functools import wraps, lru_cache
+from typing import Any, Callable, TypeVar, cast, Union, Literal, TypedDict
 
 import requests
 from flask import session, redirect
@@ -14,15 +15,16 @@ from packet.notifications import packets_starting_notification, packet_starting_
 
 INTRO_REALM = 'https://sso.csh.rit.edu/auth/realms/intro'
 
+F = TypeVar('F', bound=Callable)
 
-def before_request(func):
+def before_request(func: F) -> F:
     """
     Credit to Liam Middlebrook and Ram Zallan
     https://github.com/liam-middlebrook/gallery
     """
 
     @wraps(func)
-    def wrapped_function(*args, **kwargs):
+    def wrapped_function(*args: list, **kwargs: dict) -> Any:
         uid = str(session['userinfo'].get('preferred_username', ''))
         if session['id_token']['iss'] == INTRO_REALM:
             info = {
@@ -43,11 +45,11 @@ def before_request(func):
         kwargs['info'] = info
         return func(*args, **kwargs)
 
-    return wrapped_function
+    return cast(F, wrapped_function)
 
 
 @lru_cache(maxsize=128)
-def is_freshman_on_floor(rit_username):
+def is_freshman_on_floor(rit_username: str) -> bool:
     """
     Checks if a freshman is on floor
     """
@@ -58,14 +60,14 @@ def is_freshman_on_floor(rit_username):
         return False
 
 
-def packet_auth(func):
+def packet_auth(func: F) -> F:
     """
     Decorator for easily configuring oidc
     """
 
     @auth.oidc_auth('app')
     @wraps(func)
-    def wrapped_function(*args, **kwargs):
+    def wrapped_function(*args: list, **kwargs: dict) -> Any:
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
             if ldap.is_intromember(ldap.get_member(username)):
@@ -74,17 +76,17 @@ def packet_auth(func):
 
         return func(*args, **kwargs)
 
-    return wrapped_function
+    return cast(F, wrapped_function)
 
 
-def admin_auth(func):
+def admin_auth(func: F) -> F:
     """
     Decorator for easily configuring oidc
     """
 
     @auth.oidc_auth('app')
     @wraps(func)
-    def wrapped_function(*args, **kwargs):
+    def wrapped_function(*args: list, **kwargs: dict) -> Any:
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
             member = ldap.get_member(username)
@@ -96,10 +98,10 @@ def admin_auth(func):
 
         return func(*args, **kwargs)
 
-    return wrapped_function
+    return cast(F, wrapped_function)
 
 
-def notify_slack(name: str):
+def notify_slack(name: str) -> None:
     """
     Sends a congratulate on sight decree to Slack
     """
@@ -112,7 +114,7 @@ def notify_slack(name: str):
     app.logger.info('Posted 100% notification to slack for ' + name)
 
 
-def sync_freshman(freshmen_list: dict):
+def sync_freshman(freshmen_list: dict) -> None:
     freshmen_in_db = {freshman.rit_username: freshman for freshman in Freshman.query.all()}
 
     for list_freshman in freshmen_list.values():
@@ -150,7 +152,7 @@ def sync_freshman(freshmen_list: dict):
     db.session.commit()
 
 
-def create_new_packets(base_date: date, freshmen_list: dict):
+def create_new_packets(base_date: date, freshmen_list: dict) -> None:
     packet_start_time = time(hour=19)
     packet_end_time = time(hour=21)
     start = datetime.combine(base_date, packet_start_time)
@@ -173,7 +175,7 @@ def create_new_packets(base_date: date, freshmen_list: dict):
 
     # Create the new packets and the signatures for each freshman in the given CSV
     print('Creating DB entries and sending emails...')
-    for freshman in Freshman.query.filter(Freshman.rit_username.in_(freshmen_list)).all():
+    for freshman in Freshman.query.filter(cast(Any, Freshman.rit_username).in_(freshmen_list)).all():
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
         send_start_packet_mail(packet)
@@ -197,7 +199,7 @@ def create_new_packets(base_date: date, freshmen_list: dict):
     db.session.commit()
 
 
-def sync_with_ldap():
+def sync_with_ldap() -> None:
     print('Fetching data from LDAP...')
     all_upper = {member.uid: member for member in filter(
         lambda member: not ldap.is_intromember(member) and not ldap.is_on_coop(member), ldap.get_active_members())}

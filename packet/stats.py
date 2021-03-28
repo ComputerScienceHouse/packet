@@ -1,9 +1,35 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from typing import TypedDict, Union, cast, Callable
 
 from packet.models import Packet, MiscSignature, UpperSignature
 
+# Types
+class Freshman(TypedDict):
+    name: str
+    rit_username: str
 
-def packet_stats(packet_id):
+class WhoSigned(TypedDict):
+    upper: list[str]
+    misc: list[str]
+    fresh: list[str]
+
+class PacketStats(TypedDict):
+    packet_id: int
+    freshman: Freshman
+    dates: dict[str, dict[str, list[str]]]
+
+class SimplePacket(TypedDict):
+    id: int
+    freshman_username: str
+
+class SigDict(TypedDict):
+    date: date
+    packet: SimplePacket
+
+Stats = dict[date, list[str]]
+
+
+def packet_stats(packet_id: int) -> PacketStats:
     """
     Gather statistics for a packet in the form of number of signatures per day
 
@@ -28,17 +54,17 @@ def packet_stats(packet_id):
 
     print(dates)
 
-    upper_stats = {date: list() for date in dates}
+    upper_stats: Stats = {date: list() for date in dates}
     for uid, date in map(lambda sig: (sig.member, sig.updated),
                          filter(lambda sig: sig.signed, packet.upper_signatures)):
         upper_stats[date.date()].append(uid)
 
-    fresh_stats = {date: list() for date in dates}
+    fresh_stats: Stats = {date: list() for date in dates}
     for username, date in map(lambda sig: (sig.freshman_username, sig.updated),
                               filter(lambda sig: sig.signed, packet.fresh_signatures)):
         fresh_stats[date.date()].append(username)
 
-    misc_stats = {date: list() for date in dates}
+    misc_stats: Stats = {date: list() for date in dates}
     for uid, date in map(lambda sig: (sig.member, sig.updated), packet.misc_signatures):
         misc_stats[date.date()].append(uid)
 
@@ -60,7 +86,7 @@ def packet_stats(packet_id):
             }
 
 
-def sig2dict(sig):
+def sig2dict(sig: Union[UpperSignature, MiscSignature]) -> SigDict:
     """
     A utility function for upperclassman stats.
     Converts an UpperSignature to a dictionary with the date and the packet.
@@ -74,8 +100,11 @@ def sig2dict(sig):
                 },
             }
 
+class UpperStats(TypedDict):
+    member: str
+    signatures: dict[str, list[SimplePacket]]
 
-def upperclassman_stats(uid):
+def upperclassman_stats(uid: str) -> UpperStats:
     """
     Gather statistics for an upperclassman's signature habits
 
@@ -104,7 +133,7 @@ def upperclassman_stats(uid):
             'signatures': {
                 date.isoformat() : list(
                     map(lambda sd: sd['packet'],
-                        filter(lambda sig, d=date: sig['date'] == d,
+                        filter(cast(Callable, lambda sig, d=date: sig['date'] == d),
                             sig_dicts
                             )
                         )

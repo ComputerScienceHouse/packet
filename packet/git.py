@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 
-def get_short_sha(commit_ish: str = 'HEAD'):
+def get_short_sha(commit_ish: str = 'HEAD') -> str:
     """
     Get the short hash of a commit-ish
     Returns '' if unfound
@@ -14,7 +14,7 @@ def get_short_sha(commit_ish: str = 'HEAD'):
     except subprocess.CalledProcessError:
         return ''
 
-def get_tag(commit_ish: str = 'HEAD'):
+def get_tag(commit_ish: str = 'HEAD') -> str:
     """
     Get the name of the tag at a given commit-ish
     Returns '' if untagged
@@ -26,7 +26,7 @@ def get_tag(commit_ish: str = 'HEAD'):
     except subprocess.CalledProcessError:
         return ''
 
-def get_version(commit_ish: str = 'HEAD'):
+def get_version(commit_ish: str = 'HEAD') -> str:
     """
     Get the version string of a commit-ish
 
