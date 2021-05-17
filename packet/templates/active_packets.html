@@ -18,7 +18,7 @@
         </div>
         <div id="eval-blocks">
             {% if packets|length > 0 %}
-                {% set can_sign = info.onfloor or info.realm == "csh" %}
+                {% set can_sign = info.onfloor or info.is_upper %}
                 <div id="eval-table">
                     <div class="card">
                         <div class="card-body table-fill">

@@ -3,10 +3,9 @@ Default configuration settings and environment variable based configuration logi
     See the readme for more information
 """
 from distutils.util import strtobool
-from os import environ, path, getcwd
+from os import environ
 
 # Flask config
-DEBUG = False
 IP = environ.get("PACKET_IP", "localhost")
 PORT = environ.get("PACKET_PORT", "8000")
 PROTOCOL = environ.get("PACKET_PROTOCOL", "https://")
@@ -31,17 +30,19 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 LDAP_BIND_DN = environ.get("PACKET_LDAP_BIND_DN", None)
 LDAP_BIND_PASS = environ.get("PACKET_LDAP_BIND_PASS", None)
 LDAP_MOCK_MEMBERS = [
-        {'uid':'evals', 'groups': ['eboard', 'eboard-evaluations', 'active']},
-        {'uid':'imps-3da', 'groups': ['eboard', 'eboard-imps', '3da', 'active']},
+        {'uid':'evals', 'ritdn':'evals', 'groups': ['eboard', 'eboard-evaluations', 'active']},
+        {'uid':'imps-3da', 'ritdn':'imps-3da', 'groups': ['eboard', 'eboard-imps', '3da', 'active']},
         {
             'uid':'rtp-cm-webs-onfloor',
+            'ritdn':'rtp-cm-webs-onfloor',
             'groups': ['active-rtp', 'rtp', 'constitutional_maintainers', 'webmaster', 'active', 'onfloor'],
             'room_number': 1024
         },
-        {'uid':'misc-rtp', 'groups': ['rtp']},
-        {'uid':'onfloor', 'groups': ['active', 'onfloor'], 'room_number': 1024},
-        {'uid':'active-offfloor', 'groups': ['active']},
-        {'uid':'alum', 'groups': ['member']},
+        {'uid':'misc-rtp', 'ritdn':'misc-rtp', 'groups': ['rtp']},
+        {'uid':'onfloor', 'ritdn':'onfloor', 'groups': ['active', 'onfloor'], 'room_number': 1024},
+        {'uid':'active-offfloor', 'ritdn':'active-offfloor', 'groups': ['active']},
+        {'uid':'alum', 'ritdn':'alum', 'groups': ['member']},
+        {'uid':'intromember', 'ritdn':'alum', 'groups': ['intromembers', 'active', 'member']},
     ]
 
 # Mail Config

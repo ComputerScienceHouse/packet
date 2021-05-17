@@ -13,12 +13,13 @@ from packet import app
 
 class MockMember:
 
-    def __init__(self, uid: str, groups: list = None, cn: str = None, room_number: int = None):
+    def __init__(self, uid: str, groups: list = None, cn: str = None, room_number: int = None, ritdn: str = None):
         self.uid = uid
         self.groups = groups if groups else list()
         if room_number:
             self.room_number = room_number
         self.cn = cn if cn else uid.title() # pylint: disable=invalid-name
+        self.ritdn = ritdn
 
 
     def __eq__(self, other: Any) -> bool:

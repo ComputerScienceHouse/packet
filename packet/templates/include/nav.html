@@ -14,7 +14,7 @@
                     <a class="nav-link" href="{{ url_for("packets") }}">Active Packets</a>
                 </li>
 
-                {% if info.realm == "csh" %}
+                {% if info.is_upper %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for("upperclassmen_total") }}">Signatures</a>
                     </li>

@@ -9,7 +9,7 @@ from typing import cast, Optional
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
-from . import db
+from . import db, ldap
 
 # The required number of honorary member, advisor, and alumni signatures
 REQUIRED_MISC_SIGNATURES = 10
@@ -97,19 +97,24 @@ class Packet(db.Model):
 
         return SigCounts(upper, fresh, len(self.misc_signatures))
 
-    def did_sign(self, username: str, is_csh: bool) -> bool:
+    def did_sign(self, username: str, is_csh: bool, is_frosh: bool) -> bool:
         """
         :param username: The CSH or RIT username to check for
         :param is_csh: Set to True for CSH accounts and False for freshmen
+        :param is_frosh: Set to True for freshmen (can't sign packets as an upper sig)
         :return: Boolean value for if the given account signed this packet
         """
-        if is_csh:
+        if is_csh and not is_frosh:
             for sig in filter(lambda sig: sig.member == username, chain(self.upper_signatures, self.misc_signatures)):
                 if isinstance(sig, MiscSignature):
                     return True
                 else:
                     return sig.signed
-        else:
+
+        if is_csh and is_frosh:
+            username = ldap.get_member(username).ritdn
+
+        if not is_csh or is_frosh:
             for sig in filter(lambda sig: sig.freshman_username == username, self.fresh_signatures):
                 return sig.signed
 
