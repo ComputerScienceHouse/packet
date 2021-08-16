@@ -20,7 +20,7 @@
                                 class="fa fa-check"></i>&nbsp;Signed
                         </button>
                     {% endif %}
-                    {% if info.realm == "csh" %}
+                    {% if info.realm == "csh" and info.is_upper %}
                         <a class="btn btn-primary"
                            style="float: right; margin-right: 5px"
                            href="{{ url_for('packet_graphs', packet_id=packet.id) }}">
@@ -29,6 +29,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% if info.is_upper or packet.freshman_username == info.ritdn %}
             <div class="row">
                 <div class="col ml-1 mb-1">
                     <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span>
@@ -103,10 +104,16 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
+                {% if info.is_upper or packet.freshman_username == info.ritdn or can_sign %}
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>On-Floor Freshmen Signatures</b>
+                        {% if info.is_upper or packet.freshman_username == info.ritdn %}
                         <b class="signature-count">{{ received.fresh }}/{{ required.fresh }}</b>
+                        {% else %}
+                        <b>Signed</b>
+                        {% endif %}
                     </div>
                     <div class="card-body table-fill">
                         <div class="table-responsive">
@@ -114,7 +121,7 @@
                                    data-searchable="true" data-sort-column="3" data-sort-order="asc"
                                    data-length-changable="true" data-paginated="false">
                                 <tbody>
-                                {% for sig in packet.fresh_signatures %}
+                                {% for sig in (packet.fresh_signatures if info.is_upper or packet.freshman_username == info.ritdn else fresh_sig) %}
                                     <tr {% if sig.signed %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
                                             <img class="eval-user-img" alt="{{ sig.freshman_username }}"
@@ -136,6 +143,8 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
+                {% if info.is_upper or packet.freshman_username == info.ritdn %}
                 <div class="card mb-2">
                     <div class="card-header">
                         <b>Alumni & Advisor Signatures</b>
@@ -178,6 +187,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

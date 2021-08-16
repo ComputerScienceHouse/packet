@@ -31,7 +31,9 @@ def before_request(func: WrappedFunc) -> WrappedFunc:
                 'realm': 'intro',
                 'uid': uid,
                 'onfloor': is_freshman_on_floor(uid),
-                'admin': False  # It's always false if frosh
+                'admin': False,  # It's always false if frosh
+                'ritdn': uid,
+                'is_upper': False, # Always fals in intro realm
             }
         else:
             member = ldap.get_member(uid)
@@ -40,6 +42,8 @@ def before_request(func: WrappedFunc) -> WrappedFunc:
                 'uid': uid,
                 'admin': ldap.is_evals(member),
                 'groups': ldap.get_groups(member),
+                'ritdn': member.ritdn,
+                'is_upper': not is_frosh(),
             }
 
         kwargs['info'] = info
@@ -258,3 +262,15 @@ def sync_with_ldap() -> None:
             db.session.add(sig)
 
     db.session.commit()
+
+
+@auth.oidc_auth('app')
+def is_frosh() -> bool:
+    """
+    Check if the current user is a freshman.
+    """
+    if app.config['REALM'] == 'csh':
+        username = str(session['userinfo'].get('preferred_username', ''))
+        return ldap.is_intromember(ldap.get_member(username))
+    # Always true for the intro realm
+    return True
