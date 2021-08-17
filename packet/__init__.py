@@ -78,6 +78,7 @@ auth = OIDCAuthentication({'app': APP_CONFIG}, app)
 app.logger.info('OIDCAuth configured')
 
 # Sentry
+# pylint: disable=abstract-class-instantiated
 sentry_sdk.init(
     dsn=app.config['SENTRY_DSN'],
     integrations=[FlaskIntegration(), SqlalchemyIntegration()]
