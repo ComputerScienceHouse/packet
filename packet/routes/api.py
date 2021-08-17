@@ -210,8 +210,8 @@ def upperclassman_stats(uid):
 
 @app.route('/readiness')
 def readiness() -> tuple[str, int]:
-    '''A basic healthcheck. Returns 200 to indicate flask is running'''
-    return "ready", 200
+    """A basic healthcheck. Returns 200 to indicate flask is running"""
+    return 'ready', 200
 
 
 def commit_sig(packet, was_100, uid):
