@@ -31,4 +31,28 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with pylint
         run: |
-          pylint packet
+          pylint packet/routes packet
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - name: Install ldap dependencies
+        run: sudo apt-get update && sudo apt-get install libldap2-dev libsasl2-dev
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Typecheck with mypy
+        run: |
+          # Disabled error codes to discard errors from imports
+          mypy --disable-error-code import --disable-error-code name-defined --disallow-untyped-defs --exclude routes packet

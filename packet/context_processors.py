@@ -5,14 +5,15 @@ import hashlib
 import urllib
 from functools import lru_cache
 from datetime import datetime
+from typing import Callable
 
-from packet.models import Freshman
+from packet.models import Freshman, UpperSignature
 from packet import app, ldap
 
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=128)
-def get_csh_name(username):
+def get_csh_name(username: str) -> str:
     try:
         member = ldap.get_member(username)
         return member.cn + ' (' + member.uid + ')'
@@ -20,7 +21,7 @@ def get_csh_name(username):
         return username
 
 
-def get_roles(sig):
+def get_roles(sig: UpperSignature) -> dict[str, str]:
     """
     Converts a signature's role fields to a dict for ease of access.
     :return: A dictionary of role short names to role long names
@@ -45,7 +46,7 @@ def get_roles(sig):
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=256)
-def get_rit_name(username):
+def get_rit_name(username: str) -> str:
     try:
         freshman = Freshman.query.filter_by(rit_username=username).first()
         return freshman.name + ' (' + username + ')'
@@ -55,7 +56,7 @@ def get_rit_name(username):
 
 # pylint: disable=bare-except
 @lru_cache(maxsize=256)
-def get_rit_image(username):
+def get_rit_image(username: str) -> str:
     if username:
         addresses = [username + '@rit.edu', username + '@g.rit.edu']
         for addr in addresses:
@@ -69,7 +70,7 @@ def get_rit_image(username):
     return 'https://www.gravatar.com/avatar/freshmen?d=mp&f=y'
 
 
-def log_time(label):
+def log_time(label: str) -> None:
     """
     Used during debugging to log timestamps while rendering templates
     """
@@ -77,7 +78,7 @@ def log_time(label):
 
 
 @app.context_processor
-def utility_processor():
+def utility_processor() -> dict[str, Callable]:
     return dict(
         get_csh_name=get_csh_name, get_rit_name=get_rit_name, get_rit_image=get_rit_image, log_time=log_time,
         get_roles=get_roles

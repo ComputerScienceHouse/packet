@@ -34,6 +34,12 @@ def freshman_packet(packet_id, info=None):
             if info['uid'] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
                 can_sign = False
 
+        # The current user's freshman signature on this packet
+        fresh_sig = list(filter(
+            lambda sig: sig.freshman_username == info['ritdn'] if info else '',
+            packet.fresh_signatures
+        ))
+
         return render_template('packet.html',
                                info=info,
                                packet=packet,
@@ -41,14 +47,15 @@ def freshman_packet(packet_id, info=None):
                                did_sign=packet.did_sign(info['uid'], app.config['REALM'] == 'csh'),
                                required=packet.signatures_required(),
                                received=packet.signatures_received(),
-                               upper=packet.upper_signatures)
+                               upper=packet.upper_signatures,
+                               fresh_sig=fresh_sig)
 
 
 def packet_sort_key(packet):
     """
     Utility function for generating keys for sorting packets
     """
-    return packet.signatures_received_result.total, packet.did_sign_result
+    return packet.freshman.name, -packet.signatures_received_result.total, not packet.did_sign_result
 
 
 @app.route('/packets/')
@@ -65,7 +72,7 @@ def packets(info=None):
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
-    open_packets.sort(key=packet_sort_key, reverse=True)
+    open_packets.sort(key=packet_sort_key)
 
     return render_template('active_packets.html', info=info, packets=open_packets)
 

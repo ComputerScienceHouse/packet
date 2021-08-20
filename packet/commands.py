@@ -5,7 +5,7 @@ Defines command-line utilities for use with packet
 import sys
 
 from secrets import token_hex
-from datetime import datetime, time
+from datetime import datetime, time, date
 import csv
 import click
 
@@ -15,7 +15,7 @@ from .utils import sync_freshman, create_new_packets, sync_with_ldap
 
 
 @app.cli.command('create-secret')
-def create_secret():
+def create_secret() -> None:
     """
     Generates a securely random token. Useful for creating a value for use in the "SECRET_KEY" config setting.
     """
@@ -28,13 +28,13 @@ packet_end_time = time(hour=21)
 
 
 class CSVFreshman:
-    def __init__(self, row):
+    def __init__(self, row: list[str]) -> None:
         self.name = row[0].strip()
         self.rit_username = row[3].strip()
         self.onfloor = row[1].strip() == 'TRUE'
 
 
-def parse_csv(freshmen_csv):
+def parse_csv(freshmen_csv: str) -> dict[str, CSVFreshman]:
     print('Parsing file...')
     try:
         with open(freshmen_csv, newline='') as freshmen_csv_file:
@@ -44,7 +44,7 @@ def parse_csv(freshmen_csv):
         raise e
 
 
-def input_date(prompt):
+def input_date(prompt: str) -> date:
     while True:
         try:
             date_str = input(prompt + ' (format: MM/DD/YYYY): ')
@@ -55,7 +55,7 @@ def input_date(prompt):
 
 @app.cli.command('sync-freshmen')
 @click.argument('freshmen_csv')
-def sync_freshmen(freshmen_csv):
+def sync_freshmen(freshmen_csv: str) -> None:
     """
     Updates the freshmen entries in the DB to match the given CSV.
     """
@@ -68,7 +68,7 @@ def sync_freshmen(freshmen_csv):
 
 @app.cli.command('create-packets')
 @click.argument('freshmen_csv')
-def create_packets(freshmen_csv):
+def create_packets(freshmen_csv: str) -> None:
     """
     Creates a new packet season for each of the freshmen in the given CSV.
     """
@@ -84,7 +84,7 @@ def create_packets(freshmen_csv):
 
 
 @app.cli.command('ldap-sync')
-def ldap_sync():
+def ldap_sync() -> None:
     """
     Updates the upper and misc sigs in the DB to match ldap.
     """
@@ -97,7 +97,7 @@ def ldap_sync():
         help='The file to write to. If no file provided, output is sent to stdout.')
 @click.option('--csv/--no-csv', 'use_csv', required=False, default=False, help='Format output as comma separated list.')
 @click.option('--date', 'date_str', required=False, default='', help='Packet end date in the format MM/DD/YYYY.')
-def fetch_results(file_path, use_csv, date_str):
+def fetch_results(file_path: str, use_csv: bool, date_str: str) -> None:
     """
     Fetches and prints the results from a given packet season.
     """
@@ -150,7 +150,7 @@ def fetch_results(file_path, use_csv, date_str):
 
 @app.cli.command('extend-packet')
 @click.argument('packet_id')
-def extend_packet(packet_id):
+def extend_packet(packet_id: int) -> None:
     """
     Extends the given packet by setting a new end date.
     """
@@ -168,7 +168,7 @@ def extend_packet(packet_id):
     print('Packet successfully extended')
 
 
-def remove_sig(packet_id, username, is_member):
+def remove_sig(packet_id: int, username: str, is_member: bool) -> None:
     packet = Packet.by_id(packet_id)
 
     if not packet.is_open():
@@ -200,7 +200,7 @@ def remove_sig(packet_id, username, is_member):
 @app.cli.command('remove-member-sig')
 @click.argument('packet_id')
 @click.argument('member')
-def remove_member_sig(packet_id, member):
+def remove_member_sig(packet_id: int, member: str) -> None:
     """
     Removes the given member's signature from the given packet.
     :param member: The member's CSH username
@@ -211,7 +211,7 @@ def remove_member_sig(packet_id, member):
 @app.cli.command('remove-freshman-sig')
 @click.argument('packet_id')
 @click.argument('freshman')
-def remove_freshman_sig(packet_id, freshman):
+def remove_freshman_sig(packet_id: int, freshman: str) -> None:
     """
     Removes the given freshman's signature from the given packet.
     :param freshman: The freshman's RIT username

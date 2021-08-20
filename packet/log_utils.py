@@ -4,18 +4,20 @@ General utilities for logging metadata
 
 from functools import wraps
 from datetime import datetime
+from typing import Any, Callable, TypeVar, cast
 
 from packet import app, ldap
 from packet.context_processors import get_rit_name
 from packet.utils import is_freshman_on_floor
 
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
-def log_time(func):
+def log_time(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for logging the execution time of a function
     """
     @wraps(func)
-    def wrapped_function(*args, **kwargs):
+    def wrapped_function(*args: list, **kwargs: dict) -> Any:
         start = datetime.now()
 
         result = func(*args, **kwargs)
@@ -25,10 +27,10 @@ def log_time(func):
 
         return result
 
-    return wrapped_function
+    return cast(WrappedFunc, wrapped_function)
 
 
-def _format_cache(func):
+def _format_cache(func: Any) -> str:
     """
     :return: The output of func.cache_info() as a compactly formatted string
     """
@@ -41,17 +43,17 @@ def _format_cache(func):
 _caches = (get_rit_name, ldap.get_member, is_freshman_on_floor)
 
 
-def log_cache(func):
+def log_cache(func: WrappedFunc) -> WrappedFunc:
     """
     Decorator for logging cache info
     """
 
     @wraps(func)
-    def wrapped_function(*args, **kwargs):
+    def wrapped_function(*args: list, **kwargs: dict) -> Any:
         result = func(*args, **kwargs)
 
         app.logger.info('Cache stats: ' + ', '.join(map(_format_cache, _caches)))
 
         return result
 
-    return wrapped_function
+    return cast(WrappedFunc, wrapped_function)

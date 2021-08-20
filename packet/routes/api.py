@@ -208,6 +208,12 @@ def upperclassman_stats(uid):
     return stats.upperclassman_stats(uid)
 
 
+@app.route('/readiness')
+def readiness() -> tuple[str, int]:
+    """A basic healthcheck. Returns 200 to indicate flask is running"""
+    return 'ready', 200
+
+
 def commit_sig(packet, was_100, uid):
     packet_signed_notification(packet, uid)
     db.session.commit()

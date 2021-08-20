@@ -1,7 +1,10 @@
-import onesignal
+from datetime import datetime
+from typing import Any, Callable, TypeVar, cast
+
+import onesignal_sdk.client as onesignal
 
 from packet import app, intro_onesignal_client, csh_onesignal_client
-from packet.models import NotificationSubscription
+from packet.models import NotificationSubscription, Packet
 
 post_body = {
     'contents': {'en': 'Default message'},
@@ -11,22 +14,24 @@ post_body = {
     'url': app.config['PROTOCOL'] + app.config['SERVER_NAME']
 }
 
-def require_onesignal_intro(func):
-    def require_onesignal_intro_wrapper(*args, **kwargs):
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
+
+def require_onesignal_intro(func: WrappedFunc) -> WrappedFunc:
+    def require_onesignal_intro_wrapper(*args: list, **kwargs: dict) -> Any:
         if intro_onesignal_client:
             return func(*args, **kwargs)
         return None
-    return require_onesignal_intro_wrapper
+    return cast(WrappedFunc, require_onesignal_intro_wrapper)
 
-def require_onesignal_csh(func):
-    def require_onesignal_csh_wrapper(*args, **kwargs):
+def require_onesignal_csh(func: WrappedFunc) -> WrappedFunc:
+    def require_onesignal_csh_wrapper(*args: list, **kwargs: dict) -> Any:
         if csh_onesignal_client:
             return func(*args, **kwargs)
         return None
-    return require_onesignal_csh_wrapper
+    return cast(WrappedFunc, require_onesignal_csh_wrapper)
 
 
-def send_notification(notification_body, subscriptions, client):
+def send_notification(notification_body: dict, subscriptions: list, client: onesignal.Client) -> None:
     tokens = list(map(lambda subscription: subscription.token, subscriptions))
     if tokens:
         notification = onesignal.Notification(post_body=notification_body)
@@ -39,7 +44,7 @@ def send_notification(notification_body, subscriptions, client):
 
 
 @require_onesignal_intro
-def packet_signed_notification(packet, signer):
+def packet_signed_notification(packet: Packet, signer: str) -> None:
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
         notification_body = post_body
@@ -53,9 +58,10 @@ def packet_signed_notification(packet, signer):
 
 @require_onesignal_csh
 @require_onesignal_intro
-def packet_100_percent_notification(packet):
-    member_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.member.isnot(None))
-    intro_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.freshman_username.isnot(None))
+def packet_100_percent_notification(packet: Packet) -> None:
+    member_subscriptions = NotificationSubscription.query.filter(cast(Any, NotificationSubscription.member).isnot(None))
+    intro_subscriptions = NotificationSubscription.query.filter(
+            cast(Any, NotificationSubscription.freshman_username).isnot(None))
     if member_subscriptions or intro_subscriptions:
         notification_body = post_body
         notification_body['contents']['en'] = packet.freshman.name + ' got 💯 on packet!'
@@ -68,7 +74,7 @@ def packet_100_percent_notification(packet):
 
 
 @require_onesignal_intro
-def packet_starting_notification(packet):
+def packet_starting_notification(packet: Packet) -> None:
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
         notification_body = post_body
@@ -81,8 +87,8 @@ def packet_starting_notification(packet):
 
 
 @require_onesignal_csh
-def packets_starting_notification(start_date):
-    member_subscriptions = NotificationSubscription.query.filter(NotificationSubscription.member.isnot(None))
+def packets_starting_notification(start_date: datetime) -> None:
+    member_subscriptions = NotificationSubscription.query.filter(cast(Any, NotificationSubscription.member).isnot(None))
     if member_subscriptions:
         notification_body = post_body
         notification_body['contents']['en'] = 'New packets have started, visit packet to see them!'

@@ -1,0 +1,78 @@
+name: Trigger Builds on Release
+# Trigger builds on okd only on new releases
+# Assumes the branch is "master"
+# Uses secrets.OKD_BUILD_HOOK to know where to send the event to
+# OKD_BUILD_HOOK should be a generic build hook
+
+on: 
+  release:
+    types:
+      - released
+
+jobs:
+  trigger_build:
+    name: trigger build
+    runs-on: ubuntu-latest
+    steps:
+      # Grab committer and author information from the commit
+      - name: get commit
+        id: commit
+        run: |
+          commit_url=$(
+            jq -r '.repository.git_commits_url' $GITHUB_EVENT_PATH |
+            sed 's/{.*}/\/${{ github.sha }}/'
+          )
+          curl --request GET \
+            --silent \
+            --show-error \
+            --url "$commit_url" \
+            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            --fail > commit-out
+          jq -C '.' commit-out
+          echo "::set-output name=committer::$(jq -c '.committer' commit-out)"
+          echo "::set-output name=author::$(jq -c '.author' commit-out)"
+
+      # Construct the json blob as per okd's webhook requirements
+      - name: format payload
+        run: |
+          cat $GITHUB_EVENT_PATH | \
+          jq '{ 
+                git: { 
+                  uri: .repository.html_url,
+                  ref: "master",
+                  commit: "${{ github.sha }}",
+                  author: ${{ steps.commit.outputs.author }},
+                  committer: ${{ steps.commit.outputs.committer }}
+                }
+              }' | \
+          tee payload.json | \
+          jq -C '.'
+
+      # send the webhook
+      - name: trigger build
+        id: hook
+        env:
+          OKD_BUILD_HOOK: ${{ secrets.OKD_BUILD_HOOK }}
+        run: |
+          curl \
+            --insecure \
+            --silent \
+            --show-error \
+            --header "Content-Type: application/json" \
+            --request POST \
+            --data @payload.json "$OKD_BUILD_HOOK" > curl-out
+          jq -C '.' curl-out || (cat curl-out; false)
+          echo "::set-output name=kind::$(jq '.kind' curl-out)"
+
+      # Fail if we recieved a Status response and it doesn't look good
+      - name: test http code
+        if: steps.hook.outputs.kind == 'Status'
+        run: "[ `jq '.code' curl-out` -lt 400 ]"
+
+      - name: test status
+        if: steps.hook.outputs.kind == 'Status'
+        run: "[ `jq '.status' curl-out` == 'Success' ]"
+
+      - name: test if skipped
+        if: steps.hook.outputs.kind == 'Status'
+        run: "[[ `jq '.message' curl-out` != *skipping* ]]"
