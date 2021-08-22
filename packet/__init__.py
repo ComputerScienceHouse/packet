@@ -7,7 +7,7 @@ import logging
 import os
 
 import csh_ldap
-import onesignal_sdk.client as onesignal
+import onesignal
 from flask import Flask
 from flask_gzip import Gzip
 from flask_migrate import Migrate
@@ -57,7 +57,7 @@ if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
    app.config['ONESIGNAL_CSH_APP_ID']:
     csh_onesignal_client = onesignal.Client(
         user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-        rest_api_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
         app_id=app.config['ONESIGNAL_CSH_APP_ID']
     )
     app.logger.info('CSH Onesignal configured and notifications enabled')
@@ -68,7 +68,7 @@ if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
    app.config['ONESIGNAL_INTRO_APP_ID']:
     intro_onesignal_client = onesignal.Client(
         user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
-        rest_api_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
+        app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
         app_id=app.config['ONESIGNAL_INTRO_APP_ID']
     )
     app.logger.info('Intro Onesignal configured and notifications enabled')
