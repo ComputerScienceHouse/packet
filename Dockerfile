@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM docker.io/python:3.9-slim-buster
 MAINTAINER Devin Matte <matted@csh.rit.edu>
 
 ENV DD_LOGS_INJECTION=true
@@ -11,13 +11,13 @@ RUN mkdir /opt/packet
 
 WORKDIR /opt/packet
 
-COPY requirements.txt /opt/packet
+COPY requirements.txt requirements-freeze.txt /opt/packet/
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -r requirements-freeze.txt
 
 COPY . /opt/packet
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_10.x | grep -v 'sleep 20' | bash - && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get -yq update && \
