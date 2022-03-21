@@ -112,5 +112,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='js/tables.min.js') }}"></script>
+    {% if info.realm == "csh" %}
+        <script src="{{ url_for('static', filename='js/tables.min.js') }}"></script>
+    {% endif %}
 {% endblock %}

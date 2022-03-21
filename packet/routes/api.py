@@ -96,10 +96,14 @@ def sync_ldap():
 
 @app.route('/api/v1/packets/<username>', methods=['GET'])
 @packet_auth
-def get_packets_by_user(username: str) -> dict:
+@before_request
+def get_packets_by_user(username: str, info=None) -> dict:
     """
     Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
     """
+
+    if info['ritdn'] != username:
+        return 'Forbidden - not your packet', 403
     frosh = Freshman.by_username(username)
 
     return {packet.id: {
@@ -110,10 +114,15 @@ def get_packets_by_user(username: str) -> dict:
 
 @app.route('/api/v1/packets/<username>/newest', methods=['GET'])
 @packet_auth
-def get_newest_packet_by_user(username: str) -> dict:
+@before_request
+def get_newest_packet_by_user(username: str, info=None) -> dict:
     """
     Return a user's newest packet
     """
+
+    if not info['is_upper'] and info['ritdn'] != username:
+        return 'Forbidden - not your packet', 403
+
     frosh = Freshman.by_username(username)
 
     packet = frosh.packets[-1]
@@ -130,12 +139,16 @@ def get_newest_packet_by_user(username: str) -> dict:
 
 @app.route('/api/v1/packet/<packet_id>', methods=['GET'])
 @packet_auth
-def get_packet_by_id(packet_id: int) -> dict:
+@before_request
+def get_packet_by_id(packet_id: int, info=None) -> dict:
     """
     Return the scores of the packet in question
     """
 
     packet = Packet.by_id(packet_id)
+
+    if not info['is_upper'] and info['ritdn'] != packet.freshman.rit_username:
+        return 'Forbidden - not your packet', 403
 
     return {
         'required': vars(packet.signatures_required()),
@@ -198,13 +211,20 @@ def report(info):
 
 @app.route('/api/v1/stats/packet/<packet_id>')
 @packet_auth
-def packet_stats(packet_id):
+@before_request
+def packet_stats(packet_id, info=None):
+    if not info['is_upper'] and info['ritdn'] != Packet.by_id(packet_id).freshman.rit_username:
+        return 'Forbidden - not your packet', 403
     return stats.packet_stats(packet_id)
 
 
 @app.route('/api/v1/stats/upperclassman/<uid>')
 @packet_auth
-def upperclassman_stats(uid):
+@before_request
+def upperclassman_stats(uid, info=None):
+    if not info['is_upper']:
+        return 'Forbidden', 403
+
     return stats.upperclassman_stats(uid)
 
 

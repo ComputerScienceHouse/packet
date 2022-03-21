@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Callable, TypeVar, cast
 
-import onesignal_sdk.client as onesignal
+import onesignal
 
 from packet import app, intro_onesignal_client, csh_onesignal_client
 from packet.models import NotificationSubscription, Packet
@@ -48,7 +48,7 @@ def packet_signed_notification(packet: Packet, signer: str) -> None:
     subscriptions = NotificationSubscription.query.filter_by(freshman_username=packet.freshman_username)
     if subscriptions:
         notification_body = post_body
-        notification_body['contents']['en'] = signer + " signed your packet! Congrats or I'm Sorry"
+        notification_body['contents']['en'] = signer + ' signed your packet!'
         notification_body['headings']['en'] = 'New Packet Signature!'
         notification_body['chrome_web_icon'] = 'https://profiles.csh.rit.edu/image/' + signer
         notification_body['url'] = app.config['PROTOCOL'] + app.config['PACKET_INTRO']
