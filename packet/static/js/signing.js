@@ -26,7 +26,7 @@ $(document).ready(function () {
                         method: "POST",
                         success: function (data) {
                             dialogs.fire({
-                                title: "Congratulations or I'm sorry",
+                                title: "Packet Signed",
                                 text: "You've signed " + packetData.freshman_name + "'s packet",
                                 type: "success",
                             })
