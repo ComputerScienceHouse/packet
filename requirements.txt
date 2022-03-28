@@ -11,7 +11,7 @@ mypy==0.931
 onesignal-sdk~=1.0.0
 psycopg2-binary~=2.8.6
 pylint-quotes==0.2.1
-pylint~=2.7.4
+pylint~=2.13.2
 sentry-sdk~=1.0.0
 sqlalchemy[mypy]~=1.4.31
 
