@@ -44,7 +44,7 @@ pyasn1-modules==0.2.8
 pycparser==2.21
 pycryptodomex==3.14.1
 pyjwkest==1.4.2
-pylint==2.7.4
+pylint==2.13.5
 pylint-quotes==0.2.1
 pyparsing==3.0.7
 python-ldap==3.0.0
