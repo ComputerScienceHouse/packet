@@ -11,9 +11,9 @@ RUN mkdir /opt/packet
 
 WORKDIR /opt/packet
 
-COPY requirements.txt requirements-freeze.txt /opt/packet/
+COPY requirements.txt /opt/packet/
 
-RUN pip install -r requirements.txt -r requirements-freeze.txt
+RUN pip install -r requirements.txt
 
 COPY . /opt/packet
 
