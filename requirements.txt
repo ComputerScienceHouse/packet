@@ -60,7 +60,9 @@ flask-sqlalchemy==2.5.1
     #   flask-migrate
 future==0.18.2
     # via pyjwkest
-gunicorn==20.0.4
+greenlet==1.1.2
+    # via sqlalchemy
+gunicorn==20.1.0
     # via -r requirements.in
 idna==3.3
     # via requests
@@ -176,8 +178,6 @@ wheel==0.37.1
     # via pip-tools
 wrapt==1.12.1
     # via astroid
-zipp==3.8.0
-    # via importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
