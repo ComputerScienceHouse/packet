@@ -20,7 +20,8 @@ reliable method.
 ### Python dependencies
 Use `pip3 install -r requirements.txt` to install the required python dependencies. A 
 [venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments) is *highly* 
-recommended. 
+recommended. To add new dependencies, add them to `requirements.in` and run `pip-compile requirements.in` to update
+the main file.
 
 If 1 or more of the packages fail to install the likely issue is missing header files for the libraries with native C 
 components. See the contents of `Dockerfile` for the Linux packages that you'll need. On windows it's a bit more of a 
