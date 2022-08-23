@@ -128,7 +128,7 @@ class LDAPWrapper:
             ) + self._get_group_members('eboard-financial') + self._get_group_members('eboard-history'
             ) + self._get_group_members('eboard-imps') + self._get_group_members('eboard-opcomm'
             ) + self._get_group_members('eboard-research') + self._get_group_members('eboard-social'
-            )
+            ) + self._get_group_members('eboard-pr')
 
         return members
 
@@ -218,6 +218,8 @@ class LDAPWrapper:
             return_val = 'R&D'
         elif self._is_member_of_group(member, 'eboard-social'):
             return_val = 'Social'
+        elif self._is_member_of_group(member, 'eboard-pr'):
+            return_val = 'PR'
         elif self._is_member_of_group(member, 'eboard-secretary'):
             return_val = 'Secretary'
 
