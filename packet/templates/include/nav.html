@@ -41,7 +41,11 @@
                 <li class="navbar-user dropdown">
 
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="user01">
+                        {% if info.realm == "csh" %}
                         <img src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
+                        {% else %}
+                        <img src="{{ get_rit_image(info.uid) }}">
+                        {% endif %}
                         {{ info.uid }}
                         <span class="caret"></span>
                     </a>
