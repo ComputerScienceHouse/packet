@@ -4,9 +4,10 @@ General utilities and decorators for supporting the Python logic
 from datetime import datetime, time, timedelta, date
 from functools import wraps, lru_cache
 from typing import Any, Callable, TypeVar, cast
+from urllib.parse import urlparse
 
 import requests
-from flask import session, redirect
+from flask import session, redirect, request
 
 from packet import auth, app, db, ldap
 from packet.mail import send_start_packet_mail
@@ -63,6 +64,16 @@ def is_freshman_on_floor(rit_username: str) -> bool:
     else:
         return False
 
+
+@app.before_request
+def before_reqest_callback() -> Any:
+    """
+    Pre-request function to ensure we're on the right URL before OIDC sees anything
+    """
+    if urlparse(request.base_url).hostname != app.config['SERVER_NAME']:
+        return redirect(request.base_url.replace(urlparse(request.base_url).hostname,
+            app.config['SERVER_NAME']), code=302)
+    return None
 
 def packet_auth(func: WrappedFunc) -> WrappedFunc:
     """
