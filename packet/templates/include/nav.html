@@ -41,7 +41,11 @@
                 <li class="navbar-user dropdown">
 
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="user01">
-                        <img src="https://profiles.csh.rit.edu/image/{{ info.uid }}" onerror="this.src='https://gravatar.com/avatar/c000557e7f805c44b0cc0079db911f21.jpg?d=mm&s=250'">
+                        {% if info.realm == "csh" %}
+                        <img src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
+                        {% else %}
+                        <img src="{{ get_rit_image(info.uid) }}">
+                        {% endif %}
                         {{ info.uid }}
                         <span class="caret"></span>
                     </a>
