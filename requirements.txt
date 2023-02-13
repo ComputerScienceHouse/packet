@@ -6,7 +6,7 @@
 #
 alembic==1.7.7
     # via flask-migrate
-astroid==2.6.6
+astroid==2.14.2
     # via pylint
 attrs==21.4.0
     # via ddtrace
@@ -36,6 +36,8 @@ ddtrace==1.1.4
     # via -r requirements.in
 defusedxml==0.7.1
     # via oic
+dill==0.3.6
+    # via pylint
 dnspython==2.2.1
     # via srvlookup
 flask==1.1.4
@@ -60,6 +62,8 @@ flask-sqlalchemy==2.5.1
     #   flask-migrate
 future==0.18.2
     # via pyjwkest
+greenlet==2.0.2
+    # via sqlalchemy
 gunicorn==20.0.4
     # via -r requirements.in
 idna==3.3
@@ -101,6 +105,8 @@ pep517==0.12.0
     # via pip-tools
 pip-tools==6.6.2
     # via -r requirements.in
+platformdirs==3.0.0
+    # via pylint
 protobuf==3.20.1
     # via
     #   ddsketch
@@ -121,7 +127,7 @@ pycryptodomex==3.14.1
     #   pyjwkest
 pyjwkest==1.4.2
     # via oic
-pylint==2.7.4
+pylint==2.16.2
     # via
     #   -r requirements.in
     #   pylint-quotes
@@ -155,12 +161,12 @@ srvlookup==2.0.0
     # via csh-ldap
 tenacity==8.0.1
     # via ddtrace
-toml==0.10.2
-    # via pylint
 tomli==2.0.1
     # via
     #   mypy
     #   pep517
+tomlkit==0.11.6
+    # via pylint
 typing-extensions==4.2.0
     # via
     #   mypy
@@ -174,10 +180,8 @@ werkzeug==1.0.1
     # via flask
 wheel==0.37.1
     # via pip-tools
-wrapt==1.12.1
+wrapt==1.14.1
     # via astroid
-zipp==3.8.0
-    # via importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
