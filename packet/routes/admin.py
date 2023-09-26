@@ -14,18 +14,18 @@ from packet.log_utils import log_cache, log_time
 @before_request
 @log_time
 def admin_packets(info=None):
-    open_packets = Packet.open_packets()
+    all_packets = Packet.get_all()
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
-    for packet in open_packets:
+    for packet in all_packets:
         packet.did_sign_result = packet.did_sign(info['uid'], app.config['REALM'] == 'csh')
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
-    open_packets.sort(key=packet_sort_key, reverse=True)
+    all_packets.sort(key=packet_sort_key, reverse=True)
 
     return render_template('admin_packets.html',
-                           open_packets=open_packets,
+                           open_packets=all_packets,
                            info=info)
 
 

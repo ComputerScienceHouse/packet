@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-body table-fill">
             <div class="table-responsive">
-                <table id="open_packets_table" class="table table-striped no-bottom-margin">
+                <table id="all_packets_table" class="table table-striped no-bottom-margin">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -10,7 +10,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for packet in open_packets %}
+                    {% for packet in all_packets %}
                         <tr>
                             <td data-priority="1">
                                 <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
