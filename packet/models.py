@@ -123,6 +123,14 @@ class Packet(db.Model):
         return self.signatures_required().total == self.signatures_received().total
 
     @classmethod
+    def get_all(cls) -> list['Packet']:
+        """
+        Helper method for fetching all packets
+        """
+        return cls.query.all()
+
+
+    @classmethod
     def open_packets(cls) -> list['Packet']:
         """
         Helper method for fetching all currently open packets
