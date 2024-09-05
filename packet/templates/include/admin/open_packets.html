@@ -21,7 +21,7 @@
                                          height="25"/> {{ get_rit_name(packet.freshman_username) }}
                                 </a>
                             </td>
-                            <td data-sort="{{ packet.signatures_received_result.total }}">
+                            <td data-sort="{{ packet.signatures_received_result.total / packet.signatures_required_result.total }}">
                                 {% if packet.signatures_received_result.total == packet.signatures_required_result.total %}
                                     💯 {# 100% emoji #}
                                 {% else %}
