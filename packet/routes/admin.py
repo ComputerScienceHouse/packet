@@ -36,7 +36,7 @@ def admin_packets(info=None):
 @before_request
 @log_time
 def admin_freshmen(info=None):
-    all_freshmen = Freshman.get_all()
+    all_freshmen = Freshman.query.limit(300).all()
 
     return render_template('admin_freshmen.html',
                            all_freshmen=all_freshmen,
