@@ -27,12 +27,6 @@ def freshman_packet(packet_id, info=None):
     if packet is None:
         return 'Invalid packet or freshman', 404
     else:
-        can_sign = packet.is_open()
-
-        # If the packet is open and the user is an off-floor freshman set can_sign to False
-        if packet.is_open() and app.config['REALM'] != 'csh':
-            if info['uid'] not in map(lambda sig: sig.freshman_username, packet.fresh_signatures):
-                can_sign = False
 
         # The current user's freshman signature on this packet
         fresh_sig = list(filter(
@@ -43,7 +37,6 @@ def freshman_packet(packet_id, info=None):
         return render_template('packet.html',
                                info=info,
                                packet=packet,
-                               can_sign=can_sign,
                                did_sign=packet.did_sign(info['uid'], app.config['REALM'] == 'csh'),
                                required=packet.signatures_required(),
                                received=packet.signatures_received(),
