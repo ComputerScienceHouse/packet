@@ -14,7 +14,7 @@ beaker==1.11.0
     # via oic
 blinker==1.4
     # via flask-mail
-certifi==2022.5.18.1
+certifi==2022.12.7
     # via
     #   requests
     #   sentry-sdk
@@ -60,6 +60,8 @@ flask-sqlalchemy==2.5.1
     #   flask-migrate
 future==0.18.2
     # via pyjwkest
+greenlet==2.0.1
+    # via sqlalchemy
 gunicorn==20.0.4
     # via -r requirements.in
 idna==3.3
@@ -176,8 +178,6 @@ wheel==0.37.1
     # via pip-tools
 wrapt==1.12.1
     # via astroid
-zipp==3.8.0
-    # via importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
