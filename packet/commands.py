@@ -194,7 +194,7 @@ def remove_sig(packet_id: int, username: str, is_member: bool) -> None:
             db.session.commit()
             print('Successfully unsigned packet')
         else:
-            print('Failed to unsign packet; could not find signature'.format(username))
+            print('Failed to unsign packet; could not find signature')
 
 
 @app.cli.command('remove-member-sig')
