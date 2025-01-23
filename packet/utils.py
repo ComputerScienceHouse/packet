@@ -150,16 +150,9 @@ def sync_freshman(freshmen_list: dict) -> None:
 
     # Update the freshmen signatures of each open or future packet
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
-        # Handle the freshmen that are no longer onfloor
-        for fresh_sig in filter(lambda fresh_sig: not fresh_sig.freshman.onfloor, packet.fresh_signatures):
-            FreshSignature.query.filter_by(packet_id=fresh_sig.packet_id,
-                                           freshman_username=fresh_sig.freshman_username).delete()
-
-        # Add any new onfloor freshmen
         # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
         for list_freshman in filter(lambda list_freshman: list_freshman.rit_username not in current_fresh_sigs and
-                                                          list_freshman.onfloor and
                                                           list_freshman.rit_username != packet.freshman_username,
                                     freshmen_list.values()):
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[list_freshman.rit_username]))
@@ -207,9 +200,8 @@ def create_new_packets(base_date: date, freshmen_list: dict) -> None:
             sig.drink_admin = member.uid in drink
             db.session.add(sig)
 
-        for onfloor_freshman in Freshman.query.filter_by(onfloor=True).filter(Freshman.rit_username !=
-                                                                              freshman.rit_username).all():
-            db.session.add(FreshSignature(packet=packet, freshman=onfloor_freshman))
+        for frosh in Freshman.query.filter_by(Freshman.rit_username != freshman.rit_username).all():
+            db.session.add(FreshSignature(packet=packet, freshman=frosh))
 
     db.session.commit()
 
