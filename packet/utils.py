@@ -166,7 +166,7 @@ def create_new_packets(base_date: date, freshmen_list: dict) -> None:
     start = datetime.combine(base_date, packet_start_time)
     end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
 
-    print('Fetching data from LDAP...')
+    app.logger.info('Fetching data from LDAP...')
     all_upper = list(filter(
         lambda member: not ldap.is_intromember(member) and not ldap.is_on_coop(member), ldap.get_active_members()))
 
@@ -182,7 +182,7 @@ def create_new_packets(base_date: date, freshmen_list: dict) -> None:
     packets_starting_notification(start)
 
     # Create the new packets and the signatures for each freshman in the given CSV
-    print('Creating DB entries and sending emails...')
+    app.logger.info('Creating DB entries and sending emails...')
     for freshman in Freshman.query.filter(cast(Any, Freshman.rit_username).in_(freshmen_list)).all():
         packet = Packet(freshman=freshman, start=start, end=end)
         db.session.add(packet)
@@ -207,7 +207,7 @@ def create_new_packets(base_date: date, freshmen_list: dict) -> None:
 
 
 def sync_with_ldap() -> None:
-    print('Fetching data from LDAP...')
+    app.logger.info('Fetching data from LDAP...')
     all_upper = {member.uid: member for member in filter(
         lambda member: not ldap.is_intromember(member) and not ldap.is_on_coop(member), ldap.get_active_members())}
 
@@ -218,7 +218,7 @@ def sync_with_ldap() -> None:
     w_m = ldap.get_wiki_maintainers()
     drink = ldap.get_drink_admins()
 
-    print('Applying updates to the DB...')
+    app.logger.info('Applying updates to the DB...')
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         # Update the role state of all UpperSignatures
         for sig in filter(lambda sig: sig.member in all_upper, packet.upper_signatures):
