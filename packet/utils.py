@@ -200,7 +200,7 @@ def create_new_packets(base_date: date, freshmen_list: dict) -> None:
             sig.drink_admin = member.uid in drink
             db.session.add(sig)
 
-        for frosh in Freshman.query.filter_by(Freshman.rit_username != freshman.rit_username).all():
+        for frosh in Freshman.query.filter(Freshman.rit_username != freshman.rit_username).all():
             db.session.add(FreshSignature(packet=packet, freshman=frosh))
 
     db.session.commit()
