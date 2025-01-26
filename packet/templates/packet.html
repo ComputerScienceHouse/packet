@@ -10,7 +10,7 @@
                     <h3>{{ get_rit_name(packet.freshman_username) }}</h3>
                 </div>
                 <div class="col">
-                    {% if can_sign and not did_sign %}
+                    {% if not did_sign and info.ritdn != packet.freshman_username %}
                         <button class="btn btn-primary sign-button"
                                 data-packet_id="{{ packet.id }}"
                                 data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">Sign
@@ -105,10 +105,10 @@
                     </div>
                 </div>
                 {% endif %}
-                {% if info.is_upper or packet.freshman_username == info.ritdn or can_sign %}
+                {% if info.is_upper or packet.freshman_username == info.ritdn %}
                 <div class="card mb-2">
                     <div class="card-header">
-                        <b>On-Floor Freshmen Signatures</b>
+                        <b>Freshmen Signatures</b>
                         {% if info.is_upper or packet.freshman_username == info.ritdn %}
                         <b class="signature-count">{{ received.fresh }}/{{ required.fresh }}</b>
                         {% else %}

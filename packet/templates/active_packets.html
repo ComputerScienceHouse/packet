@@ -20,7 +20,6 @@
         </div>
         <div id="eval-blocks">
             {% if packets|length > 0 %}
-                {% set can_sign = info.onfloor or info.realm == "csh" %}
                 <div id="eval-table">
                     <div class="card">
                         <div class="card-body table-fill">
@@ -34,22 +33,24 @@
                                         <th>Signatures</th>
                                         <th>Signatures</th>
                                         {% endif %}
-                                        {% if can_sign %}
-                                            <th>Sign</th>
-                                        {% endif %}
+                                        <th>Sign</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for packet in packets %}
                                         <tr {% if packet.did_sign_result %}style="background-color: #4caf505e" {% endif %}>
                                             <td data-priority="1">
+                                                {% if info.is_upper %}
                                                 <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
+                                                {% endif %}
                                                     <img class="eval-user-img"
                                                          alt="{{ get_rit_name(packet.freshman_username) }}"
                                                          src="{{ get_rit_image(packet.freshman_username) }}"
                                                          width="25"
                                                          height="25"/> {{ get_rit_name(packet.freshman_username) }}
+                                                {% if info.is_upper %}
                                                 </a>
+                                                {% endif %}
                                             </td>
                                             {% if info.is_upper %}
                                             <td data-sort="{{ packet.signatures_received_result.member_total }}">
@@ -77,7 +78,6 @@
                                                 {% endif %}
                                             </td>
                                             {% endif %}
-                                            {% if can_sign %}
                                                 <td class="sign-packet" align="right" data-priority="1">
                                                     {% if not packet.did_sign_result and info.ritdn != packet.freshman_username %}
                                                         <button class="btn btn-sm btn-primary sign-button"
@@ -92,7 +92,6 @@
                                                         </button>
                                                     {% endif %}
                                                 </td>
-                                            {% endif %}
                                         </tr>
                                     {% endfor %}
                                     </tbody>
