@@ -70,7 +70,7 @@ def before_reqest_callback() -> Any:
     """
     Pre-request function to ensure we're on the right URL before OIDC sees anything
     """
-    if urlparse(request.base_url).hostname != app.config['SERVER_NAME']:
+    if urlparse(request.base_url).hostname != app.config['SERVER_NAME'].split(':')[0]:
         return redirect(request.base_url.replace(urlparse(request.base_url).hostname,
             app.config['SERVER_NAME']), code=302)
     return None

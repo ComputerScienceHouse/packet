@@ -130,6 +130,13 @@ class Packet(db.Model):
         return cls.query.filter(cls.start < datetime.now(), cls.end > datetime.now()).all()
 
     @classmethod
+    def opened_after(cls, date: datetime) -> list['Packet']:
+        """
+        Helper method for fetching all packets opened after a given date
+        """
+        return cls.query.filter(cls.start > date).all()
+
+    @classmethod
     def by_id(cls, packet_id: int) -> 'Packet':
         """
         Helper method for fetching 1 packet by its id
