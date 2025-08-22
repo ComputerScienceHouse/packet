@@ -1,3 +1,5 @@
+$csh-pink: #b0197e;
+
 .navbar-fixed-bottom,
 .navbar-fixed-top {
   z-index: 900;
@@ -98,7 +100,7 @@ tr {
 }
 
 .label-primary {
-    background-color: $csh-pink;
+  background-color: $csh-pink;
 }
 
 .eval-user-img {
