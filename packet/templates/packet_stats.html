@@ -3,6 +3,7 @@
 {% block head %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -34,30 +35,30 @@ var myChart = new Chart(ctx, {
         datasets: [
             {
                 fill: 'origin',
-                label: 'Fresh Sigs',
+                label: 'Freshmen',
                 data: data.accum.fresh,
                 backgroundColor: '#b0197e80',
                 borderColor: '#b0197e',
                 borderWidth: 1,
-                lineTension: 0
+                steppedLine: true
             },
             {
                 fill: '-1',
-                label: 'Misc Sigs',
+                label: 'Alumni',
                 data: data.accum.misc,
                 backgroundColor: '#0000ff80',
                 borderColor: 'blue',
                 borderWidth: 1,
-                lineTension: 0
+                steppedLine: true
             },
             {
                 fill: '-1',
-                label: 'Upper Sigs',
+                label: 'Upperclassmen',
                 data: data.accum.upper,
                 backgroundColor: '#00ff0080',
                 borderColor: 'green',
                 borderWidth: 1,
-                lineTension: 0
+                steppedLine: true
             }
         ]
     },
@@ -68,9 +69,13 @@ var myChart = new Chart(ctx, {
                 time: {
                     unit: 'day',
                 },
+                ticks: {
+                }
             }],
             yAxes: [{
+                stacked: true,
                 ticks: {
+                    max: Math.max({{ packet.signatures_required().total }}, {{packet.signatures_received().total}}),
                     beginAtZero: true
                 }
             }]
