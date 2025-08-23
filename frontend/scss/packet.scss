@@ -1,10 +1,8 @@
-$csh-pink: #b0197e;
+@use "partials/base";
 
-@import "partials/base";
-
-@import "components/switches";
-@import "components/datatables";
-@import "components/buttons";
-@import "components/signatures";
-@import "components/badges";
-@import "components/code";
+@use "components/switches";
+@use "components/datatables";
+@use "components/buttons";
+@use "components/signatures";
+@use "components/badges";
+@use "components/code";

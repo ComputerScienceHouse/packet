@@ -29,7 +29,6 @@ RUN gulp production && \
     apt-get -yq autoremove && \
     apt-get -yq clean all
 
-# Set version for apm
-RUN echo "export DD_VERSION=\"$(python3 packet/git.py)\"" >> /tmp/version
+EXPOSE 8000
 
-CMD ["/bin/bash", "-c", "source /tmp/version && ddtrace-run gunicorn packet:app --bind=0.0.0.0:8080 --access-logfile=- --timeout=600"]
+CMD ["/bin/bash", "-c", "python3 wsgi.py"]
