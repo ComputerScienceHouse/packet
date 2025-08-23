@@ -62,9 +62,9 @@ def get_rit_image(username: str) -> str:
         for addr in addresses:
             url = 'https://gravatar.com/avatar/' + hashlib.md5(addr.encode('utf8')).hexdigest() + '.jpg?d=404&s=250'
             try:
-                gravatar = urllib.request.urlopen(url)
-                if gravatar.getcode() == 200:
-                    return url
+                with urllib.request.urlopen(url) as gravatar:
+                    if gravatar.getcode() == 200:
+                        return url
             except:
                 continue
     return 'https://www.gravatar.com/avatar/freshmen?d=mp&f=y'

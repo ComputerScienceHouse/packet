@@ -2,7 +2,8 @@
 Routes available to both freshmen and CSH users
 """
 
-from flask import render_template, redirect
+from typing import Optional, Dict, Any, Tuple, Union, List
+from flask import render_template, redirect, Response
 
 from packet import auth, app
 from packet.utils import before_request, packet_auth
@@ -12,16 +13,16 @@ from packet.log_utils import log_cache, log_time
 
 @app.route('/logout/')
 @auth.oidc_logout
-def logout():
+def logout() -> Response:
     return redirect('https://csh.rit.edu')
 
 
-@app.route('/packet/<packet_id>/')
+@app.route('/packet/<int:packet_id>/')
 @log_cache
 @packet_auth
 @before_request
 @log_time
-def freshman_packet(packet_id, info=None):
+def freshman_packet(packet_id: int, info: Dict[str, Any]) -> Union[str, Tuple[str, int]]:
     packet = Packet.by_id(packet_id)
 
     if packet is None:
@@ -29,7 +30,7 @@ def freshman_packet(packet_id, info=None):
     else:
 
         # The current user's freshman signature on this packet
-        fresh_sig = list(filter(
+        fresh_sig: List[Any] = list(filter(
             lambda sig: sig.freshman_username == info['ritdn'] if info else '',
             packet.fresh_signatures
         ))
@@ -44,7 +45,7 @@ def freshman_packet(packet_id, info=None):
                                fresh_sig=fresh_sig)
 
 
-def packet_sort_key(packet):
+def packet_sort_key(packet: Packet) -> Tuple[str, int, bool]:
     """
     Utility function for generating keys for sorting packets
     """
@@ -56,7 +57,7 @@ def packet_sort_key(packet):
 @packet_auth
 @before_request
 @log_time
-def packets(info=None):
+def packets(info: Dict[str, Any]) -> str:
     open_packets = Packet.open_packets()
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
@@ -72,25 +73,25 @@ def packets(info=None):
 
 @app.route('/sw.js', methods=['GET'])
 @app.route('/OneSignalSDKWorker.js', methods=['GET'])
-def service_worker():
+def service_worker() -> Response:
     return app.send_static_file('js/sw.js')
 
 
 @app.route('/update-sw.js', methods=['GET'])
 @app.route('/OneSignalSDKUpdaterWorker.js', methods=['GET'])
-def update_service_worker():
+def update_service_worker() -> Response:
     return app.send_static_file('js/update-sw.js')
 
 
 @app.errorhandler(404)
 @packet_auth
 @before_request
-def not_found(e, info=None):
+def not_found(e: Exception, info: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
     return render_template('not_found.html', e=e, info=info), 404
 
 
 @app.errorhandler(500)
 @packet_auth
 @before_request
-def error(e, info=None):
+def error(e: Exception, info: Optional[Dict[str, Any]] = None) -> Tuple[str, int]:
     return render_template('error.html', e=e, info=info), 500

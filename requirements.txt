@@ -28,7 +28,7 @@ click==7.1.2
     #   pip-tools
 cryptography==45.0.6
     # via oic
-csh-ldap==2.4.0
+csh-ldap @ git+https://github.com/costowell/csh_ldap@67dd183744746c758d6c13878f539437d2628b63
     # via -r requirements.in
 ddtrace==3.12.2
     # via -r requirements.in
@@ -141,7 +141,7 @@ pylint-quotes==0.2.3
     # via -r requirements.in
 python-dotenv==1.1.1
     # via pydantic-settings
-python-ldap==3.4.0
+python-ldap==3.4.4
     # via csh-ldap
 requests==2.32.5
     # via

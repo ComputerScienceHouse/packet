@@ -1,8 +1,9 @@
 """
 Shared API endpoints
 """
-from datetime import datetime
+from datetime import datetime, date
 from json import dumps
+from typing import Dict, Any, Union, Tuple
 
 from flask import session, request
 
@@ -18,15 +19,15 @@ import packet.stats as stats
 
 
 class POSTFreshman:
-    def __init__(self, freshman):
-        self.name = freshman['name'].strip()
-        self.rit_username = freshman['rit_username'].strip()
-        self.onfloor = freshman['onfloor'].strip() == 'TRUE'
+    def __init__(self, freshman: Dict[str, Any]) -> None:
+        self.name: str = freshman['name'].strip()
+        self.rit_username: str = freshman['rit_username'].strip()
+        self.onfloor: bool = freshman['onfloor'].strip() == 'TRUE'
 
 
 @app.route('/api/v1/freshmen', methods=['POST'])
 @packet_auth
-def sync_freshman():
+def sync_freshman() -> Tuple[str, int]:
     """
     Create or update freshmen entries from a list
 
@@ -40,11 +41,13 @@ def sync_freshman():
     """
 
     # Only allow evals to create new frosh
-    username = str(session['userinfo'].get('preferred_username', ''))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
 
-    freshmen_in_post = {freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json)}
+    freshmen_in_post: Dict[str, POSTFreshman] = {
+        freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json)
+    }
     sync_freshman_list(freshmen_in_post)
     return dumps('Done'), 200
 
@@ -52,7 +55,7 @@ def sync_freshman():
 @app.route('/api/v1/packets', methods=['POST'])
 @packet_auth
 @log_time
-def create_packet():
+def create_packet() -> Tuple[str, int]:
     """
     Create a new packet.
 
@@ -69,13 +72,15 @@ def create_packet():
     """
 
     # Only allow evals to create new packets
-    username = str(session['userinfo'].get('preferred_username', ''))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
 
-    base_date = datetime.strptime(request.json['start_date'], '%m/%d/%Y').date()
+    base_date: date = datetime.strptime(request.json['start_date'], '%m/%d/%Y').date()
 
-    freshmen_in_post = {freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json['freshmen'])}
+    freshmen_in_post: Dict[str, POSTFreshman] = {
+        freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json['freshmen'])
+    }
 
     create_new_packets(base_date, freshmen_in_post)
 
@@ -85,9 +90,9 @@ def create_packet():
 @app.route('/api/v1/sync', methods=['POST'])
 @packet_auth
 @log_time
-def sync_ldap():
+def sync_ldap() -> Tuple[str, int]:
     # Only allow evals to sync ldap
-    username = str(session['userinfo'].get('preferred_username', ''))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
     sync_with_ldap()
@@ -97,14 +102,14 @@ def sync_ldap():
 @app.route('/api/v1/packets/<username>', methods=['GET'])
 @packet_auth
 @before_request
-def get_packets_by_user(username: str, info=None) -> dict:
+def get_packets_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
     """
 
     if info['ritdn'] != username:
         return 'Forbidden - not your packet', 403
-    frosh = Freshman.by_username(username)
+    frosh: Freshman = Freshman.by_username(username)
 
     return {packet.id: {
         'start': packet.start,
@@ -115,7 +120,7 @@ def get_packets_by_user(username: str, info=None) -> dict:
 @app.route('/api/v1/packets/<username>/newest', methods=['GET'])
 @packet_auth
 @before_request
-def get_newest_packet_by_user(username: str, info=None) -> dict:
+def get_newest_packet_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a user's newest packet
     """
@@ -123,9 +128,9 @@ def get_newest_packet_by_user(username: str, info=None) -> dict:
     if not info['is_upper'] and info['ritdn'] != username:
         return 'Forbidden - not your packet', 403
 
-    frosh = Freshman.by_username(username)
+    frosh: Freshman = Freshman.by_username(username)
 
-    packet = frosh.packets[-1]
+    packet: Packet = frosh.packets[-1]
 
     return {
         packet.id: {
@@ -137,15 +142,15 @@ def get_newest_packet_by_user(username: str, info=None) -> dict:
     }
 
 
-@app.route('/api/v1/packet/<packet_id>', methods=['GET'])
+@app.route('/api/v1/packet/<int:packet_id>', methods=['GET'])
 @packet_auth
 @before_request
-def get_packet_by_id(packet_id: int, info=None) -> dict:
+def get_packet_by_id(packet_id: int, info: Dict[str, Any]) -> Union[Dict[str, Dict[str, Any]], Tuple[str, int]]:
     """
     Return the scores of the packet in question
     """
 
-    packet = Packet.by_id(packet_id)
+    packet: Packet = Packet.by_id(packet_id)
 
     if not info['is_upper'] and info['ritdn'] != packet.freshman.rit_username:
         return 'Forbidden - not your packet', 403
@@ -156,14 +161,14 @@ def get_packet_by_id(packet_id: int, info=None) -> dict:
     }
 
 
-@app.route('/api/v1/sign/<packet_id>/', methods=['POST'])
+@app.route('/api/v1/sign/<int:packet_id>/', methods=['POST'])
 @packet_auth
 @before_request
-def sign(packet_id, info):
-    packet = Packet.by_id(packet_id)
+def sign(packet_id: int, info: Dict[str, Any]) -> str:
+    packet: Packet = Packet.by_id(packet_id)
 
     if packet is not None and packet.is_open():
-        was_100 = packet.is_100()
+        was_100: bool = packet.is_100()
         if app.config['REALM'] == 'csh':
             # Check if the CSHer is an upperclassman and if so, sign that row
             for sig in filter(lambda sig: sig.member == info['uid'], packet.upper_signatures):
@@ -189,8 +194,9 @@ def sign(packet_id, info):
 @app.route('/api/v1/subscribe/', methods=['POST'])
 @packet_auth
 @before_request
-def subscribe(info):
+def subscribe(info: Dict[str, Any]) -> str:
     data = request.form
+    subscription: NotificationSubscription
     if app.config['REALM'] == 'csh':
         subscription = NotificationSubscription(token=data['token'], member=info['uid'])
     else:
@@ -203,16 +209,16 @@ def subscribe(info):
 @app.route('/api/v1/report/', methods=['POST'])
 @packet_auth
 @before_request
-def report(info):
+def report(info: Dict[str, Any]) -> str:
     form_results = request.form
     send_report_mail(form_results, get_rit_name(info['uid']))
     return 'Success: ' + get_rit_name(info['uid']) + ' sent a report'
 
 
-@app.route('/api/v1/stats/packet/<packet_id>')
+@app.route('/api/v1/stats/packet/<int:packet_id>')
 @packet_auth
 @before_request
-def packet_stats(packet_id, info=None):
+def packet_stats(packet_id: int, info: Dict[str, Any]) -> Union[stats.PacketStats, Tuple[str, int]]:
     if not info['is_upper'] and info['ritdn'] != Packet.by_id(packet_id).freshman.rit_username:
         return 'Forbidden - not your packet', 403
     return stats.packet_stats(packet_id)
@@ -221,7 +227,7 @@ def packet_stats(packet_id, info=None):
 @app.route('/api/v1/stats/upperclassman/<uid>')
 @packet_auth
 @before_request
-def upperclassman_stats(uid, info=None):
+def upperclassman_stats(uid: str, info: Dict[str, Any]) -> Union[stats.UpperStats, Tuple[str, int]]:
     if not info['is_upper']:
         return 'Forbidden', 403
 
@@ -229,12 +235,12 @@ def upperclassman_stats(uid, info=None):
 
 
 @app.route('/readiness')
-def readiness() -> tuple[str, int]:
+def readiness() -> Tuple[str, int]:
     """A basic healthcheck. Returns 200 to indicate flask is running"""
     return 'ready', 200
 
 
-def commit_sig(packet, was_100, uid):
+def commit_sig(packet: Packet, was_100: bool, uid: str) -> str:
     packet_signed_notification(packet, uid)
     db.session.commit()
     if not was_100 and packet.is_100():
