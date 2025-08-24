@@ -11,7 +11,7 @@ import click
 
 from . import app, db
 from .models import Packet, FreshSignature, UpperSignature, MiscSignature
-from .utils import sync_freshman, create_new_packets, sync_with_ldap
+from .utils import sync_freshman, sync_with_ldap
 
 
 @app.cli.command('create-secret')
