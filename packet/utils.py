@@ -1,7 +1,7 @@
 """
 General utilities and decorators for supporting the Python logic
 """
-from datetime import datetime, time, timedelta, date
+from datetime import datetime, timedelta
 from functools import wraps, lru_cache
 from typing import Any, Callable, TypeVar, cast
 from urllib.parse import urlparse
@@ -161,11 +161,9 @@ def sync_freshman(freshmen_list: dict) -> None:
     db.session.commit()
 
 
-def create_new_packets(base_date: date, freshmen_list: dict) -> None:
-    packet_start_time = time(hour=19)
-    packet_end_time = time(hour=21)
-    start = datetime.combine(base_date, packet_start_time)
-    end = datetime.combine(base_date, packet_end_time) + timedelta(days=14)
+def create_new_packets(base_date: datetime, freshmen_list: dict) -> None:
+    start = base_date
+    end = base_date + timedelta(days=14)
 
     app.logger.info('Fetching data from LDAP...')
     all_upper = list(filter(

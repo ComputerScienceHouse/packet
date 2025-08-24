@@ -11,7 +11,7 @@ import click
 
 from . import app, db
 from .models import Packet, FreshSignature, UpperSignature, MiscSignature
-from .utils import sync_freshman, create_new_packets, sync_with_ldap
+from .utils import sync_freshman, sync_with_ldap
 
 
 @app.cli.command('create-secret')
@@ -65,22 +65,22 @@ def sync_freshmen(freshmen_csv: str) -> None:
     sync_freshman(freshmen_in_csv)
     print('Done!')
 
+# TODO: this needs fixed with a proper datetime
+# @app.cli.command('create-packets')
+# @click.argument('freshmen_csv')
+# def create_packets(freshmen_csv: str) -> None:
+#     """
+#     Creates a new packet season for each of the freshmen in the given CSV.
+#     """
+#     print("WARNING: The 'sync-freshmen' command must be run first to ensure that the state of floor is up to date.")
+#     if input('Continue? (y/N): ').lower() != 'y':
+#         return
 
-@app.cli.command('create-packets')
-@click.argument('freshmen_csv')
-def create_packets(freshmen_csv: str) -> None:
-    """
-    Creates a new packet season for each of the freshmen in the given CSV.
-    """
-    print("WARNING: The 'sync-freshmen' command must be run first to ensure that the state of floor is up to date.")
-    if input('Continue? (y/N): ').lower() != 'y':
-        return
-
-    # Collect the necessary data
-    base_date = input_date('Input the first day of packet season')
-    freshmen_in_csv = parse_csv(freshmen_csv)
-    create_new_packets(base_date, freshmen_in_csv)
-    print('Done!')
+#     # Collect the necessary data
+#     base_date = input_date('Input the first day of packet season')
+#     freshmen_in_csv = parse_csv(freshmen_csv)
+#     create_new_packets(base_date, freshmen_in_csv)
+#     print('Done!')
 
 
 @app.cli.command('ldap-sync')
