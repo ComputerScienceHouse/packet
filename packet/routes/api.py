@@ -1,7 +1,7 @@
 """
 Shared API endpoints
 """
-from datetime import datetime, date
+from datetime import datetime
 from json import dumps
 from typing import Dict, Any, Union, Tuple
 
@@ -76,7 +76,7 @@ def create_packet() -> Tuple[str, int]:
     if not ldap.is_evals(ldap.get_member(username)):
         return 'Forbidden: not Evaluations Director', 403
 
-    base_date = datetime.strptime(request.json['start_date'], '%m/%d/%Y %H')
+    base_date: datetime = datetime.strptime(request.json['start_date'], '%m/%d/%Y %H')
 
     freshmen_in_post: Dict[str, POSTFreshman] = {
         freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json['freshmen'])
