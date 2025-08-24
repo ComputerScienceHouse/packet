@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, List, Union, cast
 
 from flask import render_template
 from flask_mail import Mail, Message
@@ -15,10 +15,10 @@ class ReportForm(TypedDict):
 
 def send_start_packet_mail(packet: Packet) -> None:
     if app.config['MAIL_PROD']:
-        recipients = ['<' + packet.freshman.rit_username + '@rit.edu>']
+        recipients = ['<' + str(packet.freshman.rit_username) + '@rit.edu>']
         msg = Message(subject='CSH Packet Starts ' + packet.start.strftime('%A, %B %-d'),
                       sender=app.config.get('MAIL_USERNAME'),
-                      recipients=recipients)
+                      recipients=cast(List[Union[str, tuple[str, str]]], recipients))
 
         template = 'mail/packet_start'
         msg.body = render_template(template + '.txt', packet=packet)
@@ -31,7 +31,7 @@ def send_report_mail(form_results: ReportForm, reporter: str) -> None:
         recipients = ['<evals@csh.rit.edu>']
         msg = Message(subject='Packet Report',
                       sender=app.config.get('MAIL_USERNAME'),
-                      recipients=recipients)
+                      recipients=cast(List[Union[str, tuple[str, str]]], recipients))
 
         person = form_results['person']
         report = form_results['report']

@@ -66,12 +66,13 @@ def is_freshman_on_floor(rit_username: str) -> bool:
 
 
 @app.before_request
-def before_reqest_callback() -> Any:
+def before_request_callback() -> Any:
     """
     Pre-request function to ensure we're on the right URL before OIDC sees anything
     """
-    if urlparse(request.base_url).hostname != app.config['SERVER_NAME']:
-        return redirect(request.base_url.replace(urlparse(request.base_url).hostname,
+    url = urlparse(request.base_url)
+    if url.netloc != app.config['SERVER_NAME']:
+        return redirect(request.base_url.replace(urlparse(request.base_url).netloc,
             app.config['SERVER_NAME']), code=302)
     return None
 

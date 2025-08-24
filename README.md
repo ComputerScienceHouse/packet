@@ -7,7 +7,44 @@ Packet is used by CSH to facilitate the freshmen packet portion of our introduct
 the second major iteration of packet on the web. The first version was 
 [Tal packet](https://github.com/TalCohen/CSHWebPacket).
 
-## Setup
+
+## Develop with Docker (Recommended)
+
+1. Copy the `.env.example` to `.env` and insert the required credentials
+2. Build the dev environment with `docker compose build`
+3. Start the dev environment with `docker compose up`
+4. Run the database migrations with `docker exec -it packet-packet-1 flask db upgrade`
+5. Go check out the app at http://localhost.localdomain:8000
+
+> Useful Tip: use `docker compose up --watch` so that you don't need to rebuild the container every time you want to test a change
+
+### Secrets and configuration
+
+Packet pulls in environment variables via the `config.env.py` so consult that file for all environment variables that configure the application.
+Use the `.env.example` file as an example to get started with development by making a copy called `.env` and adding what you need.
+
+**Required configuration values:**
+
+* `PACKET_DATABASE_URI` - Must be set to a valid [SQLAlchemy DB URI](http://flask-sqlalchemy.pocoo.org/2.3/config/#connection-uri-format). The `.env.example` has the default value for the containerized PostgreSQL database defined in the `docker-compose.yml`
+* `PACKET_LDAP_BIND_DN` - Must point to a valid CSH account on LDAP. Use the form 
+`uid={username},cn=users,cn=accounts,dc=csh,dc=rit,dc=edu`.
+* `PACKET_LDAP_BIND_PASS` - The password for that CSH account.
+* `PACKET_SECRET_KEY` - Use a sufficiently long random string here. The `flask create-secret` command can generate a good one 
+for you.
+* `PACKET_OIDC_CLIENT_SECRET` - Required to use CSH auth. Contact a current maintainer of packet for the details.
+
+To switch between OIDC realms you'll need to set the modify the following values:
+
+* `PACKET_OIDC_CLIENT_SECRET` - Unique to each realm. Again, contact a current maintainer of packet for the details.
+* `PACKET_OIDC_ISSUER` - The OIDC issuer URL.
+* `PACKET_REALM` - Set to `"csh"` or `"intro"` depending on the realm you want.
+
+By default `PACKET_OIDC_ISSUER` and `PACKET_REALM` are configured for the CSH members realm.
+
+## Develop locally (Not Recommended)
+
+### Setup
+
 **Requires Python 3.9 or newer.**
 
 To get the server working you'll just need the Python dependencies and some secrets. There will be some UI issues due 
@@ -18,6 +55,7 @@ Alternatively, you can set up a Docker container using `Dockerfile`. This is wha
 reliable method.
 
 ### Python dependencies
+
 Use `pip3 install -r requirements.txt` to install the required python dependencies. A 
 [venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments) is *highly* 
 recommended. To add new dependencies, add them to `requirements.in` and run `pip-compile requirements.in` to update
@@ -29,6 +67,7 @@ pain. Try using [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) or fin
 trustworthy source.
 
 ### Frontend dependencies
+
 To build any of the frontend dependencies you're going to need [node](https://nodejs.org/), 
 [npm](https://www.npmjs.com/get-npm), and [yarn](https://yarnpkg.com/).
 
@@ -49,6 +88,7 @@ npm install -g gulp
 ```
 
 ### Local Development
+
 * PostgreSQL
 You'll need a postgres instance to use as a development DB.
 You can use an existing database, like the instance used for the dev branch, use a database on another server, or spin up a container using docker or podman. 
@@ -62,32 +102,8 @@ Once the container is up, run the following to set up the database tables.
 flask db upgrade
 ```
 
-### Secrets and configuration
-Packet supports 2 primary configuration methods:
-1. Environment variables - See `config.env.py` for the expected names and default values.
-2. Pyfile config - Create a `config.py` file in the root directory of the project and set variables to override the 
-values in `config.env.py`.
+### Usage
 
-Both methods can be used at the same time, though Pyfile config will take priority over environment variables.
-
-**Required configuration values:**
-* `SQLALCHEMY_DATABASE_URI` - Must be set to a valid [SQLAlchemy DB URI](http://flask-sqlalchemy.pocoo.org/2.3/config/#connection-uri-format). 
-A dev database for the project is hosted by CSH. Contact a current maintainer of packet for the details.
-* `LDAP_BIND_DN` - Must point to a valid CSH account on LDAP. Use the form 
-`uid={username},cn=users,cn=accounts,dc=csh,dc=rit,dc=edu`.
-* `LDAP_BIND_PASS` - The password for that CSH account.
-* `SECRET_KEY` - Use a sufficiently long random string here. The `flask create-secret` command can generate a good one 
-for you.
-* `OIDC_CLIENT_SECRET` - Required to use CSH auth. Contact a current maintainer of packet for the details.
-
-To switch between OIDC realms you'll need to set the modify the following values:
-* `OIDC_CLIENT_SECRET` - Unique to each realm. Again, contact a current maintainer of packet for the details.
-* `OIDC_ISSUER` - The OIDC issuer URL.
-* `REALM` - Set to `"csh"` or `"intro"` depending on the realm you want.
-
-By default `OIDC_ISSUER` and `REALM` are configured for the CSH members realm.
-
-## Usage
 To run packet using the flask dev server use this command:
 ```bash
 python3 wsgi.py
@@ -99,7 +115,8 @@ Alternative you can run it through [gunicorn](https://gunicorn.org/) using this 
 gunicorn -b :8000 packet:app --access-logfile -
 ```
 
-### CLI
+## CLI
+
 Packet makes use of the Flask CLI for exposing functionality to devs and admins. This is primarily designed to be used 
 locally with the target DB set via the server's config values.
 

@@ -1,0 +1,44 @@
+services:
+  packet:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    env_file:
+      - path: ".env"
+        required: true
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - action: sync+restart
+          path: packet
+          target: /opt/packet/packet
+        - action: rebuild
+          path: frontend
+          target: /opt/packet/frontend
+
+    networks:
+      - packet-network-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+  postgres:
+    image: "postgres:17"
+    networks:
+      - packet-network-dev
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "postgres"
+      POSTGRES_PASSWORD: "mysecretpassword"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+networks:
+  packet-network-dev:

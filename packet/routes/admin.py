@@ -1,3 +1,4 @@
+from typing import Dict, Any
 from flask import render_template
 
 from packet import app
@@ -13,7 +14,7 @@ from packet.log_utils import log_cache, log_time
 @admin_auth
 @before_request
 @log_time
-def admin_packets(info=None):
+def admin_packets(info: Dict[str, Any]) -> str:
     open_packets = Packet.open_packets()
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
@@ -35,7 +36,7 @@ def admin_packets(info=None):
 @admin_auth
 @before_request
 @log_time
-def admin_freshmen(info=None):
+def admin_freshmen(info: Dict[str, Any]) -> str:
     all_freshmen = Freshman.get_all()
 
     return render_template('admin_freshmen.html',
