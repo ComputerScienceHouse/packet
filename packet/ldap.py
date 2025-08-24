@@ -13,7 +13,11 @@ from packet import app
 
 class MockMember:
 
-    def __init__(self, uid: str, groups: list = None, cn: str = None, room_number: int = None):
+    def __init__(self,
+                 uid: str,
+                 groups: Optional[list] = None,
+                 cn: Optional[str] = None,
+                 room_number: Optional[int] = None):
         self.uid = uid
         self.groups = groups if groups else list()
         if room_number:
@@ -37,7 +41,7 @@ class MockMember:
 
 class LDAPWrapper:
 
-    def __init__(self, cshldap: CSHLDAP = None, mock_members: list[MockMember] = None):
+    def __init__(self, cshldap: Optional[CSHLDAP] = None, mock_members: Optional[list[MockMember]] = None):
         self.ldap = cshldap
         self.mock_members = cast(list[MockMember], mock_members)
         if self.ldap:
