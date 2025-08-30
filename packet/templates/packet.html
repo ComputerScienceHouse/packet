@@ -50,7 +50,7 @@
                                  aria-valuemax="100" style="width: {{ total_score }}%"></div>
                         </div>
                         {% set upper_score = received.member_total / required.member_total * 100 %}
-                        <h5>Upperclassmen Score - {{ '%0.2f' % upper_score }}%</h5>
+                        <h5>Upperclassmen + Alumni Score - {{ '%0.2f' % upper_score }}%</h5>
                         <div class="progress">
                             <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
                                  role="progressbar" aria-valuenow="{{ upper_score }}" aria-valuemin="0"
