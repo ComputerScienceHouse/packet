@@ -192,3 +192,7 @@
         </div>
     </div>
 {% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/pfp-zoom.min.js') }}"></script>
+{% endblock %}
