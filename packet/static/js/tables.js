@@ -3,30 +3,31 @@ $(document).ready(function () {
     $('#active_packets_table').DataTable({
         "searching": true,
         "order": [],
-        "scrollX": false,
+        "scrollX": true,
         "paging": false,
         "info": false,
+        "autoWidth": false,
         "columnDefs": [
             {
                 "targets": 0,
-                "max-width": "50%",
+                "width": "50%",
             },
             {
                 "type": "num-fmt",
                 "targets": 1,
                 "visible": false,
-                "max-width": "15%",
+                "width": "15%",
             },
             {
                 "type": "num-fmt",
                 "targets": 2,
                 "visible": false,
-                "max-width": "15%",
+                "width": "15%",
             },
             {
                 "type": "num-fmt",
                 "targets": 3,
-                "max-width": "15%",
+                "width": "15%",
             }
         ]
     });
@@ -47,6 +48,9 @@ $(document).ready(function () {
             table.DataTable().column(2).visible(true);
             table.DataTable().column(3).visible(false);
         }
+        
+        // Prevent table shifting by adjusting columns
+        table.DataTable().columns.adjust();
     });
 
 });
