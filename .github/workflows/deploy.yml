@@ -1,18 +1,18 @@
 name: Trigger Builds on Release
-# Trigger builds on okd only on new releases
-# Assumes the branch is "master"
+# Trigger builds on okd only on new releases (tags starting with `v`)
 # Uses secrets.OKD_BUILD_HOOK to know where to send the event to
 # OKD_BUILD_HOOK should be a generic build hook
 
-on: 
-  release:
-    types:
-      - released
+on:
+  push:
+    tags:
+      - v*
 
 jobs:
   trigger_build:
     name: trigger build
     runs-on: ubuntu-latest
+
     steps:
       # Grab committer and author information from the commit
       - name: get commit
