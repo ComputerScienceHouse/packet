@@ -6,15 +6,15 @@ import hashlib
 import urllib
 from functools import lru_cache
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Union
 
 from csh_ldap import CSHMember
 
 from packet.models import Freshman, UpperSignature
-from packet import app, ldap
+from packet import app
+from packet.ldap import ldap
 
 
-# pylint: disable=bare-except
 @lru_cache(maxsize=128)
 def get_csh_name(username: str) -> str:
     """
@@ -34,7 +34,7 @@ def get_csh_name(username: str) -> str:
         return username
 
 
-def get_roles(sig: UpperSignature) -> dict[str, str]:
+def get_roles(sig: UpperSignature) -> dict[str, Union[str, None]]:
     """
     Converts a signature's role fields to a dict for ease of access.
 
@@ -45,10 +45,8 @@ def get_roles(sig: UpperSignature) -> dict[str, str]:
         A dictionary mapping role short names to role long names.
     """
 
-    out: dict[str, str | None] = {}
-
-    signature_mapping: dict[str, str | None] = {
-        "eboard": sig.eboard,
+    return {
+        "eboard": sig.eboard if sig.eboard else None,
         "rtp": "RTP" if sig.active_rtp else None,
         "three_da": "3DA" if sig.three_da else None,
         "wm": "Wiki Maintainer" if sig.w_m else None,
@@ -57,24 +55,27 @@ def get_roles(sig: UpperSignature) -> dict[str, str]:
         "drink": "Drink Admin" if sig.drink_admin else None,
     }
 
-    for key, value in signature_mapping.items():
-        if value:
-            out[key] = value
 
-    return out
-
-
-# pylint: disable=bare-except
 @lru_cache(maxsize=256)
 def get_rit_name(username: str) -> str:
+    """
+    Get the full name of a user from their RIT username.
+
+    Args:
+        username: The RIT username of the user.
+
+    Returns:
+        The full name of the user or the username if not found.
+    """
+
     try:
-        freshman = Freshman.query.filter_by(rit_username=username).first()
+        freshman: Freshman = Freshman.query.filter_by(rit_username=username).first()
+
         return freshman.name + " (" + username + ")"
     except Exception:
         return username
 
 
-# pylint: disable=bare-except
 @lru_cache(maxsize=256)
 def get_rit_image(username: str) -> str:
     """
@@ -87,10 +88,11 @@ def get_rit_image(username: str) -> str:
         The URL of the user's RIT image or a default image URL.
     """
 
-    if not username:
-        return "https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
-
     addresses: list[str] = [username + "@rit.edu", username + "@g.rit.edu"]
+
+    if not username:
+        # If no username is provided, return a default image URL
+        addresses = []
 
     for addr in addresses:
         url: str = (
@@ -106,6 +108,8 @@ def get_rit_image(username: str) -> str:
 
         except Exception:
             continue
+
+    return "https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
 
 
 def log_time(label: str) -> None:

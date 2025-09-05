@@ -133,12 +133,12 @@ All DB commands are from the `Flask-Migrate` library and are used to configure D
 docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
 ## Code standards
-This project is configured to use Pylint and mypy. Commits will be pylinted and typechecked by GitHub actions and if the
+This project is configured to use ruff and mypy. Commits will be ruffed and typechecked by GitHub actions and if the
 score drops your build will fail blocking you from merging. To make your life easier just run it before making a PR.
 
-To run pylint and mypy use these commands:
+To run ruff and mypy use these commands:
 ```bash
-pylint packet/routes packet
+ruff check packet
 mypy --disable-error-code import --disable-error-code name-defined --disallow-untyped-defs --exclude routes packet
 ```
 

@@ -6,7 +6,8 @@ from functools import wraps
 from datetime import datetime
 from typing import Any, Callable, TypeVar, cast
 
-from packet import app, ldap
+from packet import app
+from packet.ldap import ldap
 from packet.context_processors import get_rit_name
 from packet.utils import is_freshman_on_floor
 

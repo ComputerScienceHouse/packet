@@ -2,6 +2,7 @@
 Default configuration settings and environment variable based configuration logic
     See the readme for more information
 """
+
 from distutils.util import strtobool
 from os import environ, path, getcwd
 

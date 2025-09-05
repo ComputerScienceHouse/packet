@@ -1,4 +1,4 @@
-FROM docker.io/python:3.9-slim-trixie
+FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
@@ -14,7 +14,7 @@ RUN mkdir /opt/packet
 WORKDIR /opt/packet
 
 COPY requirements.txt /opt/packet/
-RUN pip install -r requirements.txt
+RUN uv pip install -r requirements.txt --system
 
 COPY package.json /opt/packet/
 COPY yarn.lock /opt/packet/
@@ -28,6 +28,11 @@ RUN gulp production && \
     apt-get -yq remove nodejs npm yarn && \
     apt-get -yq autoremove && \
     apt-get -yq clean all
+
+RUN groupadd -r packet && useradd --no-log-init -r -g packet packet && \
+    chown -R packet:packet /opt/packet
+
+USER packet
 
 EXPOSE 8000
 

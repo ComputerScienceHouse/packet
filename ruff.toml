@@ -1,10 +1,16 @@
 exclude = [
+    "input",
     "__pycache__",
     ".venv",
 ]
 
 target-version = "py39"
 line-length = 88
+
+[lint]
+select = [
+    "N",  # Enables all pep8-naming rules
+]
 
 [format]
 quote-style = "double"

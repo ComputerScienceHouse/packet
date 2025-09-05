@@ -1,4 +1,4 @@
-FROM docker.io/python:3.9-slim-trixie
+FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
@@ -14,7 +14,7 @@ RUN mkdir /opt/packet
 WORKDIR /opt/packet
 
 COPY requirements.txt /opt/packet/
-RUN pip install -r requirements.txt
+RUN uv pip install -r requirements.txt --system
 
 COPY package.json /opt/packet/
 COPY yarn.lock /opt/packet/
@@ -31,5 +31,10 @@ RUN gulp production && \
 
 # Set version for apm
 RUN echo "export DD_VERSION=\"$(python3 packet/git.py)\"" >> /tmp/version
+
+RUN groupadd -r packet && useradd --no-log-init -r -g packet packet && \
+    chown -R packet:packet /opt/packet
+
+USER packet
 
 CMD ["/bin/bash", "-c", "source /tmp/version && ddtrace-run gunicorn packet:app --bind=0.0.0.0:8080 --access-logfile=- --timeout=600"]

@@ -1,4 +1,4 @@
-from datetime import date as dateType, timedelta
+from datetime import date as datetype, timedelta
 from typing import TypedDict, Union, cast, Callable
 
 from packet.models import Packet, MiscSignature, UpperSignature
@@ -70,11 +70,11 @@ class SigDict(TypedDict):
         packet: The packet associated with the signature.
     """
 
-    date: dateType
+    date: datetype
     packet: SimplePacket
 
 
-Stats = dict[dateType, list[str]]
+Stats = dict[datetype, list[str]]
 
 
 def packet_stats(packet_id: int) -> PacketStats:

@@ -8,6 +8,7 @@ from secrets import token_hex
 from datetime import datetime, time, date
 import csv
 import click
+from typing import Union
 
 from . import app, db
 from .models import Packet, FreshSignature, UpperSignature, MiscSignature
@@ -167,7 +168,7 @@ def fetch_results(file_path: str, use_csv: bool, date_str: str) -> None:
         date_str: The end date of the packet season to retrieve results from.
     """
 
-    end_date: datetime | None = None
+    end_date: Union[datetime, None] = None
 
     try:
         end_date = datetime.combine(
@@ -232,10 +233,13 @@ def fetch_results(file_path: str, use_csv: bool, date_str: str) -> None:
             )
             """
 
-            out: str = str(row[0])
+            out: str = str(row[0]) + "\n"
 
             for i in range(1, 7):
                 out += "\t{}: {}".format(column_titles[i], row[i])
+
+                if i != 6:
+                    out += "\n"
 
                 if i == 5:
                     out += "\n"
@@ -293,19 +297,19 @@ def remove_sig(packet_id: int, username: str, is_member: bool) -> None:
             packet_id=packet_id, member=username
         ).first()
 
-        if sig is None:
-            result = MiscSignature.query.filter_by(
+        if (
+            sig is None
+            and MiscSignature.query.filter_by(
                 packet_id=packet_id, member=username
             ).delete()
+            != 1
+        ):
+            print("Failed to unsign packet; could not find signature")
+            return
 
-            if result != 1:
-                print("Failed to unsign packet; could not find signature")
-                return
+        if sig:
+            sig.signed = False
 
-            db.session.commit()
-            print("Successfully unsigned packet")
-
-        sig.signed = False
         db.session.commit()
         print("Successfully unsigned packet")
     else:
@@ -350,3 +354,19 @@ def remove_freshman_sig(packet_id: int, freshman: str) -> None:
     """
 
     remove_sig(packet_id, freshman, False)
+
+
+@app.cli.command("remove-user-sig")
+@click.argument("packet_id")
+@click.argument("user")
+def remove_user_sig(packet_id: int, user: str) -> None:
+    """
+    Removes the given user's signature from the given packet, whether they are a member or a freshman.
+
+    Args:
+        packet_id: The ID of the packet to modify.
+        user: The user's username
+    """
+
+    remove_sig(packet_id, user, False)
+    remove_sig(packet_id, user, True)

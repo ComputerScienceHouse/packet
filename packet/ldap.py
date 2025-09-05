@@ -4,7 +4,7 @@ Helper functions for working with the csh_ldap library
 
 from functools import lru_cache
 from datetime import date
-from typing import Optional, cast, Any
+from typing import Optional, cast, Any, Union
 
 from csh_ldap import CSHLDAP, CSHMember
 
@@ -34,7 +34,7 @@ class MockMember:
 
         self.room_number: Optional[int] = room_number if room_number else None
 
-        self.cn: str = cn if cn else uid.title()  # pylint: disable=invalid-name
+        self.cn: str = cn if cn else uid.title()
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -207,7 +207,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        groups: tuple[str] = (
+        groups: tuple[str, ...] = (
             "eboard-chairman",
             "eboard-evaluations",
             "eboard-financial",
@@ -406,7 +406,7 @@ class LDAPWrapper:
 
         return self._is_member_of_group(member, "spring_coop")
 
-    def get_roomnumber(self, member: CSHMember) -> Optional[int]:  # pylint: disable=no-self-use
+    def get_roomnumber(self, member: CSHMember) -> Optional[int]:
         """
         Get the room number of a member.
 
@@ -423,16 +423,16 @@ class LDAPWrapper:
             return None
 
 
-if app.config["LDAP_BIND_DN"] and app.config["LDAP_BIND_PASS"]:
-    ldap: LDAPWrapper = LDAPWrapper(
-        cshldap=CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
-    )
-else:
-    ldap: LDAPWrapper = LDAPWrapper(
-        mock_members=list(
-            map(
-                lambda mock_dict: MockMember(**mock_dict),
-                app.config["LDAP_MOCK_MEMBERS"],
-            )
+ldap: LDAPWrapper = LDAPWrapper(
+    mock_members=list(
+        map(
+            lambda mock_dict: MockMember(**mock_dict),
+            app.config["LDAP_MOCK_MEMBERS"],
         )
+    )
+)
+
+if app.config["LDAP_BIND_DN"] and app.config["LDAP_BIND_PASS"]:
+    ldap = LDAPWrapper(
+        cshldap=CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
     )

@@ -1,1 +1,9 @@
 node_modules/
+.github/
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+.venv/
+.scannerwork/
+.ruff_cache/

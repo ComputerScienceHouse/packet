@@ -13,6 +13,8 @@ from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 from flask_sqlalchemy import SQLAlchemy
 
+from typing import Union
+
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
@@ -20,7 +22,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from .git import get_version
 
 app: Flask = Flask(__name__)
-gzip = Gzip(app)
+gzip: Gzip = Gzip(app)
 
 # Load default configuration and any environment variable overrides
 _root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -36,15 +38,17 @@ app.config["VERSION"] = get_version()
 
 # Logger configuration
 logging.getLogger().setLevel(app.config["LOG_LEVEL"])
+
 app.logger.info("Launching packet " + app.config["VERSION"])
 app.logger.info("Using the {} realm".format(app.config["REALM"]))
 
 # Initialize the extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db: SQLAlchemy = SQLAlchemy(app)
+migrate: Migrate = Migrate(app, db)
+
 app.logger.info("SQLAlchemy pointed at " + repr(db.engine.url))
 
-APP_CONFIG = ProviderConfiguration(
+APP_CONFIG: ProviderConfiguration = ProviderConfiguration(
     issuer=app.config["OIDC_ISSUER"],
     client_metadata=ClientMetadata(
         app.config["OIDC_CLIENT_ID"], app.config["OIDC_CLIENT_SECRET"]
@@ -52,7 +56,8 @@ APP_CONFIG = ProviderConfiguration(
 )
 
 # Initialize Onesignal Notification apps
-csh_onesignal_client = None
+csh_onesignal_client: Union[onesignal.Client, None] = None
+
 if (
     app.config["ONESIGNAL_USER_AUTH_KEY"]
     and app.config["ONESIGNAL_CSH_APP_AUTH_KEY"]
@@ -63,9 +68,10 @@ if (
         app_auth_key=app.config["ONESIGNAL_CSH_APP_AUTH_KEY"],
         app_id=app.config["ONESIGNAL_CSH_APP_ID"],
     )
+
     app.logger.info("CSH Onesignal configured and notifications enabled")
 
-intro_onesignal_client = None
+intro_onesignal_client: Union[onesignal.Client, None] = None
 if (
     app.config["ONESIGNAL_USER_AUTH_KEY"]
     and app.config["ONESIGNAL_INTRO_APP_AUTH_KEY"]
@@ -76,27 +82,28 @@ if (
         app_auth_key=app.config["ONESIGNAL_INTRO_APP_AUTH_KEY"],
         app_id=app.config["ONESIGNAL_INTRO_APP_ID"],
     )
+
     app.logger.info("Intro Onesignal configured and notifications enabled")
 
 # OIDC Auth
-auth = OIDCAuthentication({"app": APP_CONFIG}, app)
+auth: OIDCAuthentication = OIDCAuthentication({"app": APP_CONFIG}, app)
+
 app.logger.info("OIDCAuth configured")
 
 # Sentry
-# pylint: disable=abstract-class-instantiated
 sentry_sdk.init(
     dsn=app.config["SENTRY_DSN"],
     integrations=[FlaskIntegration(), SqlalchemyIntegration()],
 )
 
-__all__: list = [
+__all__: tuple[str, ...] = (
     "ldap",
     "models",
     "context_processors",
     "commands",
     "api",
     "shared",
-]
+)
 
 if app.config["REALM"] == "csh":
     from .routes import upperclassmen as upperclassmen

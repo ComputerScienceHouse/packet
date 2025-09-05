@@ -105,6 +105,7 @@ ENV/
 
 # vscode
 .vscode
+.devcontainer
 
 # SonarQube
 .scannerwork

@@ -10,7 +10,8 @@ from urllib.parse import urlparse
 import requests
 from flask import session, redirect, request
 
-from packet import auth, app, db, ldap
+from packet import auth, app, db
+from packet.ldap import ldap
 from packet.mail import send_start_packet_mail
 from packet.models import (
     Freshman,
@@ -271,7 +272,6 @@ def sync_freshman(freshmen_list: dict) -> None:
 
     # Update the freshmen signatures of each open or future packet
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
-        # pylint: disable=cell-var-from-loop
         current_fresh_sigs = set(
             map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures)
         )
@@ -410,7 +410,6 @@ def sync_with_ldap() -> None:
             db.session.add(sig)
 
         # Create UpperSignatures for any new active members
-        # pylint: disable=cell-var-from-loop
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
         for member in filter(lambda member: member not in upper_sigs, all_upper):
             sig = UpperSignature(packet=packet, member=member)
