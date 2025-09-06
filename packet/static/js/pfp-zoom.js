@@ -21,7 +21,7 @@ $(document).ready(function () {
                 other.remove()
             }
             photo.insertAdjacentHTML('afterend', `
-                <div id="zoom-photo" style="position: fixed; z-index: 1050; display: block">
+                <div id="zoom-photo" style="position: absolute; z-index: 1050; display: block">
                     <img class="eval-user-img"
                         alt=${photo.alt}
                         src=${photo.src}
