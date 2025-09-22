@@ -26,7 +26,7 @@ click==7.1.2
     #   pip-tools
 cryptography==45.0.6
     # via oic
-csh-ldap @ git+https://github.com/costowell/csh_ldap@67dd183744746c758d6c13878f539437d2628b63
+csh-ldap @ git+https://github.com/costowell/csh_ldap.git@v2.5.0
     # via -r requirements.in
 ddtrace==3.12.2
     # via -r requirements.in
