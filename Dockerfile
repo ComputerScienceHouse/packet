@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim
+FROM docker.io/python:3.9-slim-trixie
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
@@ -14,7 +14,7 @@ RUN mkdir /opt/packet
 WORKDIR /opt/packet
 
 COPY requirements.txt /opt/packet/
-RUN uv pip install -r requirements.txt --system
+RUN pip install uv && uv pip install -r requirements.txt --system
 
 COPY package.json /opt/packet/
 COPY yarn.lock /opt/packet/
