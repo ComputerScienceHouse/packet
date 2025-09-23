@@ -40,12 +40,12 @@ class POSTFreshman:
         Args:
             freshman (Dict[str, Any]): The freshman data.
         """
-        self.name: str = freshman["name"].strip()
-        self.rit_username: str = freshman["rit_username"].strip()
-        self.onfloor: bool = freshman["onfloor"].strip() == "TRUE"
+        self.name: str = freshman['name'].strip()
+        self.rit_username: str = freshman['rit_username'].strip()
+        self.onfloor: bool = freshman['onfloor'].strip() == 'TRUE'
 
 
-@app.route("/api/v1/freshmen", methods=["POST"])
+@app.route('/api/v1/freshmen', methods=['POST'])
 @packet_auth
 def sync_freshman() -> Tuple[str, int]:
     """
@@ -64,18 +64,18 @@ def sync_freshman() -> Tuple[str, int]:
     """
 
     # Only allow evals to create new frosh
-    username: str = str(session["userinfo"].get("preferred_username", ""))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
-        return "Forbidden: not Evaluations Director", 403
+        return 'Forbidden: not Evaluations Director', 403
 
     freshmen_in_post: Dict[str, POSTFreshman] = {
         freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json)
     }
     sync_freshman_list(freshmen_in_post)
-    return dumps("Done"), 200
+    return dumps('Done'), 200
 
 
-@app.route("/api/v1/packets", methods=["POST"])
+@app.route('/api/v1/packets', methods=['POST'])
 @packet_auth
 @log_time
 def create_packet() -> Tuple[str, int]:
@@ -98,23 +98,22 @@ def create_packet() -> Tuple[str, int]:
     """
 
     # Only allow evals to create new packets
-    username: str = str(session["userinfo"].get("preferred_username", ""))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
-        return "Forbidden: not Evaluations Director", 403
+        return 'Forbidden: not Evaluations Director', 403
 
-    base_date: datetime = datetime.strptime(request.json["start_date"], "%m/%d/%Y %H")
+    base_date: datetime = datetime.strptime(request.json['start_date'], '%m/%d/%Y %H')
 
     freshmen_in_post: Dict[str, POSTFreshman] = {
-        freshman.rit_username: freshman
-        for freshman in map(POSTFreshman, request.json["freshmen"])
+        freshman.rit_username: freshman for freshman in map(POSTFreshman, request.json['freshmen'])
     }
 
     create_new_packets(base_date, freshmen_in_post)
 
-    return dumps("Done"), 201
+    return dumps('Done'), 201
 
 
-@app.route("/api/v1/sync", methods=["POST"])
+@app.route('/api/v1/sync', methods=['POST'])
 @packet_auth
 @log_time
 def sync_ldap() -> Tuple[str, int]:
@@ -126,19 +125,17 @@ def sync_ldap() -> Tuple[str, int]:
     """
 
     # Only allow evals to sync ldap
-    username: str = str(session["userinfo"].get("preferred_username", ""))
+    username: str = str(session['userinfo'].get('preferred_username', ''))
     if not ldap.is_evals(ldap.get_member(username)):
-        return "Forbidden: not Evaluations Director", 403
+        return 'Forbidden: not Evaluations Director', 403
     sync_with_ldap()
-    return dumps("Done"), 201
+    return dumps('Done'), 201
 
 
-@app.route("/api/v1/packets/<username>", methods=["GET"])
+@app.route('/api/v1/packets/<username>', methods=['GET'])
 @packet_auth
 @before_request
-def get_packets_by_user(
-    username: str, info: Dict[str, Any]
-) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
+def get_packets_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
 
@@ -150,26 +147,24 @@ def get_packets_by_user(
         Union[Dict[int, Dict[str, Any]], Tuple[str, int]]: A dictionary of packets or an error message.
     """
 
-    if info["ritdn"] != username:
-        return "Forbidden - not your packet", 403
+    if info['ritdn'] != username:
+        return 'Forbidden - not your packet', 403
 
     frosh: Freshman = Freshman.by_username(username)
 
     return {
         packet.id: {
-            "start": packet.start,
-            "end": packet.end,
+            'start': packet.start,
+            'end': packet.end,
         }
         for packet in frosh.packets
     }
 
 
-@app.route("/api/v1/packets/<username>/newest", methods=["GET"])
+@app.route('/api/v1/packets/<username>/newest', methods=['GET'])
 @packet_auth
 @before_request
-def get_newest_packet_by_user(
-    username: str, info: Dict[str, Any]
-) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
+def get_newest_packet_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a user's newest packet
 
@@ -181,8 +176,8 @@ def get_newest_packet_by_user(
         Union[Dict[int, Dict[str, Any]], Tuple[str, int]]: The newest packet information or an error message.
     """
 
-    if not info["is_upper"] and info["ritdn"] != username:
-        return "Forbidden - not your packet", 403
+    if not info['is_upper'] and info['ritdn'] != username:
+        return 'Forbidden - not your packet', 403
 
     frosh: Freshman = Freshman.by_username(username)
 
@@ -190,20 +185,18 @@ def get_newest_packet_by_user(
 
     return {
         packet.id: {
-            "start": packet.start,
-            "end": packet.end,
-            "required": vars(packet.signatures_required()),
-            "received": vars(packet.signatures_received()),
+            'start': packet.start,
+            'end': packet.end,
+            'required': vars(packet.signatures_required()),
+            'received': vars(packet.signatures_received()),
         }
     }
 
 
-@app.route("/api/v1/packet/<int:packet_id>", methods=["GET"])
+@app.route('/api/v1/packet/<int:packet_id>', methods=['GET'])
 @packet_auth
 @before_request
-def get_packet_by_id(
-    packet_id: int, info: Dict[str, Any]
-) -> Union[Dict[str, Dict[str, Any]], Tuple[str, int]]:
+def get_packet_by_id(packet_id: int, info: Dict[str, Any]) -> Union[Dict[str, Dict[str, Any]], Tuple[str, int]]:
     """
     Return the scores of the packet in question
 
@@ -217,16 +210,16 @@ def get_packet_by_id(
 
     packet: Packet = Packet.by_id(packet_id)
 
-    if not info["is_upper"] and info["ritdn"] != packet.freshman.rit_username:
-        return "Forbidden - not your packet", 403
+    if not info['is_upper'] and info['ritdn'] != packet.freshman.rit_username:
+        return 'Forbidden - not your packet', 403
 
     return {
-        "required": vars(packet.signatures_required()),
-        "received": vars(packet.signatures_received()),
+        'required': vars(packet.signatures_required()),
+        'received': vars(packet.signatures_received()),
     }
 
 
-@app.route("/api/v1/sign/<int:packet_id>/", methods=["POST"])
+@app.route('/api/v1/sign/<int:packet_id>/', methods=['POST'])
 @packet_auth
 @before_request
 def sign(packet_id: int, info: Dict[str, Any]) -> str:
@@ -245,45 +238,33 @@ def sign(packet_id: int, info: Dict[str, Any]) -> str:
 
     if packet is not None and packet.is_open():
         was_100: bool = packet.is_100()
-        if app.config["REALM"] == "csh":
+        if app.config['REALM'] == 'csh':
             # Check if the CSHer is an upperclassman and if so, sign that row
-            for sig in filter(
-                lambda sig: sig.member == info["uid"], packet.upper_signatures
-            ):
+            for sig in filter(lambda sig: sig.member == info['uid'], packet.upper_signatures):
                 sig.signed = True
-                app.logger.info(
-                    "Member {} signed packet {} as an upperclassman".format(
-                        info["uid"], packet_id
-                    )
-                )
-                return commit_sig(packet, was_100, info["uid"])
+                app.logger.info('Member {} signed packet {} as an upperclassman'.format(info['uid'], packet_id))
+                return commit_sig(packet, was_100, info['uid'])
 
             # The CSHer is a misc so add a new row
-            db.session.add(MiscSignature(packet=packet, member=info["uid"]))
-            app.logger.info(
-                "Member {} signed packet {} as a misc".format(info["uid"], packet_id)
-            )
+            db.session.add(MiscSignature(packet=packet, member=info['uid']))
+            app.logger.info('Member {} signed packet {} as a misc'.format(info['uid'], packet_id))
 
-            return commit_sig(packet, was_100, info["uid"])
+            return commit_sig(packet, was_100, info['uid'])
         else:
             # Check if the freshman is onfloor and if so, sign that row
             for sig in filter(
-                lambda sig: sig.freshman_username == info["uid"],
+                lambda sig: sig.freshman_username == info['uid'],
                 packet.fresh_signatures,
             ):
                 sig.signed = True
-                app.logger.info(
-                    "Freshman {} signed packet {}".format(info["uid"], packet_id)
-                )
-                return commit_sig(packet, was_100, info["uid"])
+                app.logger.info('Freshman {} signed packet {}'.format(info['uid'], packet_id))
+                return commit_sig(packet, was_100, info['uid'])
 
-    app.logger.warn(
-        "Failed to add {}'s signature to packet {}".format(info["uid"], packet_id)
-    )
-    return "Error: Signature not valid.  Reason: Unknown"
+    app.logger.warn("Failed to add {}'s signature to packet {}".format(info['uid'], packet_id))
+    return 'Error: Signature not valid.  Reason: Unknown'
 
 
-@app.route("/api/v1/subscribe/", methods=["POST"])
+@app.route('/api/v1/subscribe/', methods=['POST'])
 @packet_auth
 @before_request
 def subscribe(info: Dict[str, Any]) -> str:
@@ -299,18 +280,16 @@ def subscribe(info: Dict[str, Any]) -> str:
 
     data = request.form
     subscription: NotificationSubscription
-    if app.config["REALM"] == "csh":
-        subscription = NotificationSubscription(token=data["token"], member=info["uid"])
+    if app.config['REALM'] == 'csh':
+        subscription = NotificationSubscription(token=data['token'], member=info['uid'])
     else:
-        subscription = NotificationSubscription(
-            token=data["token"], freshman_username=info["uid"]
-        )
+        subscription = NotificationSubscription(token=data['token'], freshman_username=info['uid'])
     db.session.add(subscription)
     db.session.commit()
-    return "Token subscribed for " + info["uid"]
+    return 'Token subscribed for ' + info['uid']
 
 
-@app.route("/api/v1/report/", methods=["POST"])
+@app.route('/api/v1/report/', methods=['POST'])
 @packet_auth
 @before_request
 def report(info: Dict[str, Any]) -> str:
@@ -325,17 +304,15 @@ def report(info: Dict[str, Any]) -> str:
     """
 
     form_results = request.form
-    send_report_mail(form_results, get_rit_name(info["uid"]))
+    send_report_mail(form_results, get_rit_name(info['uid']))
 
-    return "Success: " + get_rit_name(info["uid"]) + " sent a report"
+    return 'Success: ' + get_rit_name(info['uid']) + ' sent a report'
 
 
-@app.route("/api/v1/stats/packet/<int:packet_id>")
+@app.route('/api/v1/stats/packet/<int:packet_id>')
 @packet_auth
 @before_request
-def packet_stats(
-    packet_id: int, info: Dict[str, Any]
-) -> Union[stats.PacketStats, Tuple[str, int]]:
+def packet_stats(packet_id: int, info: Dict[str, Any]) -> Union[stats.PacketStats, Tuple[str, int]]:
     """
     Get statistics for a specific packet.
 
@@ -347,21 +324,16 @@ def packet_stats(
         Union[stats.PacketStats, Tuple[str, int]]: The packet statistics or an error message.
     """
 
-    if (
-        not info["is_upper"]
-        and info["ritdn"] != Packet.by_id(packet_id).freshman.rit_username
-    ):
-        return "Forbidden - not your packet", 403
+    if not info['is_upper'] and info['ritdn'] != Packet.by_id(packet_id).freshman.rit_username:
+        return 'Forbidden - not your packet', 403
 
     return stats.packet_stats(packet_id)
 
 
-@app.route("/api/v1/stats/upperclassman/<uid>")
+@app.route('/api/v1/stats/upperclassman/<uid>')
 @packet_auth
 @before_request
-def upperclassman_stats(
-    uid: str, info: Dict[str, Any]
-) -> Union[stats.UpperStats, Tuple[str, int]]:
+def upperclassman_stats(uid: str, info: Dict[str, Any]) -> Union[stats.UpperStats, Tuple[str, int]]:
     """
     Get statistics for a specific upperclassman.
 
@@ -373,13 +345,13 @@ def upperclassman_stats(
         Union[stats.UpperStats, Tuple[str, int]]: The upperclassman statistics or an error message.
     """
 
-    if not info["is_upper"]:
-        return "Forbidden", 403
+    if not info['is_upper']:
+        return 'Forbidden', 403
 
     return stats.upperclassman_stats(uid)
 
 
-@app.route("/readiness")
+@app.route('/readiness')
 def readiness() -> Tuple[str, int]:
     """
     Check the readiness of the application.
@@ -388,7 +360,7 @@ def readiness() -> Tuple[str, int]:
         Tuple[str, int]: A tuple containing the readiness status and the HTTP status code.
     """
 
-    return "ready", 200
+    return 'ready', 200
 
 
 def commit_sig(packet: Packet, was_100: bool, uid: str) -> str:
@@ -411,4 +383,4 @@ def commit_sig(packet: Packet, was_100: bool, uid: str) -> str:
         packet_100_percent_notification(packet)
         notify_slack(packet.freshman.name)
 
-    return "Success: Signed Packet: " + packet.freshman_username
+    return 'Success: Signed Packet: ' + packet.freshman_username

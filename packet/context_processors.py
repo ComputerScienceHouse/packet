@@ -29,7 +29,7 @@ def get_csh_name(username: str) -> str:
 
     try:
         member: CSHMember = ldap.get_member(username)
-        return member.cn + " (" + member.uid + ")"
+        return member.cn + ' (' + member.uid + ')'
     except Exception:
         return username
 
@@ -46,13 +46,13 @@ def get_roles(sig: UpperSignature) -> dict[str, Union[str, None]]:
     """
 
     return {
-        "eboard": sig.eboard if sig.eboard else None,
-        "rtp": "RTP" if sig.active_rtp else None,
-        "three_da": "3DA" if sig.three_da else None,
-        "wm": "Wiki Maintainer" if sig.w_m else None,
-        "webmaster": "Webmaster" if sig.webmaster else None,
-        "cm": "Constitutional Maintainer" if sig.c_m else None,
-        "drink": "Drink Admin" if sig.drink_admin else None,
+        'eboard': sig.eboard if sig.eboard else None,
+        'rtp': 'RTP' if sig.active_rtp else None,
+        'three_da': '3DA' if sig.three_da else None,
+        'wm': 'Wiki Maintainer' if sig.w_m else None,
+        'webmaster': 'Webmaster' if sig.webmaster else None,
+        'cm': 'Constitutional Maintainer' if sig.c_m else None,
+        'drink': 'Drink Admin' if sig.drink_admin else None,
     }
 
 
@@ -71,7 +71,7 @@ def get_rit_name(username: str) -> str:
     try:
         freshman: Freshman = Freshman.query.filter_by(rit_username=username).first()
 
-        return freshman.name + " (" + username + ")"
+        return freshman.name + ' (' + username + ')'
     except Exception:
         return username
 
@@ -88,18 +88,14 @@ def get_rit_image(username: str) -> str:
         The URL of the user's RIT image or a default image URL.
     """
 
-    addresses: list[str] = [username + "@rit.edu", username + "@g.rit.edu"]
+    addresses: list[str] = [username + '@rit.edu', username + '@g.rit.edu']
 
     if not username:
         # If no username is provided, return a default image URL
         addresses = []
 
     for addr in addresses:
-        url: str = (
-            "https://gravatar.com/avatar/"
-            + hashlib.md5(addr.encode("utf8")).hexdigest()
-            + ".jpg?d=404&s=250"
-        )
+        url: str = 'https://gravatar.com/avatar/' + hashlib.md5(addr.encode('utf8')).hexdigest() + '.jpg?d=404&s=250'
 
         try:
             with urllib.request.urlopen(url) as gravatar:
@@ -109,7 +105,7 @@ def get_rit_image(username: str) -> str:
         except Exception:
             continue
 
-    return "https://www.gravatar.com/avatar/freshmen?d=mp&f=y"
+    return 'https://www.gravatar.com/avatar/freshmen?d=mp&f=y'
 
 
 def log_time(label: str) -> None:

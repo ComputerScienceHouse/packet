@@ -105,10 +105,7 @@ def packet_stats(packet_id: int) -> PacketStats:
 
     packet: Packet = Packet.by_id(packet_id)
 
-    dates = [
-        packet.start.date() + timedelta(days=x)
-        for x in range(0, (packet.end - packet.start).days + 1)
-    ]
+    dates = [packet.start.date() + timedelta(days=x) for x in range(0, (packet.end - packet.start).days + 1)]
 
     print(dates)
 
@@ -133,18 +130,18 @@ def packet_stats(packet_id: int) -> PacketStats:
     total_stats = dict()
     for date in dates:
         total_stats[date.isoformat()] = {
-            "upper": upper_stats[date],
-            "fresh": fresh_stats[date],
-            "misc": misc_stats[date],
+            'upper': upper_stats[date],
+            'fresh': fresh_stats[date],
+            'misc': misc_stats[date],
         }
 
     return {
-        "packet_id": packet_id,
-        "freshman": {
-            "name": packet.freshman.name,
-            "rit_username": packet.freshman.rit_username,
+        'packet_id': packet_id,
+        'freshman': {
+            'name': packet.freshman.name,
+            'rit_username': packet.freshman.rit_username,
         },
-        "dates": total_stats,
+        'dates': total_stats,
     }
 
 
@@ -163,10 +160,10 @@ def sig2dict(sig: Union[UpperSignature, MiscSignature]) -> SigDict:
     packet = Packet.by_id(sig.packet_id)
 
     return {
-        "date": sig.updated.date(),
-        "packet": {
-            "id": packet.id,
-            "freshman_username": packet.freshman_username,
+        'date': sig.updated.date(),
+        'packet': {
+            'id': packet.id,
+            'freshman_username': packet.freshman_username,
         },
     }
 
@@ -206,25 +203,21 @@ def upperclassman_stats(uid: str) -> UpperStats:
     """
 
     sigs = (
-        UpperSignature.query.filter(
-            UpperSignature.signed, UpperSignature.member == uid
-        ).all()
+        UpperSignature.query.filter(UpperSignature.signed, UpperSignature.member == uid).all()
         + MiscSignature.query.filter(MiscSignature.member == uid).all()
     )
 
     sig_dicts = list(map(sig2dict, sigs))
 
-    dates = set(map(lambda sd: sd["date"], sig_dicts))
+    dates = set(map(lambda sd: sd['date'], sig_dicts))
 
     return {
-        "member": uid,
-        "signatures": {
+        'member': uid,
+        'signatures': {
             date.isoformat(): list(
                 map(
-                    lambda sd: sd["packet"],
-                    filter(
-                        cast(Callable, lambda sig, d=date: sig["date"] == d), sig_dicts
-                    ),
+                    lambda sd: sd['packet'],
+                    filter(cast(Callable, lambda sig, d=date: sig['date'] == d), sig_dicts),
                 )
             )
             for date in dates

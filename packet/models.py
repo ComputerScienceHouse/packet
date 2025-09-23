@@ -36,9 +36,7 @@ class SigCounts:
         self.misc: int = misc
 
         # Capped version of misc so it will never be greater than REQUIRED_MISC_SIGNATURES
-        self.misc_capped: int = (
-            misc if misc <= REQUIRED_MISC_SIGNATURES else REQUIRED_MISC_SIGNATURES
-        )
+        self.misc_capped: int = misc if misc <= REQUIRED_MISC_SIGNATURES else REQUIRED_MISC_SIGNATURES
 
         # Totals (calculated using misc_capped)
         self.member_total: int = upper + self.misc_capped
@@ -50,18 +48,18 @@ class Freshman(db.Model):
     Represents a freshman student in the database.
     """
 
-    __tablename__: str = "freshman"
+    __tablename__: str = 'freshman'
 
     rit_username = cast(str, Column(String(10), primary_key=True))
     name = cast(str, Column(String(64), nullable=False))
     onfloor = cast(bool, Column(Boolean, nullable=False))
-    fresh_signatures = cast("FreshSignature", relationship("FreshSignature"))
+    fresh_signatures = cast('FreshSignature', relationship('FreshSignature'))
 
     # One freshman can have multiple packets if they repeat the intro process
-    packets = cast("Packet", relationship("Packet", order_by="desc(Packet.id)"))
+    packets = cast('Packet', relationship('Packet', order_by='desc(Packet.id)'))
 
     @classmethod
-    def by_username(cls, username: str) -> "Packet":
+    def by_username(cls, username: str) -> 'Packet':
         """
         Helper method to retrieve a freshman by their RIT username
 
@@ -75,7 +73,7 @@ class Freshman(db.Model):
         return cls.query.filter_by(rit_username=username).first()
 
     @classmethod
-    def get_all(cls) -> list["Packet"]:
+    def get_all(cls) -> list['Packet']:
         """
         Helper method to get all freshmen easily
 
@@ -94,38 +92,36 @@ class Packet(db.Model):
     Represents a packet in the database.
     """
 
-    __tablename__: str = "packet"
+    __tablename__: str = 'packet'
 
     id = cast(int, Column(Integer, primary_key=True, autoincrement=True))
-    freshman_username = cast(str, Column(ForeignKey("freshman.rit_username")))
+    freshman_username = cast(str, Column(ForeignKey('freshman.rit_username')))
     start = cast(datetime, Column(DateTime, nullable=False))
     end = cast(datetime, Column(DateTime, nullable=False))
 
-    freshman = cast(Freshman, relationship("Freshman", back_populates="packets"))
+    freshman = cast(Freshman, relationship('Freshman', back_populates='packets'))
 
     # The `lazy='subquery'` kwarg enables eager loading for signatures which makes signature calculations much faster
     # See the docs here for details: https://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html
     upper_signatures = cast(
-        "UpperSignature",
+        'UpperSignature',
         relationship(
-            "UpperSignature",
-            lazy="subquery",
-            order_by="UpperSignature.signed.desc(), UpperSignature.updated",
+            'UpperSignature',
+            lazy='subquery',
+            order_by='UpperSignature.signed.desc(), UpperSignature.updated',
         ),
     )
     fresh_signatures = cast(
-        "FreshSignature",
+        'FreshSignature',
         relationship(
-            "FreshSignature",
-            lazy="subquery",
-            order_by="FreshSignature.signed.desc(), FreshSignature.updated",
+            'FreshSignature',
+            lazy='subquery',
+            order_by='FreshSignature.signed.desc(), FreshSignature.updated',
         ),
     )
     misc_signatures = cast(
-        "MiscSignature",
-        relationship(
-            "MiscSignature", lazy="subquery", order_by="MiscSignature.updated"
-        ),
+        'MiscSignature',
+        relationship('MiscSignature', lazy='subquery', order_by='MiscSignature.updated'),
     )
 
     def is_open(self) -> bool:
@@ -176,9 +172,7 @@ class Packet(db.Model):
         """
 
         if not is_csh:
-            for sig in filter(
-                lambda sig: sig.freshman_username == username, self.fresh_signatures
-            ):
+            for sig in filter(lambda sig: sig.freshman_username == username, self.fresh_signatures):
                 return sig.signed
 
         for sig in filter(
@@ -204,7 +198,7 @@ class Packet(db.Model):
         return self.signatures_required().total == self.signatures_received().total
 
     @classmethod
-    def open_packets(cls) -> list["Packet"]:
+    def open_packets(cls) -> list['Packet']:
         """
         Helper method for fetching all currently open packets
 
@@ -215,12 +209,10 @@ class Packet(db.Model):
             list[Packet]: A list of all currently open packets
         """
 
-        return cls.query.filter(
-            cls.start < datetime.now(), cls.end > datetime.now()
-        ).all()
+        return cls.query.filter(cls.start < datetime.now(), cls.end > datetime.now()).all()
 
     @classmethod
-    def by_id(cls, packet_id: int) -> "Packet":
+    def by_id(cls, packet_id: int) -> 'Packet':
         """
         Helper method for fetching 1 packet by its id
 
@@ -240,9 +232,9 @@ class UpperSignature(db.Model):
     Represents a signature from an upperclassman.
     """
 
-    __tablename__: str = "signature_upper"
+    __tablename__: str = 'signature_upper'
 
-    packet_id = cast(int, Column(Integer, ForeignKey("packet.id"), primary_key=True))
+    packet_id = cast(int, Column(Integer, ForeignKey('packet.id'), primary_key=True))
     member = cast(str, Column(String(36), primary_key=True))
     signed = cast(bool, Column(Boolean, default=False, nullable=False))
     eboard = cast(Optional[str], Column(String(12), nullable=True))
@@ -257,7 +249,7 @@ class UpperSignature(db.Model):
         Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False),
     )
 
-    packet = cast(Packet, relationship("Packet", back_populates="upper_signatures"))
+    packet = cast(Packet, relationship('Packet', back_populates='upper_signatures'))
 
 
 class FreshSignature(db.Model):
@@ -265,21 +257,17 @@ class FreshSignature(db.Model):
     Represents a signature from a freshman.
     """
 
-    __tablename__ = "signature_fresh"
-    packet_id = cast(int, Column(Integer, ForeignKey("packet.id"), primary_key=True))
-    freshman_username = cast(
-        str, Column(ForeignKey("freshman.rit_username"), primary_key=True)
-    )
+    __tablename__ = 'signature_fresh'
+    packet_id = cast(int, Column(Integer, ForeignKey('packet.id'), primary_key=True))
+    freshman_username = cast(str, Column(ForeignKey('freshman.rit_username'), primary_key=True))
     signed = cast(bool, Column(Boolean, default=False, nullable=False))
     updated = cast(
         datetime,
         Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False),
     )
 
-    packet = cast(Packet, relationship("Packet", back_populates="fresh_signatures"))
-    freshman = cast(
-        Freshman, relationship("Freshman", back_populates="fresh_signatures")
-    )
+    packet = cast(Packet, relationship('Packet', back_populates='fresh_signatures'))
+    freshman = cast(Freshman, relationship('Freshman', back_populates='fresh_signatures'))
 
 
 class MiscSignature(db.Model):
@@ -287,15 +275,15 @@ class MiscSignature(db.Model):
     Represents a signature from a miscellaneous member.
     """
 
-    __tablename__ = "signature_misc"
-    packet_id = cast(int, Column(Integer, ForeignKey("packet.id"), primary_key=True))
+    __tablename__ = 'signature_misc'
+    packet_id = cast(int, Column(Integer, ForeignKey('packet.id'), primary_key=True))
     member = cast(str, Column(String(36), primary_key=True))
     updated = cast(
         datetime,
         Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False),
     )
 
-    packet = cast(Packet, relationship("Packet", back_populates="misc_signatures"))
+    packet = cast(Packet, relationship('Packet', back_populates='misc_signatures'))
 
 
 class NotificationSubscription(db.Model):
@@ -303,10 +291,8 @@ class NotificationSubscription(db.Model):
     Represents a notification subscription for a member or freshman.
     """
 
-    __tablename__ = "notification_subscriptions"
+    __tablename__ = 'notification_subscriptions'
     member = cast(str, Column(String(36), nullable=True))
-    freshman_username = cast(
-        str, Column(ForeignKey("freshman.rit_username"), nullable=True)
-    )
+    freshman_username = cast(str, Column(ForeignKey('freshman.rit_username'), nullable=True))
 
     token = cast(str, Column(String(256), primary_key=True, nullable=False))

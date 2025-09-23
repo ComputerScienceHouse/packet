@@ -70,7 +70,7 @@ class MockMember:
             A string representation of the MockMember instance.
         """
 
-        return f"MockMember(uid: {self.uid}, groups: {self.groups})"
+        return f'MockMember(uid: {self.uid}, groups: {self.groups})'
 
 
 class LDAPWrapper:
@@ -91,9 +91,9 @@ class LDAPWrapper:
         self.mock_members = cast(list[MockMember], mock_members)
 
         if self.ldap:
-            app.logger.info("LDAP configured with CSH LDAP")
+            app.logger.info('LDAP configured with CSH LDAP')
         else:
-            app.logger.info("LDAP configured with local mock")
+            app.logger.info('LDAP configured with local mock')
 
     def _get_group_members(self, group: str) -> list[CSHMember]:
         """
@@ -126,8 +126,8 @@ class LDAPWrapper:
         if not self.ldap:
             return group in member.groups
 
-        for group_dn in member.get("memberOf"):
-            if group == group_dn.split(",")[0][3:]:
+        for group_dn in member.get('memberOf'):
+            if group == group_dn.split(',')[0][3:]:
                 return True
 
         return False
@@ -150,8 +150,8 @@ class LDAPWrapper:
             map(
                 lambda g: g[0][3:],
                 filter(
-                    lambda d: d[1] == "cn=groups",
-                    map(lambda group_dn: group_dn.split(","), member.get("memberOf")),
+                    lambda d: d[1] == 'cn=groups',
+                    map(lambda group_dn: group_dn.split(','), member.get('memberOf')),
                 ),
             )
         )
@@ -170,12 +170,10 @@ class LDAPWrapper:
         if self.ldap:
             return self.ldap.get_member(username, uid=True)
 
-        member = next(
-            filter(lambda member: member.uid == username, self.mock_members), None
-        )
+        member = next(filter(lambda member: member.uid == username, self.mock_members), None)
 
         if not member:
-            raise KeyError("Invalid Search Name")
+            raise KeyError('Invalid Search Name')
 
         return member
 
@@ -187,7 +185,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return self._get_group_members("active")
+        return self._get_group_members('active')
 
     def get_intro_members(self) -> list[CSHMember]:
         """
@@ -197,7 +195,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return self._get_group_members("intromembers")
+        return self._get_group_members('intromembers')
 
     def get_eboard(self) -> list[CSHMember]:
         """
@@ -208,15 +206,15 @@ class LDAPWrapper:
         """
 
         groups: tuple[str, ...] = (
-            "eboard-chairman",
-            "eboard-evaluations",
-            "eboard-financial",
-            "eboard-history",
-            "eboard-imps",
-            "eboard-opcomm",
-            "eboard-research",
-            "eboard-social",
-            "eboard-pr",
+            'eboard-chairman',
+            'eboard-evaluations',
+            'eboard-financial',
+            'eboard-history',
+            'eboard-imps',
+            'eboard-opcomm',
+            'eboard-research',
+            'eboard-social',
+            'eboard-pr',
         )
 
         members: list[CSHMember] = []
@@ -236,7 +234,7 @@ class LDAPWrapper:
 
         members: list[CSHMember] = []
 
-        onfloor: list[CSHMember] = self._get_group_members("onfloor")
+        onfloor: list[CSHMember] = self._get_group_members('onfloor')
 
         for member in onfloor:
             if self.get_roomnumber(member) and not self.is_eboard(member):
@@ -252,7 +250,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [member.uid for member in self._get_group_members("active_rtp")]
+        return [member.uid for member in self._get_group_members('active_rtp')]
 
     def get_3das(self) -> list[CSHMember]:
         """
@@ -262,7 +260,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [member.uid for member in self._get_group_members("3da")]
+        return [member.uid for member in self._get_group_members('3da')]
 
     def get_webmasters(self) -> list[CSHMember]:
         """
@@ -272,7 +270,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [member.uid for member in self._get_group_members("webmaster")]
+        return [member.uid for member in self._get_group_members('webmaster')]
 
     def get_constitutional_maintainers(self) -> list[CSHMember]:
         """
@@ -282,10 +280,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [
-            member.uid
-            for member in self._get_group_members("constitutional_maintainers")
-        ]
+        return [member.uid for member in self._get_group_members('constitutional_maintainers')]
 
     def get_wiki_maintainers(self) -> list[CSHMember]:
         """
@@ -295,7 +290,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [member.uid for member in self._get_group_members("wiki_maintainers")]
+        return [member.uid for member in self._get_group_members('wiki_maintainers')]
 
     def get_drink_admins(self) -> list[CSHMember]:
         """
@@ -305,7 +300,7 @@ class LDAPWrapper:
             A list of CSHMember instances.
         """
 
-        return [member.uid for member in self._get_group_members("drink")]
+        return [member.uid for member in self._get_group_members('drink')]
 
     def get_eboard_role(self, member: CSHMember) -> Optional[str]:
         """
@@ -319,16 +314,16 @@ class LDAPWrapper:
         """
 
         groups: dict[str, str] = {
-            "eboard-chairman": "Chairperson",
-            "eboard-evaluations": "Evals",
-            "eboard-financial": "Financial",
-            "eboard-history": "History",
-            "eboard-imps": "Imps",
-            "eboard-opcomm": "OpComm",
-            "eboard-research": "R&D",
-            "eboard-social": "Social",
-            "eboard-pr": "PR",
-            "eboard-secretary": "Secretary",
+            'eboard-chairman': 'Chairperson',
+            'eboard-evaluations': 'Evals',
+            'eboard-financial': 'Financial',
+            'eboard-history': 'History',
+            'eboard-imps': 'Imps',
+            'eboard-opcomm': 'OpComm',
+            'eboard-research': 'R&D',
+            'eboard-social': 'Social',
+            'eboard-pr': 'PR',
+            'eboard-secretary': 'Secretary',
         }
 
         for group, role in groups.items():
@@ -349,7 +344,7 @@ class LDAPWrapper:
             bool: True if the member is part of the eboard, False otherwise.
         """
 
-        return self._is_member_of_group(member, "eboard")
+        return self._is_member_of_group(member, 'eboard')
 
     def is_evals(self, member: CSHMember) -> bool:
         """
@@ -362,7 +357,7 @@ class LDAPWrapper:
             bool: True if the member is part of the evaluations team, False otherwise.
         """
 
-        return self._is_member_of_group(member, "eboard-evaluations")
+        return self._is_member_of_group(member, 'eboard-evaluations')
 
     def is_rtp(self, member: CSHMember) -> bool:
         """
@@ -375,7 +370,7 @@ class LDAPWrapper:
             bool: True if the member is part of the RTP team, False otherwise.
         """
 
-        return self._is_member_of_group(member, "rtp")
+        return self._is_member_of_group(member, 'rtp')
 
     def is_intromember(self, member: CSHMember) -> bool:
         """
@@ -388,7 +383,7 @@ class LDAPWrapper:
             bool: True if the member is a freshman, False otherwise.
         """
 
-        return self._is_member_of_group(member, "intromembers")
+        return self._is_member_of_group(member, 'intromembers')
 
     def is_on_coop(self, member: CSHMember) -> bool:
         """
@@ -402,9 +397,9 @@ class LDAPWrapper:
         """
 
         if date.today().month > 6:
-            return self._is_member_of_group(member, "fall_coop")
+            return self._is_member_of_group(member, 'fall_coop')
 
-        return self._is_member_of_group(member, "spring_coop")
+        return self._is_member_of_group(member, 'spring_coop')
 
     def get_roomnumber(self, member: CSHMember) -> Optional[int]:
         """
@@ -427,12 +422,10 @@ ldap: LDAPWrapper = LDAPWrapper(
     mock_members=list(
         map(
             lambda mock_dict: MockMember(**mock_dict),
-            app.config["LDAP_MOCK_MEMBERS"],
+            app.config['LDAP_MOCK_MEMBERS'],
         )
     )
 )
 
-if app.config["LDAP_BIND_DN"] and app.config["LDAP_BIND_PASS"]:
-    ldap = LDAPWrapper(
-        cshldap=CSHLDAP(app.config["LDAP_BIND_DN"], app.config["LDAP_BIND_PASS"])
-    )
+if app.config['LDAP_BIND_DN'] and app.config['LDAP_BIND_PASS']:
+    ldap = LDAPWrapper(cshldap=CSHLDAP(app.config['LDAP_BIND_DN'], app.config['LDAP_BIND_PASS']))

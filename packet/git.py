@@ -3,7 +3,7 @@ import os
 import subprocess
 
 
-def get_short_sha(commit_ish: str = "HEAD") -> str:
+def get_short_sha(commit_ish: str = 'HEAD') -> str:
     """
     Get the short hash of a commit-ish
 
@@ -16,17 +16,17 @@ def get_short_sha(commit_ish: str = "HEAD") -> str:
 
     try:
         rev_parse = subprocess.run(
-            f"git rev-parse --short {commit_ish}".split(),
+            f'git rev-parse --short {commit_ish}'.split(),
             capture_output=True,
             check=True,
         )
 
-        return rev_parse.stdout.decode("utf-8").strip()
+        return rev_parse.stdout.decode('utf-8').strip()
     except subprocess.CalledProcessError:
-        return ""
+        return ''
 
 
-def get_tag(commit_ish: str = "HEAD") -> str:
+def get_tag(commit_ish: str = 'HEAD') -> str:
     """
     Get the name of the tag at a given commit-ish
 
@@ -39,17 +39,17 @@ def get_tag(commit_ish: str = "HEAD") -> str:
 
     try:
         describe = subprocess.run(
-            f"git describe --exact-match {commit_ish}".split(),
+            f'git describe --exact-match {commit_ish}'.split(),
             capture_output=True,
             check=True,
         )
 
-        return describe.stdout.decode("utf-8").strip()
+        return describe.stdout.decode('utf-8').strip()
     except subprocess.CalledProcessError:
-        return ""
+        return ''
 
 
-def get_version(commit_ish: str = "HEAD") -> str:
+def get_version(commit_ish: str = 'HEAD') -> str:
     """
     Get the version string of a commit-ish
 
@@ -67,15 +67,15 @@ def get_version(commit_ish: str = "HEAD") -> str:
 
     if sha := get_short_sha(commit_ish):
         if tag := get_tag(commit_ish):
-            return f"{tag} ({sha})"
+            return f'{tag} ({sha})'
 
         return sha
 
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-    with open(os.path.join(root_dir, "package.json")) as package_file:
-        return json.load(package_file)["version"]
+    with open(os.path.join(root_dir, 'package.json')) as package_file:
+        return json.load(package_file)['version']
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     print(get_version())

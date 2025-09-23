@@ -8,7 +8,7 @@ from packet.utils import before_request, packet_auth, admin_auth
 from packet.log_utils import log_cache, log_time
 
 
-@app.route("/admin/packets")
+@app.route('/admin/packets')
 @log_cache
 @packet_auth
 @admin_auth
@@ -29,18 +29,16 @@ def admin_packets(info: Dict[str, Any]) -> str:
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
     for packet in open_packets:
-        packet.did_sign_result = packet.did_sign(
-            info["uid"], app.config["REALM"] == "csh"
-        )
+        packet.did_sign_result = packet.did_sign(info['uid'], app.config['REALM'] == 'csh')
         packet.signatures_received_result = packet.signatures_received()
         packet.signatures_required_result = packet.signatures_required()
 
     open_packets.sort(key=packet_sort_key, reverse=True)
 
-    return render_template("admin_packets.html", open_packets=open_packets, info=info)
+    return render_template('admin_packets.html', open_packets=open_packets, info=info)
 
 
-@app.route("/admin/freshmen")
+@app.route('/admin/freshmen')
 @log_cache
 @packet_auth
 @admin_auth
@@ -59,4 +57,4 @@ def admin_freshmen(info: Dict[str, Any]) -> str:
 
     all_freshmen = Freshman.get_all()
 
-    return render_template("admin_freshmen.html", all_freshmen=all_freshmen, info=info)
+    return render_template('admin_freshmen.html', all_freshmen=all_freshmen, info=info)

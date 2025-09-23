@@ -11,7 +11,7 @@ from packet.ldap import ldap
 from packet.context_processors import get_rit_name
 from packet.utils import is_freshman_on_floor
 
-WrappedFunc = TypeVar("WrappedFunc", bound=Callable)
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 
 
 def log_time(func: WrappedFunc) -> WrappedFunc:
@@ -43,11 +43,7 @@ def log_time(func: WrappedFunc) -> WrappedFunc:
         result = func(*args, **kwargs)
 
         seconds: float = (datetime.now() - start).total_seconds()
-        app.logger.info(
-            "{}.{}() returned after {} seconds".format(
-                func.__module__, func.__name__, seconds
-            )
-        )
+        app.logger.info('{}.{}() returned after {} seconds'.format(func.__module__, func.__name__, seconds))
 
         return result
 
@@ -67,7 +63,7 @@ def _format_cache(func: Any) -> str:
 
     info = func.cache_info()
 
-    return "{}[hits={}, misses={}, size={}/{}]".format(
+    return '{}[hits={}, misses={}, size={}/{}]'.format(
         func.__name__, info.hits, info.misses, info.currsize, info.maxsize
     )
 
@@ -102,7 +98,7 @@ def log_cache(func: WrappedFunc) -> WrappedFunc:
 
         result = func(*args, **kwargs)
 
-        app.logger.info("Cache stats: " + ", ".join(map(_format_cache, _caches)))
+        app.logger.info('Cache stats: ' + ', '.join(map(_format_cache, _caches)))
 
         return result
 
