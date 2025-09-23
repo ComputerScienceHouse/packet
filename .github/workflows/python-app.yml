@@ -31,8 +31,7 @@ jobs:
           if [ -f requirements.txt ]; then uv pip install -r requirements.txt --system; fi
       - name: Lint with ruff and pylint
         run: |
-          ruff check packet
-          pylint packet/routes packet
+          ruff check packet && pylint packet/routes packet
 
   typecheck:
     runs-on: ubuntu-latest
