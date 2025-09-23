@@ -1,9 +1,9 @@
-FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim
+FROM python:3.12-slim-bookworm
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
     apt-get -yq --no-install-recommends install gcc curl libsasl2-dev libldap2-dev libssl-dev gnupg2 git && \
-    apt-get -yq clean all \
+    apt-get -yq clean all && \
     curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarn-archive-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
@@ -14,7 +14,7 @@ RUN mkdir /opt/packet
 WORKDIR /opt/packet
 
 COPY requirements.txt /opt/packet/
-RUN uv pip install -r requirements.txt --system
+RUN pip install uv && uv pip install -r requirements.txt --system
 
 COPY package.json /opt/packet/
 COPY yarn.lock /opt/packet/
