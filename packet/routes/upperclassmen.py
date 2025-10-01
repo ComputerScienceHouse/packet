@@ -86,10 +86,6 @@ def packet_graphs(packet_id: int, info: Optional[Dict[str, Any]] = None) -> str:
         agg(misc, 'misc', date)
         agg(upper, 'upper', date)
 
-    # Stack misc and upper on top of fresh for a nice stacked line graph
-    for i in range(len(dates)):
-        misc[i] = misc[i] + fresh[i]
-        upper[i] = upper[i] + misc[i]
 
     return render_template('packet_stats.html',
         info=info,
