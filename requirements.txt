@@ -62,7 +62,7 @@ future==1.0.0
     # via pyjwkest
 greenlet==3.2.4
     # via sqlalchemy
-gunicorn==20.0.4
+gunicorn==23.0.0
     # via -r requirements.in
 idna==3.10
     # via requests
@@ -103,6 +103,8 @@ onesignal-sdk==1.0.0
     # via -r requirements.in
 opentelemetry-api==1.36.0
     # via ddtrace
+packaging==25.0
+    # via gunicorn
 pathspec==0.12.1
     # via mypy
 pep517==0.13.1
