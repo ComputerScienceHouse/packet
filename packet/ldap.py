@@ -4,7 +4,7 @@ Helper functions for working with the csh_ldap library
 
 from functools import lru_cache
 from datetime import date
-from typing import Optional, cast, Any, Union
+from typing import Optional, cast, Any
 
 from csh_ldap import CSHLDAP, CSHMember
 
@@ -34,7 +34,7 @@ class MockMember:
 
         self.room_number: Optional[int] = room_number if room_number else None
 
-        self.cn: str = cn if cn else uid.title()
+        self.cn: str = cn if cn else uid.title() # pylint: disable=invalid-name
 
     def __eq__(self, other: Any) -> bool:
         """
@@ -401,7 +401,7 @@ class LDAPWrapper:
 
         return self._is_member_of_group(member, 'spring_coop')
 
-    def get_roomnumber(self, member: CSHMember) -> Optional[int]:
+    def get_roomnumber(self, member: CSHMember) -> Optional[int]: # pylint: disable=no-self-use
         """
         Get the room number of a member.
 

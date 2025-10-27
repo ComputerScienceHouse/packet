@@ -5,6 +5,8 @@ The application setup and initialization code lives here
 import logging
 import os
 
+from typing import Union
+
 import onesignal
 from flask import Flask
 from flask_gzip import Gzip
@@ -12,8 +14,6 @@ from flask_migrate import Migrate
 from flask_pyoidc.flask_pyoidc import OIDCAuthentication
 from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata
 from flask_sqlalchemy import SQLAlchemy
-
-from typing import Union
 
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -99,14 +99,14 @@ __all__: tuple[str, ...] = (
     'models',
     'context_processors',
     'commands',
-    'api',
-    'shared',
+    'api', # pylint: disable=undefined-all-variable
+    'shared', # pylint: disable=undefined-all-variable
 )
 
 if app.config['REALM'] == 'csh':
-    from .routes import upperclassmen as upperclassmen
-    from .routes import admin as admin
+    from .routes import upperclassmen as upperclassmen # pylint: disable=useless-import-alias
+    from .routes import admin as admin # pylint: disable=useless-import-alias
 else:
-    from .routes import freshmen as freshmen
+    from .routes import freshmen as freshmen # pylint: disable=useless-import-alias
 
 app.logger.info('Routes registered')

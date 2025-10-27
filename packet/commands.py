@@ -4,11 +4,12 @@ Defines command-line utilities for use with packet
 
 import sys
 
+from typing import Union
 from secrets import token_hex
-from datetime import datetime, time, date
+from datetime import datetime, time, date\
+
 import csv
 import click
-from typing import Union
 
 from . import app, db
 from .models import Packet, FreshSignature, UpperSignature, MiscSignature
@@ -208,22 +209,18 @@ def fetch_results(file_path: str, use_csv: bool, date_str: str) -> None:
         writer.writerows(data)
     else:
         for row in data:
-            """
-            Old
-
-            file_handle.write(
-                f'''
-                {row[0]}
-                \t{column_titles[1]}: {row[1]}
-                \t{column_titles[2]}: {row[2]}
-                \t{column_titles[3]}: {row[3]}
-                \t{column_titles[4]}: {row[4]}
-                \t{column_titles[5]}: {row[5]}
-
-                \t{column_titles[6]}: {row[6]}
-                '''
-            )
-            """
+            # Old
+            #file_handle.write(
+            #    f'''
+            #    {row[0]}
+            #    \t{column_titles[1]}: {row[1]}
+            #    \t{column_titles[2]}: {row[2]}
+            #    \t{column_titles[3]}: {row[3]}
+            #    \t{column_titles[4]}: {row[4]}
+            #    \t{column_titles[5]}: {row[5]}
+            #    \t{column_titles[6]}: {row[6]}
+            #    '''
+            #)
 
             out: str = str(row[0]) + '\n'
 

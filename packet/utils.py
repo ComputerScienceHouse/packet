@@ -255,11 +255,14 @@ def sync_freshman(freshmen_list: dict) -> None:
     # Update the freshmen signatures of each open or future packet
     for packet in Packet.query.filter(Packet.end > datetime.now()).all():
         current_fresh_sigs = set(map(lambda fresh_sig: fresh_sig.freshman_username, packet.fresh_signatures))
-        for list_freshman in filter(
-            lambda list_freshman: list_freshman.rit_username not in current_fresh_sigs
-            and list_freshman.rit_username != packet.freshman_username,
-            freshmen_list.values(),
-        ):
+
+        for list_freshman in freshmen_list.values():
+            if list_freshman.rit_username in current_fresh_sigs:
+                continue
+
+            if list_freshman.rit_username == packet.freshman_username:
+                continue
+
             db.session.add(FreshSignature(packet=packet, freshman=freshmen_in_db[list_freshman.rit_username]))
 
     db.session.commit()
@@ -375,7 +378,10 @@ def sync_with_ldap() -> None:
 
         # Create UpperSignatures for any new active members
         upper_sigs = set(map(lambda sig: sig.member, packet.upper_signatures))
-        for member in filter(lambda member: member not in upper_sigs, all_upper):
+        for member in all_upper:
+            if member in upper_sigs:
+                continue
+
             sig = UpperSignature(packet=packet, member=member)
             sig.eboard = ldap.get_eboard_role(all_upper[sig.member])
             sig.active_rtp = sig.member in rtp
