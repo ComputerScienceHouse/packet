@@ -1,6 +1,6 @@
 # CSH Web Packet
 
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-312/)
+[![Python3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python39/)
 [![Build Status](https://travis-ci.com/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.com/ComputerScienceHouse/packet)
 
 Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
@@ -58,7 +58,7 @@ reliable method.
 
 Use `pip3 install -r requirements.txt` to install the required python dependencies. A 
 [venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments) is *highly* 
-recommended. To add new dependencies, add them to `requirements.in` and run `pip-compile requirements.in` to update
+recommended. To add new dependencies add them to `requirements.in` and run `uv pip compile requirements.in -o requirements.txt` to update
 the main file.
 
 If 1 or more of the packages fail to install the likely issue is missing header files for the libraries with native C 

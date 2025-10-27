@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm
+FROM docker.io/python:3.9-slim-trixie
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
