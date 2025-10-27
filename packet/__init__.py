@@ -99,14 +99,14 @@ __all__: tuple[str, ...] = (
     'models',
     'context_processors',
     'commands',
-    'api', # pylint: disable=undefined-all-variable
-    'shared', # pylint: disable=undefined-all-variable
+    'api',  # pylint: disable=undefined-all-variable
+    'shared',  # pylint: disable=undefined-all-variable
 )
 
 if app.config['REALM'] == 'csh':
-    from .routes import upperclassmen as upperclassmen # pylint: disable=useless-import-alias
-    from .routes import admin as admin # pylint: disable=useless-import-alias
+    from .routes import upperclassmen as upperclassmen  # pylint: disable=useless-import-alias
+    from .routes import admin as admin  # pylint: disable=useless-import-alias
 else:
-    from .routes import freshmen as freshmen # pylint: disable=useless-import-alias
+    from .routes import freshmen as freshmen  # pylint: disable=useless-import-alias
 
 app.logger.info('Routes registered')
