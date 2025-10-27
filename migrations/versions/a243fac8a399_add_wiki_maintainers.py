@@ -18,7 +18,10 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('signature_upper', sa.Column('w_m', sa.Boolean(), nullable=False, server_default='f'))
+    op.add_column(
+        'signature_upper',
+        sa.Column('w_m', sa.Boolean(), nullable=False, server_default='f'),
+    )
 
 
 def downgrade():

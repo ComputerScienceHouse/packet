@@ -26,7 +26,8 @@ OIDC_CLIENT_SECRET = environ.get('PACKET_OIDC_CLIENT_SECRET', 'PLEASE_REPLACE_ME
 
 # SQLAlchemy config
 SQLALCHEMY_DATABASE_URI = environ.get(
-    'PACKET_DATABASE_URI', 'postgresql://postgres:mysecretpassword@localhost:5432/postgres'
+    'PACKET_DATABASE_URI',
+    'postgresql://postgres:mysecretpassword@localhost:5432/postgres',
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -38,7 +39,14 @@ LDAP_MOCK_MEMBERS = [
     {'uid': 'imps-3da', 'groups': ['eboard', 'eboard-imps', '3da', 'active']},
     {
         'uid': 'rtp-cm-webs-onfloor',
-        'groups': ['active-rtp', 'rtp', 'constitutional_maintainers', 'webmaster', 'active', 'onfloor'],
+        'groups': [
+            'active-rtp',
+            'rtp',
+            'constitutional_maintainers',
+            'webmaster',
+            'active',
+            'onfloor',
+        ],
         'room_number': 1024,
     },
     {'uid': 'misc-rtp', 'groups': ['rtp']},
