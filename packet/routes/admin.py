@@ -15,6 +15,16 @@ from packet.log_utils import log_cache, log_time
 @before_request
 @log_time
 def admin_packets(info: Dict[str, Any]) -> str:
+    """
+    Admin view for managing packets.
+
+    Args:
+        info (Dict[str, Any]): The user information dictionary.
+
+    Returns:
+        str: The rendered HTML template for the admin packets view.
+    """
+
     open_packets = Packet.open_packets()
 
     # Pre-calculate and store the return values of did_sign(), signatures_received(), and signatures_required()
@@ -25,9 +35,7 @@ def admin_packets(info: Dict[str, Any]) -> str:
 
     open_packets.sort(key=packet_sort_key, reverse=True)
 
-    return render_template('admin_packets.html',
-                           open_packets=open_packets,
-                           info=info)
+    return render_template('admin_packets.html', open_packets=open_packets, info=info)
 
 
 @app.route('/admin/freshmen')
@@ -37,8 +45,16 @@ def admin_packets(info: Dict[str, Any]) -> str:
 @before_request
 @log_time
 def admin_freshmen(info: Dict[str, Any]) -> str:
+    """
+    Admin view for managing freshmen.
+
+    Args:
+        info (Dict[str, Any]): The user information dictionary.
+
+    Returns:
+        str: The rendered HTML template for the admin freshmen view.
+    """
+
     all_freshmen = Freshman.get_all()
 
-    return render_template('admin_freshmen.html',
-                           all_freshmen=all_freshmen,
-                           info=info)
+    return render_template('admin_freshmen.html', all_freshmen=all_freshmen, info=info)

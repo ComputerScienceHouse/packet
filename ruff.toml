@@ -1,0 +1,18 @@
+exclude = [
+    "input",
+    "__pycache__",
+    ".venv",
+]
+
+target-version = "py39"
+line-length = 120
+
+[lint]
+select = [
+    "N",  # Enables all pep8-naming rules
+]
+
+[format]
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false

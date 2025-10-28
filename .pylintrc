@@ -95,4 +95,4 @@ min-public-methods = 2
 max-public-methods = 20
 
 [EXCEPTIONS]
-overgeneral-exceptions = Exception
+overgeneral-exceptions = builtins.Exception

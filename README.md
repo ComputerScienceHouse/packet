@@ -1,6 +1,6 @@
 # CSH Web Packet
 
-[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python39/)
 [![Build Status](https://travis-ci.com/ComputerScienceHouse/packet.svg?branch=develop)](https://travis-ci.com/ComputerScienceHouse/packet)
 
 Packet is used by CSH to facilitate the freshmen packet portion of our introductory member evaluation process. This is 
@@ -58,7 +58,7 @@ reliable method.
 
 Use `pip3 install -r requirements.txt` to install the required python dependencies. A 
 [venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments) is *highly* 
-recommended. To add new dependencies, add them to `requirements.in` and run `pip-compile requirements.in` to update
+recommended. To add new dependencies add them to `requirements.in` and run `uv pip compile requirements.in -o requirements.txt` to update
 the main file.
 
 If 1 or more of the packages fail to install the likely issue is missing header files for the libraries with native C 
@@ -133,11 +133,12 @@ All DB commands are from the `Flask-Migrate` library and are used to configure D
 docs [here](https://flask-migrate.readthedocs.io/en/latest/) for details. 
 
 ## Code standards
-This project is configured to use Pylint and mypy. Commits will be pylinted and typechecked by GitHub actions and if the
+This project is configured to use ruff, pylint, and mypy. Commits will be ruffed, pylinted, and typechecked by GitHub actions and if the
 score drops your build will fail blocking you from merging. To make your life easier just run it before making a PR.
 
-To run pylint and mypy use these commands:
+To run ruff, pylint, and mypy use these commands:
 ```bash
+ruff check packet
 pylint packet/routes packet
 mypy --disable-error-code import --disable-error-code name-defined --disallow-untyped-defs --exclude routes packet
 ```

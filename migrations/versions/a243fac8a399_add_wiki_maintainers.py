@@ -5,6 +5,7 @@ Revises: 53768f0a4850
 Create Date: 2020-09-02 15:20:48.285910
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -17,7 +18,10 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('signature_upper', sa.Column('w_m', sa.Boolean(), nullable=False, server_default='f'))
+    op.add_column(
+        'signature_upper',
+        sa.Column('w_m', sa.Boolean(), nullable=False, server_default='f'),
+    )
 
 
 def downgrade():

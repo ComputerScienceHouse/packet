@@ -2,11 +2,11 @@
 The application setup and initialization code lives here
 """
 
-import json
 import logging
 import os
 
-import csh_ldap
+from typing import Union
+
 import onesignal
 from flask import Flask
 from flask_gzip import Gzip
@@ -22,7 +22,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from .git import get_version
 
 app: Flask = Flask(__name__)
-gzip = Gzip(app)
+gzip: Gzip = Gzip(app)
 
 # Load default configuration and any environment variable overrides
 _root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -38,64 +38,75 @@ app.config['VERSION'] = get_version()
 
 # Logger configuration
 logging.getLogger().setLevel(app.config['LOG_LEVEL'])
+
 app.logger.info('Launching packet ' + app.config['VERSION'])
 app.logger.info('Using the {} realm'.format(app.config['REALM']))
 
 # Initialize the extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db: SQLAlchemy = SQLAlchemy(app)
+migrate: Migrate = Migrate(app, db)
+
 app.logger.info('SQLAlchemy pointed at ' + repr(db.engine.url))
 
-APP_CONFIG = ProviderConfiguration(issuer=app.config['OIDC_ISSUER'],
-                          client_metadata=ClientMetadata(app.config['OIDC_CLIENT_ID'],
-                                                            app.config['OIDC_CLIENT_SECRET']))
+APP_CONFIG: ProviderConfiguration = ProviderConfiguration(
+    issuer=app.config['OIDC_ISSUER'],
+    client_metadata=ClientMetadata(app.config['OIDC_CLIENT_ID'], app.config['OIDC_CLIENT_SECRET']),
+)
 
 # Initialize Onesignal Notification apps
-csh_onesignal_client = None
-if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
-   app.config['ONESIGNAL_CSH_APP_AUTH_KEY'] and \
-   app.config['ONESIGNAL_CSH_APP_ID']:
+csh_onesignal_client: Union[onesignal.Client, None] = None
+
+if (
+    app.config['ONESIGNAL_USER_AUTH_KEY']
+    and app.config['ONESIGNAL_CSH_APP_AUTH_KEY']
+    and app.config['ONESIGNAL_CSH_APP_ID']
+):
     csh_onesignal_client = onesignal.Client(
         user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
         app_auth_key=app.config['ONESIGNAL_CSH_APP_AUTH_KEY'],
-        app_id=app.config['ONESIGNAL_CSH_APP_ID']
+        app_id=app.config['ONESIGNAL_CSH_APP_ID'],
     )
+
     app.logger.info('CSH Onesignal configured and notifications enabled')
 
-intro_onesignal_client = None
-if app.config['ONESIGNAL_USER_AUTH_KEY'] and \
-   app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'] and \
-   app.config['ONESIGNAL_INTRO_APP_ID']:
+intro_onesignal_client: Union[onesignal.Client, None] = None
+if (
+    app.config['ONESIGNAL_USER_AUTH_KEY']
+    and app.config['ONESIGNAL_INTRO_APP_AUTH_KEY']
+    and app.config['ONESIGNAL_INTRO_APP_ID']
+):
     intro_onesignal_client = onesignal.Client(
         user_auth_key=app.config['ONESIGNAL_USER_AUTH_KEY'],
         app_auth_key=app.config['ONESIGNAL_INTRO_APP_AUTH_KEY'],
-        app_id=app.config['ONESIGNAL_INTRO_APP_ID']
+        app_id=app.config['ONESIGNAL_INTRO_APP_ID'],
     )
+
     app.logger.info('Intro Onesignal configured and notifications enabled')
 
 # OIDC Auth
-auth = OIDCAuthentication({'app': APP_CONFIG}, app)
+auth: OIDCAuthentication = OIDCAuthentication({'app': APP_CONFIG}, app)
+
 app.logger.info('OIDCAuth configured')
 
 # Sentry
-# pylint: disable=abstract-class-instantiated
 sentry_sdk.init(
     dsn=app.config['SENTRY_DSN'],
-    integrations=[FlaskIntegration(), SqlalchemyIntegration()]
+    integrations=[FlaskIntegration(), SqlalchemyIntegration()],
 )
 
-
-# pylint: disable=wrong-import-position
-from .ldap import ldap
-from . import models
-from . import context_processors
-from . import commands
-from .routes import api, shared
+__all__: tuple[str, ...] = (
+    'ldap',
+    'models',
+    'context_processors',
+    'commands',
+    'api',  # pylint: disable=undefined-all-variable
+    'shared',  # pylint: disable=undefined-all-variable
+)
 
 if app.config['REALM'] == 'csh':
-    from .routes import upperclassmen
-    from .routes import admin
+    from .routes import upperclassmen as upperclassmen  # pylint: disable=useless-import-alias
+    from .routes import admin as admin  # pylint: disable=useless-import-alias
 else:
-    from .routes import freshmen
+    from .routes import freshmen as freshmen  # pylint: disable=useless-import-alias
 
 app.logger.info('Routes registered')

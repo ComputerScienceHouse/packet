@@ -74,6 +74,7 @@
                                    data-length-changable="true" data-paginated="false">
                                 <tbody>
                                 {% for sig in upper %}
+                                    {% set roles = get_roles(sig) %}
                                     <tr {% if sig.signed %}style="background-color: #4caf505e" {% endif %}>
                                         <td>
                                             {% if info.realm == "csh" %}
@@ -86,8 +87,12 @@
                                             {% if info.realm == "csh" %}
                                                 </a>
                                             {% endif %}
-                                            {% for role in get_roles(sig) %}
-                                                <span class="badge badge-pill badge-{{ role }}">{{ get_roles(sig)[role] }}</span>
+                                            {% for role in roles %}
+                                                {% if roles[role] == null %}
+                                                    {% continue %}
+                                                {% endif %}
+                                                
+                                                <span class="badge badge-pill badge-{{ role }}">{{ roles[role] }}</span>
                                             {% endfor %}
                                         </td>
                                         <td width="15%">

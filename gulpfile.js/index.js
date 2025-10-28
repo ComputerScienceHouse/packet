@@ -20,4 +20,4 @@ requireDir('./tasks', {recurse: true});
 // Default task
 gulp.task('default', gulp.parallel('css', 'js'));
 gulp.task('production', gulp.parallel('css', 'js', 'generate-favicon'));
-gulp.task('lint', gulp.parallel('pylint'));
+gulp.task('lint', gulp.parallel('ruff', 'pylint'));
