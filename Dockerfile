@@ -1,4 +1,4 @@
-FROM docker.io/python:3.9-slim-trixie
+FROM docker.io/python:3.14-slim-trixie
 
 RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -yq update && \
@@ -32,4 +32,4 @@ RUN gulp production && \
 # Set version for apm
 RUN echo "export DD_VERSION=\"$(python3 packet/git.py)\"" >> /tmp/version
 
-CMD ["/bin/bash", "-c", "source /tmp/version && ddtrace-run gunicorn packet:app --bind=0.0.0.0:8080 --access-logfile=- --timeout=600"]
+CMD ["/bin/bash", "-c", "source /tmp/version && gunicorn packet:app --bind=0.0.0.0:8080 --access-logfile=- --timeout=600"]

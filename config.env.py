@@ -24,7 +24,7 @@ OIDC_CLIENT_ID = environ.get("PACKET_OIDC_CLIENT_ID", "packet")
 OIDC_CLIENT_SECRET = environ.get("PACKET_OIDC_CLIENT_SECRET", "PLEASE_REPLACE_ME")
 
 # SQLAlchemy config
-SQLALCHEMY_DATABASE_URI = environ.get("PACKET_DATABASE_URI", "postgresql://postgres:mysecretpassword@localhost:5432/postgres")
+SQLALCHEMY_DATABASE_URI = environ.get("PACKET_DATABASE_URI", "postgresql://postgres:mysecretpassword@postgres:5432/postgres")
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # LDAP config

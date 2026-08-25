@@ -14,7 +14,7 @@ the second major iteration of packet on the web. The first version was
 2. Build the dev environment with `docker compose build`
 3. Start the dev environment with `docker compose up`
 4. Run the database migrations with `docker exec -it packet-packet-1 flask db upgrade`
-5. Go check out the app at http://localhost.localdomain:8000
+5. Go check out the app at http://localhost:8080
 
 > Useful Tip: use `docker compose up --watch` so that you don't need to rebuild the container every time you want to test a change
 
