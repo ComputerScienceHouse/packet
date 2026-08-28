@@ -110,3 +110,8 @@ tr {
 select.form-control:not([size]):not([multiple]) {
   height: calc(3rem + 2px);
 }
+
+.bg-signed td {
+  background-color: #4caf505e !important;
+  box-shadow: none !important;
+}
