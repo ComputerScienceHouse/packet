@@ -1,13 +1,15 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for("index") }}">Packet</a>
-
+        <img src="../../static/assets/logo.svg" width="48" class="invert-color"/>
+        &nbsp;
+        <a class="navbar-brand" href="{{url_for("index") }}">Packet</a>
+ 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarColor01">
+        <div class="collapse navbar-collapse justify-content-between" id="navbarColor01">
             <ul class="navbar-nav mr-auto">
 
                 <li class="nav-item">
@@ -39,10 +41,9 @@
             </ul>
             <ul class="nav navbar-nav ml-auto">
                 <li class="navbar-user dropdown">
-
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="user01">
                         {% if info.realm == "csh" %}
-                        <img src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
+                        <img width="36" class="rounded-circle" src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
                         {% else %}
                         <img src="{{ get_rit_image(info.uid) }}">
                         {% endif %}

@@ -115,3 +115,7 @@ select.form-control:not([size]):not([multiple]) {
   background-color: #4caf505e !important;
   box-shadow: none !important;
 }
+
+.invert-color {
+  filter: invert(100%);
+}
