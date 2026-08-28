@@ -74,7 +74,7 @@
                                    data-length-changable="true" data-paginated="false">
                                 <tbody>
                                 {% for sig in upper %}
-                                    <tr {% if sig.signed %}style="background-color: #4caf505e" {% endif %}>
+                                    <tr {% if sig.signed %} class="bg-signed" {% endif %}>
                                         <td>
                                             {% if info.realm == "csh" %}
                                                 <a href="/member/{{ sig.member }}">
@@ -157,7 +157,7 @@
                                    data-length-changable="true" data-paginated="false">
                                 <tbody>
                                 {% for sig in packet.misc_signatures %}
-                                    <tr style="background-color: #4caf505e">
+                                    <tr class="bg-signed">
                                         <td width="3%">
                                             {{ loop.index }}.
                                         </td>
