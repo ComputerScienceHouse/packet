@@ -2,13 +2,14 @@
 
 {% block body %}
     <div class="container main">
-        <div class="ml-4">
+        <div class="">
             <div class="row justify-content-between w-auto">
                 <div class="col-9">
                     <h2 class="page-title">Active Packets</h2>
                 </div>
                 {% if info.is_upper %}
                 <div class="col-3 mt-3">
+                    <!-- TODO: make this actually work -->
                     <select name="sig-filter" id="sig-filter" class="form-select">
                         <option>Total</option>
                         <option>Upperclassmen</option>
@@ -41,7 +42,7 @@
                                         <tr {% if packet.did_sign_result %} class="bg-signed" {% endif %}>
                                             <td data-priority="1">
                                                 {% if info.is_upper %}
-                                                <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}">
+                                                <a href="{{ url_for('freshman_packet', packet_id=packet.id) }}" class="underline-only-hover">
                                                 {% endif %}
                                                     <img class="eval-user-img"
                                                          alt="{{ get_rit_name(packet.freshman_username) }}"

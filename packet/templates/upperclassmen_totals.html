@@ -27,7 +27,7 @@
                                     {% for member, signed_count in upperclassmen %}
                                         <tr>
                                             <td>
-                                                <a href="{{ url_for("upperclassman", uid=member) }}">
+                                                <a href="{{ url_for("upperclassman", uid=member) }}" class="underline-only-hover">
                                                     <img class="eval-user-img"
                                                          alt="{{ member }}"
                                                          src="https://profiles.csh.rit.edu/image/{{ member }}"
@@ -61,7 +61,7 @@
                                     {% for member, signed_count in misc %}
                                         <tr>
                                             <td>
-                                                <a href="{{ url_for("upperclassman", uid=member) }}">
+                                                <a href="{{ url_for("upperclassman", uid=member) }}" class="underline-only-hover">
                                                     <img class="eval-user-img"
                                                          alt="{{ member }}"
                                                          src="https://profiles.csh.rit.edu/image/{{ member }}"

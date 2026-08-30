@@ -119,3 +119,16 @@ select.form-control:not([size]):not([multiple]) {
 .invert-color {
   filter: invert(100%);
 }
+
+.underline-only-hover {
+  text-decoration: none;
+}
+
+.underline-only-hover:hover {
+  text-decoration: underline;
+}
+
+.container {
+  padding-left: 0;
+  padding-right: 0;
+}
