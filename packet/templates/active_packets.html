@@ -2,22 +2,19 @@
 
 {% block body %}
     <div class="container main">
-        <div class="">
-            <div class="row justify-content-between w-auto">
-                <div class="col-9">
-                    <h2 class="page-title">Active Packets</h2>
-                </div>
-                {% if info.is_upper %}
-                <div class="col-3 mt-3">
-                    <!-- TODO: make this actually work -->
-                    <select name="sig-filter" id="sig-filter" class="form-select">
-                        <option>Total</option>
-                        <option>Upperclassmen</option>
-                        <option>Freshmen</option>
-                    </select>
-                </div>
-                {% endif %}
+        <div class="d-flex justify-content-between mx-2">
+            <div class="col-xs-9 mx-2">
+                <h2 class="page-title fw-bold">Active Packets</h2>
             </div>
+            {% if info.is_upper %}
+            <div class="col-xs-3 mt-3">
+                <select name="sig-filter" id="sig-filter" class="form-select">
+                    <option>Total</option>
+                    <option>Upperclassmen</option>
+                    <option>Freshmen</option>
+                </select>
+            </div>
+            {% endif %}
         </div>
         <div id="eval-blocks">
             {% if packets|length > 0 %}
