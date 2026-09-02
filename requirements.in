@@ -9,7 +9,6 @@ gunicorn
 mypy
 onesignal-sdk~=1.0.0
 psycopg2-binary
-pylint-quotes
 pylint
 sentry-sdk
 sqlalchemy[mypy]
