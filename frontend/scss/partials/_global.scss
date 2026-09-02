@@ -1,10 +1,5 @@
 $csh-pink: #b0197e;
 
-.navbar-fixed-bottom,
-.navbar-fixed-top {
-  z-index: 900;
-}
-
 .sub-header {
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
@@ -126,9 +121,4 @@ select.form-control:not([size]):not([multiple]) {
 
 .underline-only-hover:hover {
   text-decoration: underline;
-}
-
-.container {
-  padding-left: 0;
-  padding-right: 0;
 }

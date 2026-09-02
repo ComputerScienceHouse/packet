@@ -1,18 +1,18 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand ms-3 me-1 d-inline-flex align-items-center" href="{{url_for("index") }}">
+        <a class="navbar-brand ms-3 me-1 d-inline-flex align-items-center" href="{{ url_for("index") }}">
             <img src="../../static/assets/logo.svg" width="48" class="invert-color"/>
             &nbsp;
             Packet
         </a>
  
-        <button class="navbar-toggler mx-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
                 aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse justify-content-between" id="navbarColor01">
-            <ul class="navbar-nav mr-auto mx-3">
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav me-auto mx-3">
 
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for("packets") }}">Active Packets</a>
@@ -41,8 +41,8 @@
                 {% endif %}
 
             </ul>
-            <ul class="nav navbar-nav mx-3">
-                <li class="navbar-user dropdown">
+            <ul class="navbar-nav mx-3">
+                <li class="navbar-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="user01">
                         {% if info.realm == "csh" %}
                         <img width="36" class="rounded-circle" src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
@@ -50,7 +50,6 @@
                         <img src="{{ get_rit_image(info.uid) }}">
                         {% endif %}
                         {{ info.uid }}
-                        <span class="caret"></span>
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="user01">
