@@ -122,3 +122,7 @@ select.form-control:not([size]):not([multiple]) {
 .underline-only-hover:hover {
   text-decoration: underline;
 }
+
+.text-bg-grey {
+  background-color: var(--bs-gray-500);
+}
