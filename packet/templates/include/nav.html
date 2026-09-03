@@ -36,7 +36,7 @@
                     {% endif %}
                 {% else %}
                     <li class="nav-item">
-                        <button id="freshman-report" class="btn btn-sm btn-primary report-button">Report</button>
+                        <button id="freshman-report" class="nav-link">Report</button>
                     </li>
                 {% endif %}
 
@@ -47,7 +47,7 @@
                         {% if info.realm == "csh" %}
                         <img width="36" class="rounded-circle" src="https://profiles.csh.rit.edu/image/{{ info.uid }}">
                         {% else %}
-                        <img src="{{ get_rit_image(info.uid) }}">
+                        <img width="36" class="rounded-circle" src="{{ get_rit_image(info.uid) }}">
                         {% endif %}
                         {{ info.uid }}
                     </a>
