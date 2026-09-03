@@ -4,25 +4,24 @@
 
 {% block body %}
     <div class="container main">
-        <div class="mb-2 m-1">
+        <div class="mb-2 m-1 pt-2">
             <div class="row justify-content-between w-100">
                 <div class="col m-1">
-                    <h3>{{ get_rit_name(packet.freshman_username) }}</h3>
+                    <h3 class="fw-semibold">{{ get_rit_name(packet.freshman_username) }}</h3>
                 </div>
                 <div class="col">
                     {% if not did_sign and info.ritdn != packet.freshman_username %}
-                        <button class="btn btn-primary sign-button"
+                        <button class="btn btn-primary sign-button shadow-sm"
                                 data-packet_id="{{ packet.id }}"
                                 data-freshman_name="{{ get_rit_name(packet.freshman_username) }}">Sign
                         </button>
                     {% elif did_sign %}
-                        <button class="btn btn-primary signed-button" disabled="disabled"><i
+                        <button class="btn btn-primary signed-button shadow-sm" disabled="disabled"><i
                                 class="fa fa-check"></i>&nbsp;Signed
                         </button>
                     {% endif %}
                     {% if info.realm == "csh" and info.is_upper %}
-                        <a class="btn btn-primary"
-                           style="float: right; margin-right: 5px"
+                        <a class="btn btn-primary float-end me-2 shadow-sm"
                            href="{{ url_for('packet_graphs', packet_id=packet.id) }}">
                             Graphs
                         </a>
@@ -32,11 +31,11 @@
             {% if info.is_upper or packet.freshman_username == info.ritdn %}
             <div class="row">
                 <div class="col ml-1 mb-1">
-                    <h6>Signatures: <span class="badge badge-secondary">{{ received.total }}/{{ required.total }}</span>
+                    <h6>Signatures: <span class="badge text-bg-grey">{{ received.total }}/{{ required.total }}</span>
                     </h6>
                 </div>
                 <div class="col mr-1 mb-1">
-                    <h6 class="right-align">Ends: <span class="badge badge-secondary">{{ packet_end }}</span></h6>
+                    <h6 class="right-align">Ends: <span class="badge text-bg-grey">{{ packet_end }}</span></h6>
                 </div>
             </div>
             <div class="card card-body">
@@ -50,7 +49,7 @@
                                  aria-valuemax="100" style="width: {{ total_score }}%"></div>
                         </div>
                         {% set upper_score = received.member_total / required.member_total * 100 %}
-                        <h5>Upperclassmen + Alumni Score - {{ '%0.2f' % upper_score }}%</h5>
+                        <h5 class="mt-2">Upperclassmen + Alumni Score - {{ '%0.2f' % upper_score }}%</h5>
                         <div class="progress">
                             <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
                                  role="progressbar" aria-valuenow="{{ upper_score }}" aria-valuemin="0"
@@ -77,7 +76,7 @@
                                     <tr {% if sig.signed %} class="bg-signed" {% endif %}>
                                         <td>
                                             {% if info.realm == "csh" %}
-                                                <a href="/member/{{ sig.member }}">
+                                                <a href="/member/{{ sig.member }}" class="underline-only-hover">
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ sig.member }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ sig.member }}"
@@ -87,7 +86,7 @@
                                                 </a>
                                             {% endif %}
                                             {% for role in get_roles(sig) %}
-                                                <span class="badge badge-pill badge-{{ role }}">{{ get_roles(sig)[role] }}</span>
+                                                <span class="badge rounded-pill badge-{{ role }}">{{ get_roles(sig)[role] }}</span>
                                             {% endfor %}
                                         </td>
                                         <td width="15%">
@@ -163,7 +162,7 @@
                                         </td>
                                         <td>
                                             {% if info.realm == "csh" %}
-                                                <a href="/member/{{ sig.member }}">
+                                                <a href="/member/{{ sig.member }}" class="underline-only-hover">
                                             {% endif %}
                                             <img class="eval-user-img" alt="{{ sig.member }}"
                                                  src="https://profiles.csh.rit.edu/image/{{ sig.member }}"
