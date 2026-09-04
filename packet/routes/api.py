@@ -10,7 +10,7 @@ from flask import session, request
 from packet import app, db, ldap
 from packet.context_processors import get_rit_name
 from packet.log_utils import log_time
-from packet.mail import send_report_mail
+from packet.mail import ReportForm, send_report_mail
 from packet.utils import before_request, packet_auth, notify_slack, sync_freshman as sync_freshman_list, \
     create_new_packets, sync_with_ldap
 from packet.models import Packet, MiscSignature, NotificationSubscription, Freshman
@@ -102,7 +102,7 @@ def sync_ldap() -> Tuple[str, int]:
 @app.route('/api/v1/packets/<username>', methods=['GET'])
 @packet_auth
 @before_request
-def get_packets_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
+def get_packets_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[str, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a dictionary of packets for a freshman by username, giving packet start and end date by packet id
     """
@@ -111,16 +111,18 @@ def get_packets_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, 
         return 'Forbidden - not your packet', 403
     frosh: Freshman = Freshman.by_username(username)
 
-    return {packet.id: {
-        'start': packet.start,
-        'end': packet.end,
-    } for packet in frosh.packets}
+    return {
+        str(packet.id): {
+            'start': packet.start,
+            'end': packet.end,
+        } for packet in frosh.packets
+    }
 
 
 @app.route('/api/v1/packets/<username>/newest', methods=['GET'])
 @packet_auth
 @before_request
-def get_newest_packet_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[int, Dict[str, Any]], Tuple[str, int]]:
+def get_newest_packet_by_user(username: str, info: Dict[str, Any]) -> Union[Dict[str, Dict[str, Any]], Tuple[str, int]]:
     """
     Return a user's newest packet
     """
@@ -133,7 +135,7 @@ def get_newest_packet_by_user(username: str, info: Dict[str, Any]) -> Union[Dict
     packet: Packet = frosh.packets[-1]
 
     return {
-        packet.id: {
+        str(packet.id): {
             'start': packet.start,
             'end': packet.end,
             'required': vars(packet.signatures_required()),
@@ -210,7 +212,13 @@ def subscribe(info: Dict[str, Any]) -> str:
 @packet_auth
 @before_request
 def report(info: Dict[str, Any]) -> str:
-    form_results = request.form
+    form = request.form
+
+    form_results: ReportForm = {
+        'person': form['person'],
+        'report': form['report']
+    }
+
     send_report_mail(form_results, get_rit_name(info['uid']))
     return f'Success: {get_rit_name(info['uid'])} sent a report'
 

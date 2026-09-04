@@ -5,7 +5,8 @@ import json
 
 from operator import itemgetter
 from typing import Optional, Dict, Any, List
-from flask import redirect, render_template, url_for, Response
+from flask import redirect, render_template, url_for
+from werkzeug import Response
 
 from packet import app
 from packet.models import Packet
