@@ -5,7 +5,8 @@ import json
 
 from operator import itemgetter
 from typing import Optional, Dict, Any, List
-from flask import redirect, render_template, url_for, Response
+from flask import redirect, render_template, url_for
+from werkzeug import Response
 
 from packet import app
 from packet.models import Packet
@@ -50,8 +51,8 @@ def upperclassmen_total(info: Optional[Dict[str, Any]] = None) -> str:
     open_packets = Packet.open_packets()
 
     # Sum up the signed packets per upperclassman
-    upperclassmen: Dict[str, int] = dict()
-    misc: Dict[str, int] = dict()
+    upperclassmen: Dict[str, int] = {}
+    misc: Dict[str, int] = {}
     for packet in open_packets:
         for sig in packet.upper_signatures:
             if sig.member not in upperclassmen:

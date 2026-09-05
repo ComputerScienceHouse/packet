@@ -37,7 +37,7 @@ class CSVFreshman:
 def parse_csv(freshmen_csv: str) -> dict[str, CSVFreshman]:
     print('Parsing file...')
     try:
-        with open(freshmen_csv, newline='') as freshmen_csv_file:
+        with open(freshmen_csv, newline='', encoding="locale") as freshmen_csv_file:
             return {freshman.rit_username: freshman for freshman in map(CSVFreshman, csv.reader(freshmen_csv_file))}
     except Exception as e:
         print('Failure while parsing CSV')
@@ -108,34 +108,32 @@ def fetch_results(file_path: str, use_csv: bool, date_str: str) -> None:
         end_date = datetime.combine(input_date("Enter the last day of the packet season you'd like to retrieve results "
                                            'from'), packet_end_time)
 
-
-    file_handle = open(file_path, 'w', newline='') if file_path else sys.stdout
-
     column_titles = ['Name (RIT Username)', 'Upperclassmen Score', 'Total Score', 'Upperclassmen', 'Freshmen',
             'Miscellaneous', 'Total Missed']
-    data = list()
+    data = []
     for packet in Packet.query.filter_by(end=end_date).all():
         received = packet.signatures_received()
         required = packet.signatures_required()
 
         row = [
-        '{} ({}):'.format(packet.freshman.name, packet.freshman.rit_username),
-        '{:0.2f}%'.format(received.member_total / required.member_total * 100),
-        '{:0.2f}%'.format(received.total / required.total * 100),
-        '{}/{}'.format(received.upper, required.upper),
-        '{}/{}'.format(received.fresh, required.fresh),
-        '{}/{}'.format(received.misc, required.misc),
-        required.total - received.total,
+            f'{packet.freshman.name} ({packet.freshman.rit_username}):',
+            f'{received.member_total / required.member_total * 100:0.2f}%',
+            f'{received.total / required.total * 100:0.2f}%',
+            f'{received.upper}/{required.upper}',
+            f'{received.fresh}/{required.fresh}',
+            f'{received.misc}/{required.misc}',
+            required.total - received.total,
         ]
         data.append(row)
 
-    if use_csv:
-        writer = csv.writer(file_handle)
-        writer.writerow(column_titles)
-        writer.writerows(data)
-    else:
-        for row in data:
-            file_handle.write(f'''
+    with open(file_path, 'w', newline='', encoding='locale') if file_path else sys.stdout as file_handle:
+        if use_csv:
+            writer = csv.writer(file_handle)
+            writer.writerow(column_titles)
+            writer.writerows(data)
+        else:
+            for row in data:
+                file_handle.write(f'''
 
 {row[0]}
 \t{column_titles[1]}: {row[1]}
@@ -160,7 +158,7 @@ def extend_packet(packet_id: int) -> None:
         print('Packet is already closed so it cannot be extended')
         return
     else:
-        print('Ready to extend packet #{} for {}'.format(packet_id, packet.freshman_username))
+        print(f'Ready to extend packet #{packet_id} for {packet.freshman_username}')
 
     packet.end = datetime.combine(input_date('Enter the new end date for this packet'), packet_end_time)
     db.session.commit()

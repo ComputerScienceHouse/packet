@@ -38,13 +38,14 @@ app.config['VERSION'] = get_version()
 
 # Logger configuration
 logging.getLogger().setLevel(app.config['LOG_LEVEL'])
-app.logger.info('Launching packet ' + app.config['VERSION'])
-app.logger.info('Using the {} realm'.format(app.config['REALM']))
+app.logger.info('Launching packet %s', app.config['VERSION'])
+app.logger.info('Using the %s realm', app.config['REALM'])
 
 # Initialize the extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-app.logger.info('SQLAlchemy pointed at ' + repr(db.engine.url))
+with app.app_context():
+    app.logger.info('SQLAlchemy pointed at %s', repr(db.engine.url))
 
 APP_CONFIG = ProviderConfiguration(issuer=app.config['OIDC_ISSUER'],
                           client_metadata=ClientMetadata(app.config['OIDC_CLIENT_ID'],

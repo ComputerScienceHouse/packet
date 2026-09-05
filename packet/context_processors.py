@@ -79,7 +79,10 @@ def log_time(label: str) -> None:
 
 @app.context_processor
 def utility_processor() -> dict[str, Callable]:
-    return dict(
-        get_csh_name=get_csh_name, get_rit_name=get_rit_name, get_rit_image=get_rit_image, log_time=log_time,
-        get_roles=get_roles
-    )
+    return {
+        "get_csh_name": get_csh_name,
+        "get_rit_name": get_rit_name,
+        "get_rit_image": get_rit_image,
+        "log_time": log_time,
+        "get_roles": get_roles
+    }

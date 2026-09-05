@@ -87,7 +87,7 @@ def packet_auth(func: WrappedFunc) -> WrappedFunc:
         if app.config['REALM'] == 'csh':
             username = str(session['userinfo'].get('preferred_username', ''))
             if ldap.is_intromember(ldap.get_member(username)):
-                app.logger.warn('Stopped intro member {} from accessing upperclassmen packet'.format(username))
+                app.logger.warning('Stopped intro member %s from accessing upperclassmen packet', username)
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
 
         return func(*args, **kwargs)
@@ -107,7 +107,7 @@ def admin_auth(func: WrappedFunc) -> WrappedFunc:
             username = str(session['userinfo'].get('preferred_username', ''))
             member = ldap.get_member(username)
             if not ldap.is_evals(member):
-                app.logger.warn('Stopped member {} from accessing admin UI'.format(username))
+                app.logger.warning('Stopped member %s from accessing admin UI', username)
                 return redirect(app.config['PROTOCOL'] + app.config['PACKET_UPPER'], code=301)
         else:
             return redirect(app.config['PROTOCOL'] + app.config['PACKET_INTRO'], code=301)
@@ -122,12 +122,12 @@ def notify_slack(name: str) -> None:
     Sends a congratulate on sight decree to Slack
     """
     if app.config['SLACK_WEBHOOK_URL'] is None:
-        app.logger.warn('SLACK_WEBHOOK_URL not configured, not sending message to slack.')
+        app.logger.warning('SLACK_WEBHOOK_URL not configured, not sending message to slack.')
         return
 
     msg = f':pizza-party: {name} got :100: on packet! :pizza-party:'
-    requests.put(app.config['SLACK_WEBHOOK_URL'], json={'text': msg})
-    app.logger.info('Posted 100% notification to slack for ' + name)
+    requests.put(app.config['SLACK_WEBHOOK_URL'], json={'text': msg}, timeout=5)
+    app.logger.info('Posted 100%% notification to slack for %s', name)
 
 
 def sync_freshman(freshmen_list: dict) -> None:

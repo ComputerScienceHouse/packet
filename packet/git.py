@@ -42,7 +42,7 @@ def get_version(commit_ish: str = 'HEAD') -> str:
             return sha
     else:
         root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        with open(os.path.join(root_dir, 'package.json')) as package_file:
+        with open(os.path.join(root_dir, 'package.json'), encoding='locale') as package_file:
             return json.load(package_file)['version']
 
 if __name__ == '__main__':
