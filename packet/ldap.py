@@ -19,7 +19,7 @@ class MockMember:
                  cn: Optional[str] = None,
                  room_number: Optional[int] = None):
         self.uid = uid
-        self.groups = groups if groups else list()
+        self.groups = groups if groups else []
         if room_number:
             self.room_number = room_number
         self.cn = cn if cn else uid.title() # pylint: disable=invalid-name
@@ -263,7 +263,7 @@ class LDAPWrapper:
             return self._is_member_of_group(member, 'spring_coop')
 
 
-    def get_roomnumber(self, member: CSHMember) -> Optional[int]: # pylint: disable=no-self-use
+    def get_roomnumber(self, member: CSHMember) -> Optional[int]:
         """
         :param member: A CSHMember instance
         """

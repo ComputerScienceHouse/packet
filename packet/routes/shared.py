@@ -3,7 +3,8 @@ Routes available to both freshmen and CSH users
 """
 
 from typing import Optional, Dict, Any, Tuple, Union, List
-from flask import render_template, redirect, Response
+from flask import render_template, redirect
+from werkzeug import Response
 
 from packet import auth, app
 from packet.utils import before_request, packet_auth

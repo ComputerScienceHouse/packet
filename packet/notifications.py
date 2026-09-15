@@ -38,9 +38,9 @@ def send_notification(notification_body: dict, subscriptions: list, client: ones
         notification.post_body['include_player_ids'] = tokens
         onesignal_response = client.send_notification(notification)
         if onesignal_response.status_code == 200:
-            app.logger.info('The notification ({}) sent out successfully'.format(notification.post_body))
+            app.logger.info('The notification (%s) sent out successfully', notification.post_body)
         else:
-            app.logger.warn('The notification ({}) was unsuccessful'.format(notification.post_body))
+            app.logger.warning('The notification (%s) was unsuccessful', notification.post_body)
 
 
 @require_onesignal_intro

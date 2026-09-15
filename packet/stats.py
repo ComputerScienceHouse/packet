@@ -54,21 +54,21 @@ def packet_stats(packet_id: int) -> PacketStats:
 
     print(dates)
 
-    upper_stats: Stats = {date: list() for date in dates}
+    upper_stats: Stats = {date: [] for date in dates}
     for uid, date in map(lambda sig: (sig.member, sig.updated),
                          filter(lambda sig: sig.signed, packet.upper_signatures)):
         upper_stats[date.date()].append(uid)
 
-    fresh_stats: Stats = {date: list() for date in dates}
+    fresh_stats: Stats = {date: [] for date in dates}
     for username, date in map(lambda sig: (sig.freshman_username, sig.updated),
                               filter(lambda sig: sig.signed, packet.fresh_signatures)):
         fresh_stats[date.date()].append(username)
 
-    misc_stats: Stats = {date: list() for date in dates}
+    misc_stats: Stats = {date: [] for date in dates}
     for uid, date in map(lambda sig: (sig.member, sig.updated), packet.misc_signatures):
         misc_stats[date.date()].append(uid)
 
-    total_stats = dict()
+    total_stats = {}
     for date in dates:
         total_stats[date.isoformat()] = {
                 'upper': upper_stats[date],

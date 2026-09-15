@@ -3,7 +3,8 @@ Routes available to freshmen only
 """
 
 from typing import Any
-from flask import Response, redirect, url_for
+from flask import redirect, url_for
+from werkzeug import Response
 
 from packet import app
 from packet.models import Packet
