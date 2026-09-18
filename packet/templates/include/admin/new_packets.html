@@ -4,18 +4,21 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="new-packets-modal-label">New Packets</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
                 <div class="modal-body">
                     <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Date Packets start (MM/DD/YYYY HH [EST])" id="packet-start-date" required>
-                    <input type="file" class="form-control custom-file" id="newPacketsFile" required>
+
+                        <!-- Time input by user is assumed to be in EST -->
+                         <div class="d-flex flex-row align-items-center">
+                            <label for="packet-start-date" class="me-2 fw-bold w-25 text-center">Start Time: </label>
+                            <input type="datetime-local" class="form-control my-2 w-100" id="packet-start-date" required>
+                        </div>
+                        <input type="file" class="form-control my-2" id="newPacketsFile" accept=".csv, .txt" required>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary text-light" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" id="create-packets" class="btn btn-primary">Create Packets</button>
                 </div>
         </div>

@@ -1,10 +1,5 @@
 $csh-pink: #b0197e;
 
-.navbar-fixed-bottom,
-.navbar-fixed-top {
-  z-index: 900;
-}
-
 .sub-header {
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
@@ -109,4 +104,25 @@ tr {
 
 select.form-control:not([size]):not([multiple]) {
   height: calc(3rem + 2px);
+}
+
+.bg-signed td {
+  background-color: #4caf505e !important;
+  box-shadow: none !important;
+}
+
+.invert-color {
+  filter: invert(100%);
+}
+
+.underline-only-hover {
+  text-decoration: none;
+}
+
+.underline-only-hover:hover {
+  text-decoration: underline;
+}
+
+.text-bg-grey {
+  background-color: var(--bs-gray-500);
 }

@@ -3,8 +3,8 @@ const minify = require('gulp-minify');
 
 gulp.task('js:minify', (done) => {
     gulp.src([
-        'packet/static/js/*.js',
-        '!packet/static/js/*.min.js'
+        'packet/static/js/**/*.js',
+        '!packet/static/js/**/*.min.js'
     ])
         .pipe(minify({
             ext: {
